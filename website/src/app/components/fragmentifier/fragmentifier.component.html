@@ -1,0 +1,59 @@
+<div class="well container" [hidden]="downloaded">
+  <form (submit)="download()" class="form-horizontal">
+    <fieldset>
+      <legend>YouTube</legend>
+    </fieldset>
+    <div class="form-group">
+      <label for="inputYouTube" class="col-lg-2 control-label">YouTube url</label>
+      <div class="col-lg-10">
+        <input type="text" [(ngModel)]="youtube" name="youtube" class="form-control" id="inputYouTube" placeholder="YouTube url">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-lg-10 col-lg-offset-2">
+        <!--<button type="reset" class="btn btn-default">Cancel</button>-->
+        <button type="submit" class="btn btn-primary">Download</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="well container" [hidden]="!downloaded">
+  <fieldset>
+    <legend>Start fragmenting the audio file</legend>
+
+    <div id="waveform"></div>
+    <div class="row">
+      <input id="slider" type="range" min="1" max="200" value="1" style="width: 100%" />
+    </div>
+
+    <div class="row form-group">
+      <div class="controls">
+        <div class="col-md-4">
+          <button class="btn btn-primary" [hidden]="isFragmenting" (click)="fragmentStart()">Start fragment</button>
+          <button class="btn btn-primary" [hidden]="!isFragmenting" (click)="fragmentEnd()">End fragment</button>
+        </div>
+        <div class="col-md-4 text-center">
+          <button class="btn btn-default" [hidden]="wavesurfer.isPlaying()" (click)="play()">Play</button>
+          <button class="btn btn-default" [hidden]="!wavesurfer.isPlaying()" (click)="pause()">Pause</button>
+        </div>
+        <div class="col-md-4 text-right">
+            <button class="btn btn-success" (click)="save()">Save</button>
+        </div>
+        <!--<button class="btn btn-primary" (click)="another()">Upload another</button>-->
+      </div>
+    </div>
+    <div class="fragments">
+      <div class="form-group" *ngFor='let fragment of fragments'>
+        <div class="input-group">
+          <span class="input-group-addon">{{fragment.start | number : '1.2-2'}} - {{fragment.end | number : '1.2-2'}}</span>
+          <input type="text" class="form-control" [(ngModel)]="fragment.word">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" type="button" (click)="playFragment(fragment)">Play</button>
+            <button class="btn btn-default" type="button" (click)="removeFragment(fragment)">Remove</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</div>

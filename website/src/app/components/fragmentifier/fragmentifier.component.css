@@ -1,0 +1,10 @@
+#waveform {
+	height: 150px;
+}
+
+#control-canvas {
+	position: absolute;
+	height: 150px;
+	margin-top: -150px;
+	z-index: 10;
+}
