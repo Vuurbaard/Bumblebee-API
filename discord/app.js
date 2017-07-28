@@ -52,7 +52,7 @@ client.on('message', message => {
 
       console.log('Playing file:', filepath);
       
-      connection.playFile(filepath, function(err, intent) {
+      connection.playStream(filepath, function(err, intent) {
         console.log('err:', err);
         console.log('intent:', intent);
       });
