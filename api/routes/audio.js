@@ -220,6 +220,8 @@ router.post('/tts', (req, res, next) => {
                     })
                     .on('error', function(err){
                         console.log('ffmpeg error:', err);
+                        // Intel keeps breaking it
+                        resolve();
                     }).run();
 
             });

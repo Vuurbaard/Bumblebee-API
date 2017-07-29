@@ -10,6 +10,7 @@
   "author": "Sander Brokelman",
   "license": "ISC",
   "dependencies": {
+    "audioconcat": "^0.1.2",
     "bcryptjs": "*",
     "body-parser": "*",
     "cors": "*",
