@@ -52,6 +52,7 @@ export class FragmentifierComponent implements OnInit {
       console.log('Downloaded YT thing:', data);
       this.wavesurfer.load("http://127.0.0.1:3000" + data.url);
         this.downloaded = true;
+        this.fragments = data.fragments;
     });
   }
 
@@ -99,8 +100,8 @@ export class FragmentifierComponent implements OnInit {
   }
 
   playFragment(fragment) {
-    var start = fragment.start;
-    var end = fragment.end;
+    var start = Number(fragment.start);
+    var end = Number(fragment.end);
     this.wavesurfer.play(start, end);
   }
 

@@ -47,10 +47,10 @@
       <div class="form-group" *ngFor='let fragment of fragments'>
         <div class="input-group">
           <span class="input-group-addon">{{fragment.start | number : '1.2-2'}} - {{fragment.end | number : '1.2-2'}}</span>
-          <input type="text" class="form-control" [(ngModel)]="fragment.word">
+          <input type="text" class="form-control" [(ngModel)]="fragment.word" [attr.disabled]="fragment._id ? false : true">
           <span class="input-group-btn">
             <button class="btn btn-primary" type="button" (click)="playFragment(fragment)">Play</button>
-            <button class="btn btn-default" type="button" (click)="removeFragment(fragment)">Remove</button>
+            <button class="btn btn-default" type="button" (click)="removeFragment(fragment)" [attr.disabled]="fragment._id ? false : true">Remove</button>
           </span>
         </div>
       </div>

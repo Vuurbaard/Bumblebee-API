@@ -38,20 +38,20 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                 });
         }
         else {
-
             // TODO: Error handling
-
             Fragment.find({
                 'id' : id,
                 'wordCount': 1
-            }, function(err, fragments){
-                console.log(fragments);
-                res.json({url: publicfilepath, fragments: fragments}); // TODO: Don't return whole db object?
+            }, function(err, frags){
+
+                let fragments = new Array();
+                
+                for(let frag of frags) {
+                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase});
+                }
+
+                res.json({url: publicfilepath, fragments: fragments});
             });
-
-            
-
-
         }
     });
 });
@@ -63,7 +63,7 @@ router.get('/fragments', passport.authenticate('jwt', {session: false}), (req, r
     let id = req.query.id;
     
     // No ID given, show everything
-    if(typeof id == "undefined"){
+    if(id) {
         Fragment.find({}, function (err,frags) {
             if(err){
                 res.send(err);
@@ -71,13 +71,22 @@ router.get('/fragments', passport.authenticate('jwt', {session: false}), (req, r
                 res.json(frags);
             }
         });
-    }else{
-        // Get the fragment
+    }
+    else {
+        // Get the fragments
         Fragment.find({ id : id }, function (err,frags) {
-            if(err){
+            if(err) {
                 res.send(err);
-            }else{
-                res.json(frags);
+            }
+            else {
+
+                let fragments = new Array();
+                
+                for(let frag of frags) {
+                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase});
+                }
+
+                res.json(fragments);
             }
         });        
     }
@@ -105,14 +114,17 @@ router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, 
             phrase = phrase + fragment.word.toLowerCase() + " ";
             wordCount++;
 
-			phrases.push(new Fragment({
-                id: id,
-				start: startFragment.start,
-				end: fragment.end,
-                phrase: phrase.substring(0, phrase.length - 1),
-                reviewed: false,
-                wordCount: wordCount
-			}));
+            if(!fragment._id) { // Don't push if it is already in the database
+                phrases.push(new Fragment({
+                    id: id,
+                    start: startFragment.start,
+                    end: fragment.end,
+                    phrase: phrase.substring(0, phrase.length - 1),
+                    reviewed: false,
+                    wordCount: wordCount
+                }));
+            }
+
 		}
 	}
 
