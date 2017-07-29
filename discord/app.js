@@ -52,14 +52,20 @@ client.on('message', message => {
 
       console.log('Playing file:', filepath);
       
-      const dispatcher = connection.playStream(filepath, function(err, intent) {
+      const dispatcher = connection.playFile(filepath, function(err, intent) {
         console.log('err:', err);
         console.log('intent:', intent);
       });
       // Fixes delays after starting different streams
       dispatcher.on('start', function() {
         connection.player.streamingData.pausedTime = 0;
-      });    
+      });
+      dispatcher.on('error',function(reason){
+        console.log('Dispatcher error ', reason)
+      });  
+      dispatcher.on('debug',function(info){
+        console.log(info)
+      });      
     });
       
   }).catch(err => console.log(err));
