@@ -168,26 +168,41 @@ router.post('/tts', (req, res, next) => {
         let fragmentsToProcess = new Array();
         let textToProcess = text;
 
+        let order = 0;
+
         for(let result of results) {
-            console.log('Trying to match', result.phrase, 'on string', textToProcess);
+            console.log("Trying to match '" + result.phrase + "' on '" +  textToProcess + "'");
 
             if(textToProcess.indexOf(result.phrase) != -1) {
-                // console.log(result.phrase, 'is STILL part of string', textToProcess);
+
+                order = textToProcess.indexOf(result.phrase);
                 console.log('Found start of phrase at position', textToProcess.indexOf(result.phrase));
+
                 textToProcess = textToProcess.replace(result.phrase, '');
 
                 // Always find last already found match so we can use that index
-                let processedResultIndex = -1;
-                for(let i = 0; i < fragmentsToProcess.length; i++) {
-                    let processedResult = fragmentsToProcess[i];
+                // let processedResultIndex = -1;
+                // for(let i = 0; i < fragmentsToProcess.length; i++) {
+                //     let processedResult = fragmentsToProcess[i];
 
-                    if(processedResult.result.phrase == result.phrase && processedResultIndex < processedResult.order) {
-                        processedResultIndex = processedResult.order + processedResult.result.phrase.length;
-                    }
-                }
+                //     if(processedResult.result.phrase == result.phrase && processedResultIndex < processedResult.order) {
+                //         processedResultIndex = processedResult.order + processedResult.result.phrase.length;
+                //     }
+                // }
 
-                fragmentsToProcess.push({order: text.indexOf(result.phrase, processedResultIndex), result: result });
-                
+                // let fragment = { 
+                //     order: text.indexOf(result.phrase, processedResultIndex), 
+                //     result: result 
+                // };
+
+                let fragment = { 
+                    order: order,
+                    result: result 
+                };
+
+                fragmentsToProcess.push(fragment);
+
+                console.log('Added', fragment);
                 console.log('String that is left over to parse is', textToProcess);
             }
 
@@ -201,8 +216,6 @@ router.post('/tts', (req, res, next) => {
         let processedFragments = new Array();
 		let promises = fragmentsToProcess.map(function (fragment) {
             return new Promise(function (resolve, reject) {
-
-                // console.log("F:", fragment.result);
 
                 let filepath = __dirname  + '/../youtube/' + fragment.result.id + '.mp3';
 
@@ -240,6 +253,10 @@ router.post('/tts', (req, res, next) => {
 
             processedFragments.sort(compare);
 
+            processedFragments.forEach(function(fragment) {
+                console.log(fragment.order, ":", fragment.phrase);
+            });
+
             let tempFiles = new Array();
             processedFragments.forEach(function(fragment) {
                 tempFiles.push(__dirname + "/.." + fragment.file);
@@ -273,6 +290,5 @@ router.post('/tts', (req, res, next) => {
         }).catch(console.error);
 	});
 });
-
 
 module.exports = router;
