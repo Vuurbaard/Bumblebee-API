@@ -17,9 +17,11 @@ import { FragmentifierComponent } from './components/fragmentifier/fragmentifier
 import { ValidateService } from './services/validate.service';
 import { AuthService } from './services/auth.service';
 import { AudioService } from './services/audio.service';
+import { FragmentService } from './services/fragment.service';
 
 import { FlashMessagesModule } from 'angular2-flash-messages';
 import { AuthGuard } from './guards/auth.guard';
+import { FragmentOverviewComponent } from './components/fragment-overview/fragment-overview.component';
 
 
 
@@ -29,6 +31,7 @@ const appRoutes: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'dashboard', component: DashboardComponent, canActivate:[AuthGuard]},
   {path: 'profile', component: ProfileComponent, canActivate:[AuthGuard]},
+  {path: 'fragment-overview', component: FragmentOverviewComponent, canActivate:[AuthGuard]},
 ]
 
 @NgModule({
@@ -41,6 +44,7 @@ const appRoutes: Routes = [
     DashboardComponent,
     ProfileComponent,
     FragmentifierComponent,
+    FragmentOverviewComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,7 +53,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     FlashMessagesModule
   ],
-  providers: [ValidateService, AuthService, AuthGuard, AudioService],
+  providers: [ValidateService, AuthService, AuthGuard, AudioService,FragmentService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
