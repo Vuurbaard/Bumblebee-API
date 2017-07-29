@@ -13,11 +13,14 @@ export class FragmentService {
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.get('http://127.0.0.1:3000/audio/fragments').map(res => res.json());    
+    return this.http.get('http://127.0.0.1:3000/audio/fragments',{headers: headers}).map(res => res.json());    
   }
 
   get( id : string ){
-    return this.http.get('http://127.0.0.1:3000/audio/fragments?id=' + id ).map(res => res.json());    
+        let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', this.authService.getToken());
+    return this.http.get('http://127.0.0.1:3000/audio/fragments?id=' + id, {headers: headers} ).map(res => res.json());    
   }
 
 }
