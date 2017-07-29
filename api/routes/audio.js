@@ -56,12 +56,33 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
     });
 });
 
+
+
 router.get('/fragments', passport.authenticate('jwt', {session: false}), (req, res, next) => {
-    let id = req.body.id;
+    // If ID given, get id otherwise get all
+    let id = req.query.id;
+    
+    // No ID given, show everything
+    if(typeof id == "undefined"){
+        Fragment.find({}, function (err,frags) {
+            if(err){
+                res.send(err);
+            }else{
+                res.json(frags);
+            }
+        });
+    }else{
+        // Get the fragment
+        Fragment.find({ id : id }, function (err,frags) {
+            if(err){
+                res.send(err);
+            }else{
+                res.json(frags);
+            }
+        });        
+    }
 
-    console.log('Get fragments for id:', id);
-
-    res.json({ success: false });
+    //res.json({ success: false });
 });
 
 router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, res, next) => {
