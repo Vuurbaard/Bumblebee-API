@@ -52,14 +52,17 @@ client.on('message', message => {
 
       console.log('Playing file:', filepath);
       
-      connection.playStream(filepath, function(err, intent) {
+      const dispatcher = connection.playStream(filepath, function(err, intent) {
         console.log('err:', err);
         console.log('intent:', intent);
       });
+      // Fixes delays after starting different streams
+      dispatcher.on('start', function() {
+        connection.player.streamingData.pausedTime = 0;
+      });    
     });
       
   }).catch(err => console.log(err));
-
 });
 
 client.on('debug', info => {
@@ -67,3 +70,4 @@ client.on('debug', info => {
 });
 
 client.login('MzEyNjU5NjYxNzc2MDkzMTg1.DFs3hA.WG_qmBq9RkZ4SM4sqo_LLA4BR0k');
+
