@@ -170,11 +170,12 @@ router.post('/tts', (req, res, next) => {
 
 
         for(let result of results) {
-            console.log("Trying to match '" + result.phrase + "' on '" +  textToProcess + "'");
 
             if(textToProcess == "") {
-                continue; // ?
+                return; // ?
             }
+
+            console.log("Trying to match '" + result.phrase + "' on '" +  textToProcess + "'");
             
             let regex = new RegExp("\\b" + result.phrase + "\\b", 'gi')
             let regexOriginal = new RegExp("\\b" + result.phrase + "\\b", 'gi')
