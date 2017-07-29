@@ -168,47 +168,53 @@ router.post('/tts', (req, res, next) => {
         let fragmentsToProcess = new Array();
         let textToProcess = text;
 
-        let order = 0;
 
         for(let result of results) {
             console.log("Trying to match '" + result.phrase + "' on '" +  textToProcess + "'");
 
-            if(textToProcess.indexOf(result.phrase) != -1) {
+            if(textToProcess == "") {
+                continue; // ?
+            }
+            
+            let regex = new RegExp("\\b" + result.phrase + "\\b", 'gi')
+            let regexOriginal = new RegExp("\\b" + result.phrase + "\\b", 'gi')
 
-                order = textToProcess.indexOf(result.phrase);
-                console.log('Found start of phrase at position', textToProcess.indexOf(result.phrase));
-
+            let wat = regex.exec(textToProcess);
+            // console.log('wat', wat)
+            if(wat) {
+                console.log("Found '" + result.phrase + "' at index:", wat.index);
                 textToProcess = textToProcess.replace(result.phrase, '');
+                
+                // check if we have found a match before, if we so need to up the index
+                let originalIndex = 0;
+                for(let fragment of fragmentsToProcess) {
+                    if(fragment.result.phrase == result.phrase) {
+                        originalIndex++;
+                        console.log('Found a match we had before, upping index to', originalIndex);
+                    }
+                }
 
-                // Always find last already found match so we can use that index
-                // let processedResultIndex = -1;
-                // for(let i = 0; i < fragmentsToProcess.length; i++) {
-                //     let processedResult = fragmentsToProcess[i];
-
-                //     if(processedResult.result.phrase == result.phrase && processedResultIndex < processedResult.order) {
-                //         processedResultIndex = processedResult.order + processedResult.result.phrase.length;
-                //     }
-                // }
-
-                // let fragment = { 
-                //     order: text.indexOf(result.phrase, processedResultIndex), 
-                //     result: result 
-                // };
+                // Find index in original text to use for order
+                console.log('original text:', text);
+                let matches = [];
+                while ((match = regexOriginal.exec(text))) {
+                    //console.log(match);
+                    matches.push(match);
+                }
+                
+                console.log('matches in original text:', matches);
 
                 let fragment = { 
-                    order: order,
+                    order: matches[originalIndex].index,
                     result: result 
                 };
 
                 fragmentsToProcess.push(fragment);
-
-                console.log('Added', fragment);
-                console.log('String that is left over to parse is', textToProcess);
             }
+            
+            console.log('Text left over to process:', textToProcess);
 
-            if(textToProcess == "") { 
-                console.log('Done trying to find the best phrase match from database result!');
-            }
+            
         }
 
         console.log('Fragments to process:', fragmentsToProcess);
