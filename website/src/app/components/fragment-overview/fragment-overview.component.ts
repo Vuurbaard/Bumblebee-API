@@ -8,13 +8,19 @@ import { FragmentService } from '../../services/fragment.service';
 })
 export class FragmentOverviewComponent implements OnInit {
 
+  
+  constructor(private fragmentService: FragmentService){
+    this.fragments = [];
+  };
+
   fragments : Array<any>;
-  constructor(private fragmentService: FragmentService){};
 
   ngOnInit() {
-    console.log("!");
+    var me = this;
+
     this.fragmentService.all().subscribe(data => {
-      console.log(data);
+      this.fragments = data;    
+      console.log(this);
     })
   }
 
