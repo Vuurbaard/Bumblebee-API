@@ -201,11 +201,10 @@ router.post('/tts', (req, res, next) => {
         let fragmentsToProcess = new Array();
         let textToProcess = text;
 
-
         for(let result of results) {
 
             if(textToProcess == "") {
-                return; // ?
+                //return; // ?
             }
 
             console.log("Trying to match '" + result.phrase + "' on '" +  textToProcess + "'");
