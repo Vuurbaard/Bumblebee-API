@@ -10,13 +10,16 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
+  authService: AuthService;
   username: String;
   password: String;
 
   constructor(private flashMessagesService: FlashMessagesService,
-    private authService: AuthService,
+    authService: AuthService,
     private router: Router
-  ) { }
+  ) { 
+    this.authService = authService;
+  }
 
   ngOnInit() {
   }

@@ -1,0 +1,26 @@
+image: ubuntu:latest
+
+before_script:
+ - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+ - eval $(ssh-agent -s)
+ - ssh-add <(echo "$SSH_PRIVATE_KEY")
+
+stages:
+ - build
+ - test
+ - deploy
+
+deploy to production:
+ stage: deploy
+ environment: production
+ script:
+  - apt-get update && apt-get install rsync -qq -y
+  - rsync --exclude='.git/' -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/api && npm install'
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && npm install'
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/discord && npm install'
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod --aot=false'
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
+  
+ only:
+  - master

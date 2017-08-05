@@ -16,7 +16,7 @@ export class AuthService {
       this.host = 'http://localhost:3000/';
     }
     else {
-      this.host = 'http://zunz,io:3000/';
+      this.host = 'http://bumblebee.mijnproject.nu:3000/';
     }
   }
 
