@@ -11,6 +11,7 @@ const audioconcat = require('audioconcat');
 const path = require('path');
 const fs = require('fs');
 const guid = require('guid');
+const request = require('request');
 
 router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     
@@ -34,7 +35,34 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                     process.stdout.write(progress.timemark);
                 }).on('end', function () {
                     console.log("\r\nDone converting audio file", id);
-                    res.json({url: publicfilepath});
+
+                    console.log('Getting words from IBM watson speech to text... Please wait.');
+
+                    var options = {
+                        url: 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true',
+                        headers: {'Content-Type': 'audio/mpeg'},
+                        body: fs.readFileSync(__dirname + '\\..\\youtube\\SRRw1ERj2Gc.mp3'),
+                    };
+
+                    request.post(options, function (err, response, body) {
+                        if (err) { return console.error('upload failed:', err); }
+
+                        var body = JSON.parse(body.toString());
+
+                        var fragments = [];
+                        for(var result of body.results) {
+                            // console.log(result);
+                            for(var alternative of result.alternatives) {
+                                for(var timestamp of alternative.timestamps) {
+                                    // console.log("Timestamp:", timestamp);
+                                    fragments.push({word: timestamp[0], start: timestamp[1], end: timestamp[2], predicted: true});
+                                }
+                            }
+                        }
+
+                        res.json({url: publicfilepath, fragments: fragments});
+
+                    }).auth('ca4e920b-6e5f-46a1-866f-33f904b65e73', 'iJktKEPGrhLn', false); 
                 });
         }
         else {
@@ -47,7 +75,7 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                 let fragments = new Array();
                 
                 for(let frag of frags) {
-                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase});
+                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase, predicted: false});
                 }
 
                 res.json({url: publicfilepath, fragments: fragments});
