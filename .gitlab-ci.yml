@@ -19,7 +19,7 @@ deploy to production:
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/api && npm install'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && npm install'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/discord && npm install'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod'
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod --aot=false'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
   
  only:
