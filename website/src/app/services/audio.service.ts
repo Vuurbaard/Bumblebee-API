@@ -1,18 +1,29 @@
 import { AuthService } from './auth.service';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Injectable } from '@angular/core';
+import { isDevMode } from '@angular/core';
 
 @Injectable()
 export class AudioService {
 
-  constructor(private authService: AuthService, private http: Http) { }
+  private host: String;
+
+  constructor(private authService: AuthService, private http: Http) {
+    if(isDevMode()) {
+      this.host = 'http://localhost:3000/';
+    }
+    else {
+      this.host = 'http://bumblebee.mijnproject.nu:3000/';
+    }
+
+   }
 
   downloadYouTubeAudio(url : string) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.post('http://127.0.0.1:3000/audio/youtube', { url: url }, { headers: headers }).map(res => res.json());
+    return this.http.post(this.host + '/audio/youtube', { url: url }, { headers: headers }).map(res => res.json());
   }
 
   // getFragments(id : string,) {
@@ -35,7 +46,7 @@ export class AudioService {
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.post('http://127.0.0.1:3000/audio/fragments', { id: id, fragments: fragments }, { headers: headers }).map(res => res.json());
+    return this.http.post(this.host + '/audio/fragments', { id: id, fragments: fragments }, { headers: headers }).map(res => res.json());
   }
 
   tts(text: string) {
@@ -44,6 +55,6 @@ export class AudioService {
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.post('http://127.0.0.1:3000/audio/tts', { text: text}, { headers: headers }).map(res => res.json());
+    return this.http.post(this.host + '/audio/tts', { text: text}, { headers: headers }).map(res => res.json());
   }
 }
