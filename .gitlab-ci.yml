@@ -14,6 +14,7 @@ deploy to production:
  stage: deploy
  environment: production
  script:
+  - apt-get update && apt-get install rsync -qq -y
   - rsync --exclude='.git/' -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/ && npm install'
   
