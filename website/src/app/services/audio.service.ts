@@ -10,10 +10,10 @@ export class AudioService {
 
   constructor(private authService: AuthService, private http: Http) {
     if(isDevMode()) {
-      this.host = 'http://localhost:3000/';
+      this.host = 'http://localhost:3000';
     }
     else {
-      this.host = 'http://bumblebee.mijnproject.nu:3000/';
+      this.host = 'http://bumblebee.mijnproject.nu:3000';
     }
 
    }
