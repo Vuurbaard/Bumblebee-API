@@ -1,0 +1,21 @@
+image: ubuntu:latest
+
+before_script:
+ - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+ - eval $(ssh-agent -s)
+ - ssh-add <(echo "$SSH_PRIVATE_KEY")
+
+stages:
+ - build
+ - test
+ - deploy
+
+deploy to production:
+ stage: deploy
+ environment: production
+ script:
+  - rsync --exclude='.git/' -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/ && npm install'
+  
+ only:
+  - master
