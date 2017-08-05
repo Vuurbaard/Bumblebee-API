@@ -16,7 +16,7 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
     
     let url = req.body.url;
     let id = url.replace('https://www.youtube.com/watch?v=', '');
-    let filename = id + '.mp3'
+    let filename = id + '.opus'
     let filepath = path.resolve(__dirname, '../youtube/' + filename);
     let publicfilepath = '/youtube/' + filename;
 
@@ -257,16 +257,16 @@ router.post('/tts', (req, res, next) => {
 		let promises = fragmentsToProcess.map(function (fragment) {
             return new Promise(function (resolve, reject) {
 
-                let filepath = __dirname  + '/../youtube/' + fragment.result.id + '.mp3';
+                let filepath = __dirname  + '/../youtube/' + fragment.result.id + '.opus';
 
                 ffmpeg(filepath)
                     .setStartTime(fragment.result.start)
                     .setDuration(fragment.result.end - fragment.result.start)
-                    .output(__dirname  + '/../temp/' + fragment.result.phrase + '.mp3')
+                    .output(__dirname  + '/../temp/' + fragment.result.phrase + '.opus')
                     .on('end', function(err) {
                         if(!err)
                         {
-                            processedFragments.push({order: fragment.order, phrase: fragment.result.phrase, file: '/temp/' + fragment.result.phrase + '.mp3'})
+                            processedFragments.push({order: fragment.order, phrase: fragment.result.phrase, file: '/temp/' + fragment.result.phrase + '.opus'})
                             resolve();
                             //console.log('conversion Done');
                         }
@@ -305,7 +305,7 @@ router.post('/tts', (req, res, next) => {
             console.log('Concatting tempfiles into one file:', tempFiles);
 
             // concat all the temp fragment files into one
-            let outputfilename = guid.create() + '.mp3';
+            let outputfilename = guid.create() + '.opus';
             audioconcat(tempFiles)
                 .concat(__dirname + "/../fragments/" + outputfilename)
                 .on('start', function (command) {
