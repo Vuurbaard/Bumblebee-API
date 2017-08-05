@@ -47,6 +47,7 @@
       <div class="form-group" *ngFor="let fragment of fragments | orderBy : ['-start']">
         <div class="input-group">
           <span class="input-group-addon">{{fragment.start | number : '1.2-2'}} - {{fragment.end | number : '1.2-2'}}</span>
+          <span class="input-group-addon" [hidden]="!fragment.predicted">Predicted</span>
           <input type="text" class="form-control" [(ngModel)]="fragment.word" [attr.disabled]="fragment._id">
           <span class="input-group-btn">
             <button class="btn btn-primary" type="button" (click)="playFragment(fragment)">Play</button>
