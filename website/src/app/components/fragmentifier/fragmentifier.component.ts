@@ -64,7 +64,10 @@ export class FragmentifierComponent implements OnInit {
       console.log('Downloaded YT thing:', data);
       this.wavesurfer.load(this.host + data.url);
         this.downloaded = true;
-        this.fragments = data.fragments;
+
+        if(data.fragments) {
+          this.fragments = data.fragments;
+        }
     });
   }
 
