@@ -7,6 +7,8 @@ import { isDevMode } from '@angular/core';
 @Injectable()
 export class FragmentService {
 
+  private host: String;
+  
   constructor(private authService: AuthService, private http: Http) { 
 
     if(isDevMode()) {
