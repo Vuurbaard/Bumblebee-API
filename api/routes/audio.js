@@ -99,7 +99,9 @@ router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, 
     let id = req.body.id;
     let fragments = req.body.fragments;
 
-    console.log('Saving fragments for id:', id);
+    fragments.sort(function(a,b) { return parseFloat(a.start) - parseFloat(b.start) } ); // Sort fragments on attribute 'start'
+
+    console.log('Saving fragments for id:', id, fragments);
 
     let phrases = new Array();
 
