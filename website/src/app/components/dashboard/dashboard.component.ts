@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit {
   tts(text) {
     this.audioService.tts(this.text).subscribe(data => {
       console.log('tts result:', data);
-      this.wavesurfer.load("http://127.0.0.1:3000" + data.file);
+      
     });
   }
 }

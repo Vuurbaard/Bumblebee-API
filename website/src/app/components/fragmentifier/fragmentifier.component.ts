@@ -4,6 +4,8 @@ import { AudioService } from '../../services/audio.service';
 import { FlashMessagesService } from 'angular2-flash-messages';
 import { Router } from '@angular/router';
 
+import { isDevMode } from '@angular/core';
+
 declare var WaveSurfer: any;
 
 @Component({
@@ -23,8 +25,18 @@ export class FragmentifierComponent implements OnInit {
   isFragmenting: Boolean = false;
   fragments: Array<any> = [];
   youtube: string = "https://www.youtube.com/watch?v=9-yUbFi7VUY";
+  private host: String;
 
-  constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router) { }
+  constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router) {
+    if(isDevMode()) {
+      this.host = 'http://localhost:3000';
+    }
+    else {
+      this.host = 'http://bumblebee.mijnproject.nu:3000';
+    }
+
+
+   }
 
   ngOnInit() {
     var me = this;
@@ -50,7 +62,7 @@ export class FragmentifierComponent implements OnInit {
     console.log('Downloading from YT url:', this.youtube);
     this.audioService.downloadYouTubeAudio(this.youtube).subscribe(data => {
       console.log('Downloaded YT thing:', data);
-      this.wavesurfer.load("http://127.0.0.1:3000" + data.url);
+      this.wavesurfer.load(this.host + data.url);
         this.downloaded = true;
         this.fragments = data.fragments;
     });
