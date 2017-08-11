@@ -23,6 +23,7 @@ import { FlashMessagesModule } from 'angular2-flash-messages';
 import { AuthGuard } from './guards/auth.guard';
 import { FragmentOverviewComponent } from './components/fragment-overview/fragment-overview.component';
 import { OrderByPipe } from './pipes/order-by.pipe';
+import { MenuComponent } from './components/menu/menu.component';
 
 
 
@@ -47,6 +48,7 @@ const appRoutes: Routes = [
     FragmentifierComponent,
     FragmentOverviewComponent,
     OrderByPipe,
+    MenuComponent,
   ],
   imports: [
     BrowserModule,

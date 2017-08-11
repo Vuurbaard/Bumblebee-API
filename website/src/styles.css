@@ -2,3 +2,54 @@
 .btn[hidden] {
     display: none;
 }
+
+body {
+    background: #2f323b;
+    font-family: 'Roboto', sans-serif;
+    color: #949ba2;
+}
+
+.content {
+    /* margin-top: 60px; */
+    margin-left: 200px;
+    position: relative;
+    padding: 30px;
+    transition: margin-left 0.3s ease-out;
+    -webkit-transition: margin-left 0.3s ease-out;
+}
+
+.content:before {
+    content: '';
+    position: absolute;
+    top: -675px;
+    bottom: 0;
+    z-index: -2;
+    left: 0;
+    right: 0;
+    background-image: -webkit-radial-gradient(top, circle cover, #393b45 0%, #2d3038 70%);
+    background-image: -moz-radial-gradient(center, circle cover, #393b45 0%, #2d3038 70%);
+    background-image: -o-radial-gradient(center, circle cover, #393b45 0%, #2d3038 70%);
+    background-image: radial-gradient(center, circle cover, #393b45 0%, #2d3038 70%);
+    background-position: 50%, 50%;
+}
+
+.jumbotron,
+.well,
+.list-group-item,
+.input-group-addon,
+.btn-default {
+    background-color: rgba(68, 70, 79, 0.5);
+}
+
+.btn-primary {
+    background: #f6a821;
+}
+
+.btn-primary:hover {
+    background: #f5a212;
+}
+
+a {
+    color: #f6a821;
+    text-decoration: none;
+}
