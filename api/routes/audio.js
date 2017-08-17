@@ -37,13 +37,16 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                     console.log("\r\nDone converting audio file", id);
 
                     console.log('Getting words from IBM watson speech to text... Please wait.');
+                    console.log("READING FILE ", filepath);
 
                     var options = {
                         url: 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true',
                         headers: {'Content-Type': 'audio/mpeg'},
                         // body: fs.readFileSync(__dirname + '\\..\\youtube\\' + filename),
-                        body: path.resolve(__dirname, '../youtube/' + filename)
+                        body: filepath
                     };
+
+                    console.log(options);
 
                     request.post(options, function (err, response, body) {
                         if (err) { return console.error('upload failed:', err); }
