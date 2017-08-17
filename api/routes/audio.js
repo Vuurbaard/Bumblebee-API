@@ -41,11 +41,14 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                     var options = {
                         url: 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true',
                         headers: {'Content-Type': 'audio/mpeg'},
-                        body: fs.readFileSync(__dirname + '\\..\\youtube\\' + filename),
+                        // body: fs.readFileSync(__dirname + '\\..\\youtube\\' + filename),
+                        body: path.resolve(__dirname + '\\..\\youtube\\' + filename)
                     };
 
                     request.post(options, function (err, response, body) {
                         if (err) { return console.error('upload failed:', err); }
+                        
+                        console.log('Done gettings words from IBM watson', body);
 
                         var body = JSON.parse(body.toString());
 
