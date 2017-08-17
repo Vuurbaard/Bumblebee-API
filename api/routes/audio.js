@@ -43,7 +43,7 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                         url: 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true',
                         headers: {'Content-Type': 'audio/mpeg'},
                         // body: fs.readFileSync(__dirname + '\\..\\youtube\\' + filename),
-                        body: filepath
+                        body:  fs.readFileSync(filepath)
                     };
 
                     console.log(options);
