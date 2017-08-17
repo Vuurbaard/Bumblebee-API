@@ -198,16 +198,19 @@ router.post('/tts', (req, res, next) => {
     let results = new Array();
 	let promises = combinations.map(function (phrase) {
 		return new Promise(function (resolve, reject) {
-			// Do query here and resolve or reject when done
-			Fragment.findOne({ 'phrase': phrase }, (err, fragment) => {
+            
+            Fragment.find({'phrase':phrase},(err,fragments) => {
 				if (!err) {
-					// console.log(err, fragment);
-					if(fragment) {
-						results.push(fragment);
-					}
+                    if(fragments.length > 0){
+                        var i = Math.floor(Math.random()*fragments.length);
+                        var fragment = fragments[i];
+                        if(fragment){
+                            results.push(fragment);
+                        }
+                    }
 				}
 				resolve();
-			});
+            });
 		});
 	});
 
