@@ -30,9 +30,9 @@ router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, re
                 .save(filepath)
                 .on('error', console.error)
                 .on('progress', function (progress) {
-                    process.stdout.cursorTo(0);
-                    process.stdout.clearLine(1);
-                    process.stdout.write(progress.timemark);
+                    // process.stdout.cursorTo(0);
+                    // process.stdout.clearLine(1);
+                    // process.stdout.write(progress.timemark);
                 }).on('end', function () {
                     console.log("\r\nDone converting audio file", id);
 
