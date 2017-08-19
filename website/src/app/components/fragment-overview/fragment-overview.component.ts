@@ -8,20 +8,23 @@ import { FragmentService } from '../../services/fragment.service';
 })
 export class FragmentOverviewComponent implements OnInit {
 
-  
+  public frags : Array<any>;
+  public something : string;
+
   constructor(private fragmentService: FragmentService){
-    this.fragments = [];
+    this.frags = [];
   };
 
-  fragments : Array<any>;
+
 
   ngOnInit() {
     var me = this;
-
+    this.something = "Stupid";
     this.fragmentService.all().subscribe(data => {
-      this.fragments = data;    
-      console.log(this);
-    })
+      this.something = "Not so stupid";
+      this.frags = data;    
+      console.log(this.frags);
+    });
   }
 
 }
