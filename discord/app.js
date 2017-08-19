@@ -59,7 +59,6 @@ client.on('message', message => {
         let filepath = __dirname + '/../api' + body.file;
 
         // Check if the file exists
-        if(fs.existsSync(filepath)){
 
           console.log('Playing file:', filepath);
           
@@ -77,10 +76,6 @@ client.on('message', message => {
           dispatcher.on('debug',function(info){
             console.log(info)
           });
-
-        }else{
-          console.error("File didn't exist while trying to play " + filepath);
-        }
       }else{
         console.error("Something went wrong doing the API request");
       }
