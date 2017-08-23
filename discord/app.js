@@ -53,6 +53,7 @@ client.on('message', message => {
   // Current queue for guild (aka server)
   var queue = queues[queueName];
 
+  queue.run();
   queue.push(function(queuer){
     message.member.voiceChannel.join().then(connection =>{
         var options = {
@@ -61,7 +62,7 @@ client.on('message', message => {
           json: true,
           headers: {'Authorization': this.authToken}
         };
-    
+        console.log("!");
         request.post(options, function (error, response, body) {
           if(body){
             let filepath = __dirname + '/../api' + body.file;
@@ -83,11 +84,13 @@ client.on('message', message => {
               });
               dispatcher.on('error',function(reason){
                 console.log('Dispatcher error ', reason)
+                queuer.finish();
               });  
               dispatcher.on('debug',function(info){
                 console.log(info)
               });
           }else{
+            console.log("HELP US")
             console.error("Something went wrong doing the API request");
             queuer.finish();
           }
@@ -103,8 +106,8 @@ client.on('debug', info => {
 });
 
 // Production
-client.login('MzEyNjU5NjYxNzc2MDkzMTg1.DFs3hA.WG_qmBq9RkZ4SM4sqo_LLA4BR0k');
+//client.login('MzEyNjU5NjYxNzc2MDkzMTg1.DFs3hA.WG_qmBq9RkZ4SM4sqo_LLA4BR0k');
 
 // Developer
-//client.login('MzQwNjE3NzIwNjk1NjE5NTg1.DF1I2w.hD6Yb04HsGSdYxmc_AONFAwDvLM');
+client.login('MzQwNjE3NzIwNjk1NjE5NTg1.DF1I2w.hD6Yb04HsGSdYxmc_AONFAwDvLM');
 
