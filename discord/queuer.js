@@ -33,7 +33,7 @@ module.exports = function(interval=1000){
     }
 
     
-    setInterval(this.runTasks,interval);
+    setInterval(this.run,interval);
 
     return this;
 }
