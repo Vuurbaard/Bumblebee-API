@@ -12,7 +12,7 @@ module.exports = function(interval=1000){
         }
     };
     
-    this.runTasks = function(){
+    this.run = function(){
         if(!_vm.running && _vm.jobs.length > 0){
             _vm.running = true;
             // Run task
@@ -29,7 +29,7 @@ module.exports = function(interval=1000){
 
     this.finish = function(){
         _vm.running = false;
-        _vm.runTasks();
+        _vm.run();
     }
 
     
