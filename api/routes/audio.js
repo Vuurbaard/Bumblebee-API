@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const guid = require('guid');
 const request = require('request');
+const process = require('process');
 
 router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     
@@ -176,11 +177,14 @@ router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, 
     //res.json({success: false});
 });
 
+
 router.post('/tts', (req, res, next) => {
 
+    
     let text = req.body.text.toLowerCase();
-    console.log('tts:', text);
-
+    console.log("Retrieved TTS request for '", text, "'");
+    var start = getTimeMSFloat();
+    var tracker = { start: start };
     // Split the given phrase into words and make all possible combinations of these words
     let words = text.toLowerCase().split(' ');
 	let combinations = new Array();
@@ -212,10 +216,10 @@ router.post('/tts', (req, res, next) => {
             });
 		});
 	});
-
+    tracker['mapped'] = getTimeMSFloat();
     // Execute database query
 	Promise.all(promises).then(function () {
-
+        tracker['phrases'] = getTimeMSFloat();
         // Sort on amount of words in one result first
         function compare(a, b) {
             if (a.phrase.split(' ').length > b.phrase.split(' ').length)
@@ -233,9 +237,10 @@ router.post('/tts', (req, res, next) => {
             return;
         }
 
-        // 
         let fragmentsToProcess = new Array();
         let textToProcess = text;
+
+        tracker['start_matching'] = getTimeMSFloat();
 
         for(let result of results) {
 
@@ -282,12 +287,13 @@ router.post('/tts', (req, res, next) => {
             }
             
             console.log('Text left over to process:', textToProcess);
-
-            
         }
+
+        tracker['matching_end'] = getTimeMSFloat();
 
         console.log('Fragments to process:', fragmentsToProcess);
 
+        tracker['cutting_start'] = getTimeMSFloat();
         let processedFragments = new Array();
 		let promises = fragmentsToProcess.map(function (fragment) {
             return new Promise(function (resolve, reject) {
@@ -315,8 +321,10 @@ router.post('/tts', (req, res, next) => {
             });
         });
 
-        Promise.all(promises).then(function () {
 
+        Promise.all(promises).then(function () {
+            tracker['cutting_end'] = getTimeMSFloat();
+            tracker['concat_start'] = getTimeMSFloat();
             // Sort on order
             function compare(a, b) {
                 if (a.order < b.order)
@@ -352,11 +360,13 @@ router.post('/tts', (req, res, next) => {
                     res.status(500).json({ error: 'FFMpeg failed to process file' });
                 })
                 .on('end', function () {
-
+                    tracker['concat_end'] = getTimeMSFloat();
                     tempFiles.forEach(function(file) {
                         console.log('Deleting temp fragment file', file);
                         fs.unlink(file, function() {});
                     });
+
+                    outputTracker(tracker);
 
                     console.log('Audio created in:', "/fragments/" + outputfilename)
                     res.json({file: "/fragments/" + outputfilename});
@@ -366,5 +376,23 @@ router.post('/tts', (req, res, next) => {
         }).catch(console.error);
 	});
 });
+
+function outputTracker(track){
+    console.log ("TRACKING RESULT")
+    for(var key in track){
+        var item = track[key];
+        if(key == "start"){
+            continue;
+        }
+        console.log("Time since start to '", key , "' ", ((item - track['start']) / 1000), " seconds"  );
+    }
+
+}
+
+
+function getTimeMSFloat() {
+    var hrtime = process.hrtime();
+    return ( hrtime[0] * 1000000 + hrtime[1] / 1000 ) / 1000;
+}
 
 module.exports = router;
