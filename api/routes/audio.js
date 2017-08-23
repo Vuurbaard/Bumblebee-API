@@ -349,6 +349,7 @@ router.post('/tts', (req, res, next) => {
                 .on('error', function (err, stdout, stderr) {
                     console.error('Error:', err)
                     console.error('ffmpeg stderr:', stderr)
+                    res.error("FFMpeg failed");
                 })
                 .on('end', function () {
 
