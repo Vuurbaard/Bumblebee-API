@@ -199,26 +199,52 @@ router.post('/tts', (req, res, next) => {
 
     // Prepare database query 
     let results = new Array();
-	let promises = combinations.map(function (phrase) {
-		return new Promise(function (resolve, reject) {
+	// let promises = combinations.map(function (phrase) {
+	// 	return new Promise(function (resolve, reject) {
             
-            Fragment.find({'phrase':phrase},(err,fragments) => {
+    //         Fragment.find({'phrase':phrase},(err,fragments) => {
+	// 			if (!err) {
+    //                 if(fragments.length > 0){
+    //                     var i = Math.floor(Math.random()*fragments.length);
+    //                     var fragment = fragments[i];
+    //                     if(fragment){
+    //                         results.push(fragment);
+    //                     }
+    //                 }
+	// 			}
+	// 			resolve();
+    //         });
+	// 	});
+    // });
+    
+	let promises = [
+        new Promise(function(resolve,reject){
+            Fragment.find({'phrase' : { $in : combinations } }, (err,fragments) => {
 				if (!err) {
                     if(fragments.length > 0){
-                        var i = Math.floor(Math.random()*fragments.length);
-                        var fragment = fragments[i];
-                        if(fragment){
-                            results.push(fragment);
+                        for(let fragment of fragments){
+                            console.log(fragments);
+                            console.log(fragment);
+                            //var i = Math.floor(Math.random()*fragments.length);
+                            //var fragment = fragments[i];
+    
+                            //if(fragment){
+                                results.push(fragment);
+                            //}
                         }
                     }
 				}
 				resolve();
-            });
-		});
-	});
+            })
+        })
+    ];
+
+    console.log(results);
+
     tracker['mapped'] = getTimeMSFloat();
     // Execute database query
 	Promise.all(promises).then(function () {
+        console.log("JA");
         tracker['phrases'] = getTimeMSFloat();
         // Sort on amount of words in one result first
         function compare(a, b) {
