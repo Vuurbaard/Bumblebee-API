@@ -183,7 +183,7 @@ function makePhraseCombinations(arr){
 	for (var start = 0; start < arr.length; start++) {
 		var phrase = "";
 		for (var i = start; i < arr.length; i++) {
-			phrase = phrase + arr[i] + " ";
+            phrase = phrase + arr[i] + " ";
 			rc.push(phrase.substring(0, phrase.length - 1));
 		}
 	}
@@ -204,6 +204,7 @@ router.post('/tts', (req, res, next) => {
     let recurse_words           = text.toLowerCase().split(' ');
     let recurse_combinations    = makePhraseCombinations(words);
     let recurse_text    = text;
+    let recurse_tried = [];
 
     recurse_combinations.sort(function(a, b){
         // ASC  -> a.length - b.length
@@ -213,11 +214,22 @@ router.post('/tts', (req, res, next) => {
 
     // I don't like rewriting other code... I know i should, but not now mommy!
     //let promise = [ new Promise(function(resolve,reject){ resolve() })];
+    console.log("Possible combinations possible ", recurse_combinations.length);
 
     let recurser = function(data){
         if(data['text'].trim().length > 0 && recurse_combinations.length > 0){
 
             var current_phrase = recurse_combinations.shift().trim();
+
+            // Don't check results we already checked before...
+            while(recurse_tried.indexOf(current_phrase) > 0 && recurse_combinations.length > 0){
+                current_phrase = recurse_combinations.shift().trim();
+            }
+
+            if(recurse_combinations.length == 0){
+                return (data)
+            }
+
             return new Promise(function(resolve,reject){
                 Fragment.find( {'phrase' : current_phrase}, (err,fragments) => {
                     if (!err) {
@@ -231,10 +243,11 @@ router.post('/tts', (req, res, next) => {
                             if(fragment){
                                 data['result'].push(fragment);
                             }
-    
+                            
+                            console.log("Possible before ", recurse_combinations.length);
                             recurse_words           = data['text'].toLowerCase().split(' ');
                             recurse_combinations    = makePhraseCombinations(recurse_words);
-
+                            console.log("Possible combinations possible ", recurse_combinations.length);
                             recurse_combinations.sort(function(a, b){
                                 // ASC  -> a.length - b.length
                                 // DESC -> b.length - a.length
@@ -243,6 +256,9 @@ router.post('/tts', (req, res, next) => {
 
                             return( resolve( recurser(data) ) );
                         }else{
+                            if(recurse_tried.indexOf(current_phrase) < 0){
+                                recurse_tried.push(current_phrase)
+                            }
                             // If this is one word we couldn't find, remove it from the text and rebuild combinations
                             if(current_phrase.indexOf(' ') < 0){
                                 data['text'] = data['text'].replace(current_phrase,'').trim();
