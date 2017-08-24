@@ -177,6 +177,19 @@ router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, 
     //res.json({success: false});
 });
 
+function makePhraseCombinations(arr){
+    let rc =  new Array();
+
+	for (var start = 0; start < arr.length; start++) {
+		var phrase = "";
+		for (var i = start; i < arr.length; i++) {
+			phrase = phrase + arr[i] + " ";
+			rc.push(phrase.substring(0, phrase.length - 1));
+		}
+	}
+
+    return rc;
+}
 
 router.post('/tts', (req, res, next) => {
 
@@ -187,64 +200,72 @@ router.post('/tts', (req, res, next) => {
     var tracker = { start: start };
     // Split the given phrase into words and make all possible combinations of these words
     let words = text.toLowerCase().split(' ');
-	let combinations = new Array();
 
-	for (var start = 0; start < words.length; start++) {
-		var phrase = "";
-		for (var i = start; i < words.length; i++) {
-			phrase = phrase + words[i] + " ";
-			combinations.push(phrase.substring(0, phrase.length - 1));
-		}
-	}
+    let recurse_words           = text.toLowerCase().split(' ');
+    let recurse_combinations    = makePhraseCombinations(words);
+    let recurse_text    = text;
 
-    // Prepare database query 
-    let results = new Array();
-	// let promises = combinations.map(function (phrase) {
-	// 	return new Promise(function (resolve, reject) {
-            
-    //         Fragment.find({'phrase':phrase},(err,fragments) => {
-	// 			if (!err) {
-    //                 if(fragments.length > 0){
-    //                     var i = Math.floor(Math.random()*fragments.length);
-    //                     var fragment = fragments[i];
-    //                     if(fragment){
-    //                         results.push(fragment);
-    //                     }
-    //                 }
-	// 			}
-	// 			resolve();
-    //         });
-	// 	});
-    // });
+    recurse_combinations.sort(function(a, b){
+        // ASC  -> a.length - b.length
+        // DESC -> b.length - a.length
+        return b.length - a.length;
+    });
+
+    // I don't like rewriting other code... I know i should, but not now mommy!
+    //let promise = [ new Promise(function(resolve,reject){ resolve() })];
+
+    let recurser = function(data){
+        if(data['text'].trim().length > 0 && recurse_combinations.length > 0){
+
+            var current_phrase = recurse_combinations.shift().trim();
+            return new Promise(function(resolve,reject){
+                Fragment.find( {'phrase' : current_phrase}, (err,fragments) => {
+                    if (!err) {
+                        if(fragments.length > 0){
+                            // Found a fragment, remove the direct match from the recurser words
+                            data['text'] = data['text'].replace(current_phrase,'').trim();
+                            data['text'] = data['text'].replace('  ',' ').trim();
+                            console.log("FOUND IT");
+                            var i = Math.floor(Math.random()*fragments.length);
+                            var fragment = fragments[i];
+                            if(fragment){
+                                data['result'].push(fragment);
+                            }
     
-	let promises = [
-        new Promise(function(resolve,reject){
-            Fragment.find({'phrase' : { $in : combinations } }, (err,fragments) => {
-				if (!err) {
-                    if(fragments.length > 0){
-                        for(let fragment of fragments){
-                            console.log(fragments);
-                            console.log(fragment);
-                            //var i = Math.floor(Math.random()*fragments.length);
-                            //var fragment = fragments[i];
+                            recurse_words           = data['text'].toLowerCase().split(' ');
+                            recurse_combinations    = makePhraseCombinations(recurse_words);
+                            return( resolve( recurser(data) ) );
+                        }else{
+                            // If this is one word we couldn't find, remove it from the text and rebuild combinations
+                            if(current_phrase.indexOf(' ') < 0){
+                                data['text'] = data['text'].replace(current_phrase,'').trim();
+                                recurse_words           = data['text'].toLowerCase().split(' ');
+                                recurse_combinations    = makePhraseCombinations(recurse_words);
+                            }
     
-                            //if(fragment){
-                                results.push(fragment);
-                            //}
+                            return( resolve( recurser(data) ) );
+    
                         }
                     }
-				}
-				resolve();
-            })
-        })
-    ];
-
-    console.log(results);
-
-    tracker['mapped'] = getTimeMSFloat();
-    // Execute database query
-	Promise.all(promises).then(function () {
-        console.log("JA");
+                })
+            });
+            
+        }else{
+            return (data);
+        }
+    }
+    
+    Promise.resolve().then(
+        // console.log("Start recursion")
+        function(){ 
+            return {text: recurse_text, result: []}
+    }).then(function(data){
+        // console.log("Start promise recursion")
+        var prom = recurser(data);
+        return prom;
+    }).then(function (data) {
+        // console.log("Recursion finished")
+        let results = data['result'];
         tracker['phrases'] = getTimeMSFloat();
         // Sort on amount of words in one result first
         function compare(a, b) {
