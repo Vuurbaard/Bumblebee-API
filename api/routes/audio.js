@@ -224,7 +224,7 @@ router.post('/tts', (req, res, next) => {
             // Don't check results we already checked before...
             while(recurse_tried.indexOf(current_phrase) > 0 && recurse_combinations.length > 0){
                 current_phrase = recurse_combinations.shift().trim();
-                
+
                 if(recurse_combinations.length == 0){
                     return (data)
                 }                
@@ -233,7 +233,7 @@ router.post('/tts', (req, res, next) => {
 
 
             return new Promise(function(resolve,reject){
-                Fragment.find( {'phrase' : current_phrase}, (err,fragments) => {
+                Fragment.find( {'phrase' : current_phrase, wordCount : current_phrase.split(" ").length }, (err,fragments) => {
                     if (!err) {
                         if(fragments.length > 0){
                             // Found a fragment, remove the direct match from the recurser words
