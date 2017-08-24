@@ -234,6 +234,13 @@ router.post('/tts', (req, res, next) => {
     
                             recurse_words           = data['text'].toLowerCase().split(' ');
                             recurse_combinations    = makePhraseCombinations(recurse_words);
+
+                            recurse_combinations.sort(function(a, b){
+                                // ASC  -> a.length - b.length
+                                // DESC -> b.length - a.length
+                                return b.length - a.length;
+                            });
+
                             return( resolve( recurser(data) ) );
                         }else{
                             // If this is one word we couldn't find, remove it from the text and rebuild combinations
@@ -241,6 +248,12 @@ router.post('/tts', (req, res, next) => {
                                 data['text'] = data['text'].replace(current_phrase,'').trim();
                                 recurse_words           = data['text'].toLowerCase().split(' ');
                                 recurse_combinations    = makePhraseCombinations(recurse_words);
+
+                                recurse_combinations.sort(function(a, b){
+                                    // ASC  -> a.length - b.length
+                                    // DESC -> b.length - a.length
+                                    return b.length - a.length;
+                                });                                
                             }
     
                             return( resolve( recurser(data) ) );
