@@ -248,8 +248,6 @@ router.post('/tts', (req, res, next) => {
                             
                             console.log("Possible before ", recurse_combinations.length);
                             recurse_words           = data['text'].toLowerCase().split(' ');
-                            recurse_combinations    = makePhraseCombinations(recurse_words);
-                            console.log("Possible combinations possible ", recurse_combinations.length);
                             recurse_combinations.sort(function(a, b){
                                 // ASC  -> a.length - b.length
                                 // DESC -> b.length - a.length
@@ -265,8 +263,6 @@ router.post('/tts', (req, res, next) => {
                             if(current_phrase.indexOf(' ') < 0){
                                 data['text'] = data['text'].replace(current_phrase,'').trim();
                                 recurse_words           = data['text'].toLowerCase().split(' ');
-                                recurse_combinations    = makePhraseCombinations(recurse_words);
-
                                 recurse_combinations.sort(function(a, b){
                                     // ASC  -> a.length - b.length
                                     // DESC -> b.length - a.length
