@@ -3,6 +3,7 @@ const client = new Discord.Client();
 const request = require('request');
 const fs = require('fs');
 const Queuer = require('./queuer');
+const config = require('./config');
 
 let authToken = "";
 let queues = [];
@@ -106,9 +107,4 @@ client.on('debug', info => {
 	console.log(info);
 });
 
-// Production
-client.login('MzEyNjU5NjYxNzc2MDkzMTg1.DFs3hA.WG_qmBq9RkZ4SM4sqo_LLA4BR0k');
-
-// Developer
-//client.login('MzQwNjE3NzIwNjk1NjE5NTg1.DF1I2w.hD6Yb04HsGSdYxmc_AONFAwDvLM');
-//client.login('MzUwMDE5MTY3ODg3Mjk0NDg0.DH-TIA.HI9sohFgnMWachHuN6J1TjfpYG4'); // Bumbledev
+client.login(config.clientToken);
