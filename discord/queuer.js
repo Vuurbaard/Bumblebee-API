@@ -1,39 +1,37 @@
-module.exports = function(interval=1000){
-    // Fuck this scopes...
-    var _vm = this;
-    this.jobs = [];
-    this.running = false;
-    // Don't spam the queuer
-    this.maxlength = 25;
+module.exports = function (interval = 1000) {
+	var _vm = this;
+	this.jobs = [];
+	this.running = false;
+	this.maxlength = 25; // Don't spam the queuer
 
-    this.push = function(func){
-        if(_vm.jobs.length < this.maxlength){
-            this.jobs.push(func);
-        }
-    };
-    
-    this.run = function(){
-        if(!_vm.running && _vm.jobs.length > 0){
-            _vm.running = true;
-            // Run task
-            var task = _vm.jobs.shift();
-            // Run task
-            try{
-                task(_vm);
-            }catch(e){
-                _vm.running = false;
-                console.error(e);
-            }   
-        }
-    }
+	this.push = function (func) {
+		if (_vm.jobs.length < this.maxlength) {
+			this.jobs.push(func);
+		}
+	};
 
-    this.finish = function(){
-        _vm.running = false;
-        _vm.run();
-    }
+	this.run = function () {
+		if (!_vm.running && _vm.jobs.length > 0) {
+			// Run task
+			_vm.running = true;
+			var task = _vm.jobs.shift();
+			
+			try {
+				task(_vm);
+			}
+			catch (e) {
+				_vm.running = false;
+				console.error(e);
+			}
+		}
+	}
 
-    
-    setInterval(this.run,interval);
+	this.finish = function () {
+		_vm.running = false;
+		_vm.run();
+	}
 
-    return this;
+	setInterval(this.run, interval);
+
+	return this;
 }
