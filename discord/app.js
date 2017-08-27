@@ -27,11 +27,11 @@ client.on('ready', () => {
 			else {
 				console.log(body.error);
 			}
-		} else {
+		}
+		else {
 			// Seems like the API is down?
 			console.error("Cannot connect to the API", options);
 		}
-
 	});
 
 });
@@ -54,7 +54,6 @@ client.on('message', message => {
 	// Current queue for guild (aka server)
 	var queue = queues[queueName];
 
-
 	queue.push(function (queuer) {
 		message.member.voiceChannel.join().then(connection => {
 			var options = {
@@ -63,12 +62,10 @@ client.on('message', message => {
 				json: true,
 				headers: { 'Authorization': this.authToken }
 			};
-			console.log("!");
-			request.post(options, function (error, response, body) {
-				if (body) {
-					let filepath = __dirname + '/../api' + body.file;
 
-					// Check if the file exists
+			request.post(options, function (error, response, body) {
+				if (body && body.file) {
+					let filepath = __dirname + '/../api' + body.file;
 
 					console.log('Playing file:', filepath);
 
@@ -76,29 +73,38 @@ client.on('message', message => {
 						console.log('err:', err);
 						console.log('intent:', intent);
 					});
-					// Fixes delays after starting different streams
+
 					dispatcher.on('start', function () {
-						connection.player.streamingData.pausedTime = 0;
+						connection.player.streamingData.pausedTime = 0; // Fixes delays after starting different streams
 					});
+
 					dispatcher.on('end', function () {
 						queuer.finish();
 					});
+
 					dispatcher.on('error', function (reason) {
 						console.log('Dispatcher error ', reason)
 						queuer.finish();
 					});
+
 					dispatcher.on('debug', function (info) {
 						console.log(info)
 					});
-				} else {
-					console.log("HELP US")
-					console.error("Something went wrong doing the API request");
+
+				}
+				else {
+					console.error("Something went wrong doing the API request", error, body);
 					queuer.finish();
 				}
 			});
 
-		}).catch(function (err) { console.log(err); queuer.finish() });
+		}).catch(function (err) {
+			console.log(err);
+			queuer.finish()
+		}
+			);
 	});
+
 	queue.run();
 
 });
