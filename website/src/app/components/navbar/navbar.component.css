@@ -73,6 +73,10 @@
 	height: 60px;
 }
 
+.navbar button.navbar-toggle span {
+	background-color: #949ba2;
+}
+
 .navbar button.navbar-toggle:hover,
 .navbar button.navbar-toggle:focus {
 	background-color: transparent;
