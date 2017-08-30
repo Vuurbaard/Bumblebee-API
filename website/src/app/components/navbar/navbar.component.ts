@@ -12,6 +12,7 @@ export class NavbarComponent implements OnInit {
 
 	authService: AuthService;
 	showMenu: Boolean = false;
+	tts: String;
 
 	constructor(private flashMessagesService: FlashMessagesService,
 		authService: AuthService,
@@ -37,11 +38,11 @@ export class NavbarComponent implements OnInit {
 	toggleMenu() {
 		this.showMenu = !this.showMenu;
 
-		if(this.showMenu) {
+		if (this.showMenu) {
 			this.renderer.setElementClass(document.body, 'hide-menu', true);
-			
+
 		}
-		if(!this.showMenu) {
+		if (!this.showMenu) {
 			this.renderer.setElementClass(document.body, 'hide-menu', false);
 		}
 	}
@@ -49,11 +50,15 @@ export class NavbarComponent implements OnInit {
 	@HostListener('window:resize', ['$event'])
 	onResize(event) {
 		let size = event.target.innerWidth;
-		if(size > 762) {
+		if (size > 762) {
 			this.renderer.setElementClass(document.body, 'hide-menu', false);
 		}
 		else {
 			this.renderer.setElementClass(document.body, 'hide-menu', true);
 		}
+	}
+
+	tryTTS() {
+		this.router.navigate(['/tts', this.tts]);
 	}
 }
