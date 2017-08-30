@@ -11,29 +11,10 @@ declare var WaveSurfer: any;
 })
 export class DashboardComponent implements OnInit {
 
-	text: string = "Please let this work";
-	wavesurfer: any;
-
 	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService) { }
 
 	ngOnInit() {
-		var me = this;
-		this.wavesurfer = WaveSurfer.create({
-			container: '#waveform-tts',
-			waveColor: '#2b3e50',
-			progressColor: 'white'
-		});
-
-		this.wavesurfer.on('ready', function () {
-			me.wavesurfer.play();
-		});
-
+		
 	}
 
-	tts(text) {
-		this.audioService.tts(this.text).subscribe(data => {
-			console.log('tts result:', data);
-
-		});
-	}
 }
