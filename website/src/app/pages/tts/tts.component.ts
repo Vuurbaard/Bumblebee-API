@@ -1,6 +1,7 @@
 import { AudioService } from './../../services/audio.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { isDevMode } from '@angular/core';
 
 declare var WaveSurfer: any;
 
@@ -12,10 +13,19 @@ declare var WaveSurfer: any;
 export class TtsComponent implements OnInit {
 
 	wavesurfer: any;
+	host: string;
 
 	constructor(private route: ActivatedRoute, private audioService: AudioService) { }
 
 	ngOnInit() {
+
+		// TODO: Move this to config module?
+		if (isDevMode()) {
+			this.host = 'http://localhost:3000';
+		}
+		else {
+			this.host = 'http://bumblebee.mijnproject.nu:3000';
+		}
 
 		var me = this;
 		this.wavesurfer = WaveSurfer.create({
@@ -36,7 +46,7 @@ export class TtsComponent implements OnInit {
 
 	play(text: string) {
 		this.audioService.tts(text).subscribe(data => {
-			this.wavesurfer.load(data.file);
+			this.wavesurfer.load(this.host + data.file);
 		});
 	}
 }
