@@ -53,3 +53,30 @@ a {
     color: #f6a821;
     text-decoration: none;
 }
+
+hr {
+	margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #3d404c;
+}
+
+fieldset legend {
+	border-bottom: 1px solid #3d404c;
+}
+
+body.hide-menu #menu {
+	left: -200px;
+}
+
+@media (max-width: 762px) {
+	body section.content{
+		margin-left: 0px;
+	}
+}
+
+@media (min-width: 762px) {
+	body.hide-menu section.content{
+		margin-left: 0px;
+	}
+}

@@ -1,4 +1,4 @@
-.navigation {
+#menu {
     margin-top: 60px;
     background-color: #24262d;
     width: 200px;
@@ -9,3 +9,4 @@
     transition: left 0.3s ease-out;
     -webkit-transition: left 0.3s ease-out;
 }
+
