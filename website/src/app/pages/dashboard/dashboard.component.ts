@@ -14,7 +14,7 @@ export class DashboardComponent implements OnInit {
 	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService) { }
 
 	ngOnInit() {
-		
+
 	}
 
 }

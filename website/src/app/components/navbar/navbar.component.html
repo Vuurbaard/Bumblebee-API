@@ -1,27 +1,28 @@
 <nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" (click)="toggleMenu()" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" (click)="toggleMenu()" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+			 aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-      <a [routerLink]="['/']" class="navbar-brand">Bumblebee <span>v.0.1</span></a>
-    </div>
-    <div id="navbar" class="collapse navbar-collapse">
-      <form class="navbar-form navbar-left" (submit)="tryTTS()">
-          <input type="text" class="form-control" name="tts" [(ngModel)]="tts" placeholder="Try me out" style="width: 300px">
-      </form>
-      <ul class="nav navbar-nav navbar-right">
-        <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/profile']">Profile</a></li>
-        
-        <li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/login']">Login</a></li>
-        <li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/register']">Register</a></li>
+			<a [routerLink]="['/']" class="navbar-brand">Bumblebee <span>v.0.1</span></a>
+		</div>
+		<div id="navbar" class="collapse navbar-collapse">
+			<form class="navbar-form navbar-left" (submit)="tryTTS()">
+				<input type="text" class="form-control" name="tts" [(ngModel)]="tts" placeholder="Try me out" style="width: 300px">
+			</form>
+			<ul class="nav navbar-nav navbar-right">
+				<li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/profile']">Profile</a></li>
 
-        <li *ngIf="authService.loggedIn()"><a (click)="logout()">Logout</a></li>
-      </ul>
-    </div>
+				<li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/login']">Login</a></li>
+				<li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"><a [routerLink]="['/register']">Register</a></li>
 
-  </div>
+				<li *ngIf="authService.loggedIn()"><a (click)="logout()">Logout</a></li>
+			</ul>
+		</div>
+
+	</div>
 </nav>
