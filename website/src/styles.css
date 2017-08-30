@@ -10,7 +10,7 @@ body {
 }
 
 .content {
-    /* margin-top: 60px; */
+    margin-top: 60px;
     margin-left: 200px;
     position: relative;
     padding: 30px;
@@ -65,7 +65,8 @@ fieldset legend {
 	border-bottom: 1px solid #3d404c;
 }
 
-body.hide-menu #menu {
+body.hide-menu #menu,
+body.hide-menu #menu:before {
 	left: -200px;
 }
 
@@ -79,4 +80,15 @@ body.hide-menu #menu {
 	body.hide-menu section.content{
 		margin-left: 0px;
 	}
+}
+
+.flash-messages {
+	position: fixed;
+	z-index: 99999;
+	right: 15px;
+	top: 75px;
+}
+
+.flash-messages .flash-message {
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
