@@ -44,7 +44,7 @@ export class FragmentifierComponent implements OnInit {
 			waveColor: 'white',
 			progressColor: '#f6a821'
 		});
-
+		
 		this.slider = document.querySelector('#slider');
 
 		//this.wavesurfer.zoom(Number(this.slider.value));		
@@ -53,6 +53,10 @@ export class FragmentifierComponent implements OnInit {
 			var zoomLevel = Number(me.slider.value);
 			me.wavesurfer.zoom(zoomLevel);
 		};
+	}
+	
+	ngOnDestroy() {
+		this.wavesurfer.destroy();
 	}
 
 	download() {
