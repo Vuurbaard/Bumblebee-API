@@ -1,5 +1,23 @@
+<div *ngIf="user" class="fluid-container">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="view-header">
+				<div class="header-icon">
+					<i class="pe page-header-icon pe-7s-id"></i>
+				</div>
+				<div class="header-title">
+					<h3 class="m-b-xs">{{user.name}}</h3>
+					<small>
+						Your profile
+					</small>
+				</div>
+			</div>
+			<hr>
+		</div>
+	</div>
+</div>
+
 <div *ngIf="user">
-	<h2 class="page-header">{{user.name}}</h2>
 	<ul class="list-group">
 		<li class="list-group-item">Username: {{user.username}}</li>
 		<li class="list-group-item">Email: {{user.email}}</li>
