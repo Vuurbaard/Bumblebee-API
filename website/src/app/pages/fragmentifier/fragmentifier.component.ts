@@ -47,13 +47,12 @@ export class FragmentifierComponent implements OnInit {
 
 		this.slider = document.querySelector('#slider');
 
+		//this.wavesurfer.zoom(Number(this.slider.value));		
+
 		this.slider.oninput = function () {
 			var zoomLevel = Number(me.slider.value);
 			me.wavesurfer.zoom(zoomLevel);
 		};
-
-		//this.wavesurfer.load('http://ia902606.us.archive.org/35/items/shortpoetry_047_librivox/song_cjrg_teasdale_64kb.mp3');
-
 	}
 
 	download() {

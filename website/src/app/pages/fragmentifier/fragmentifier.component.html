@@ -1,8 +1,25 @@
+<div class="fluid-container">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="view-header">
+				<div class="header-icon">
+					<i class="pe page-header-icon pe-7s-scissors"></i>
+				</div>
+				<div class="header-title">
+					<h3 class="m-b-xs">Fragmentifier</h3>
+					<small>
+						You can start fragmenting audio from youtube here
+					</small>
+				</div>
+			</div>
+			<hr>
+		</div>
+	</div>
+</div>
+
 <div class="well fluid-container" [hidden]="downloaded">
+
 	<form (submit)="download()" class="form-horizontal">
-		<fieldset>
-			<legend>YouTube</legend>
-		</fieldset>
 		<div class="form-group">
 			<label for="inputYouTube" class="col-lg-2 control-label">YouTube url</label>
 			<div class="col-lg-10">
@@ -11,20 +28,19 @@
 		</div>
 		<div class="form-group">
 			<div class="col-lg-10 col-lg-offset-2">
-				<!--<button type="reset" class="btn btn-default">Cancel</button>-->
 				<button type="submit" class="btn btn-primary">Download</button>
 			</div>
 		</div>
 	</form>
 </div>
 
-<div class="well container" [hidden]="!downloaded">
+<div class="well fluid-container" [hidden]="!downloaded">
 	<fieldset>
-		<legend>Start fragmenting the audio file</legend>
 
 		<div id="waveform"></div>
+
 		<div class="row">
-			<input id="slider" type="range" min="1" max="200" value="1" style="width: 100%" />
+			<input id="slider" type="range" min="1" max="250" value="0" style="width: 100%" />
 		</div>
 
 		<div class="row form-group">
@@ -40,9 +56,9 @@
 				<div class="col-md-4 text-right">
 					<button class="btn btn-success" (click)="save()">Save</button>
 				</div>
-				<!--<button class="btn btn-primary" (click)="another()">Upload another</button>-->
 			</div>
 		</div>
+
 		<div class="fragments">
 			<div class="form-group" *ngFor="let fragment of fragments | orderBy : ['-start']">
 				<div class="input-group">
@@ -50,11 +66,12 @@
 					<span class="input-group-addon" [hidden]="!fragment.predicted">Predicted</span>
 					<input type="text" class="form-control" [(ngModel)]="fragment.word" [attr.disabled]="fragment._id">
 					<span class="input-group-btn">
-            <button class="btn btn-primary" type="button" (click)="playFragment(fragment)">Play</button>
-            <button class="btn btn-default" type="button" (click)="removeFragment(fragment)" [attr.disabled]="fragment._id">Remove</button>
-          </span>
+						<button class="btn btn-primary" type="button" (click)="playFragment(fragment)">Play</button>
+						<button class="btn btn-default" type="button" (click)="removeFragment(fragment)" [attr.disabled]="fragment._id">Remove</button>
+					</span>
 				</div>
 			</div>
 		</div>
+
 	</fieldset>
 </div>
