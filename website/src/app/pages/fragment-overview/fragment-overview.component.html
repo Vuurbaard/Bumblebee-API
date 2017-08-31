@@ -19,21 +19,22 @@
 		
 <div class="well fluid-container">
 	<!-- <div>{{ something }}</div> -->
-	<table class="table">
-		<thead>
-			<th>Id</th>
-			<th>Phrase</th>
-			<th>Word Count</th>
-			<th>Reviewed</th>
-			<th>Actions</th>
-
-		</thead>
-		<tr *ngFor='let fragment of frags'>
-			<td>{{fragment.id}}</td>
-			<td>{{fragment.phrase}}</td>
-			<td>{{fragment.wordCount}}</td>
-			<td>{{fragment.reviewed}}</td>
-		</tr>
-		</tbody>
-	</table>
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<th width="200">YouTube ID</th>
+				<th>Phrase</th>
+				<th>Word Count</th>
+				<th>Reviewed</th>
+				<!-- <th>Actions</th> -->
+			</thead>
+			<tr *ngFor='let fragment of frags'>
+				<td>{{fragment.id}}</td>
+				<td>{{fragment.phrase}}</td>
+				<td>{{fragment.wordCount}}</td>
+				<td>{{fragment.reviewed}}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
