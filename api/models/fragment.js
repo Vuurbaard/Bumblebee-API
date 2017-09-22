@@ -11,4 +11,6 @@ const FragmentSchema = mongoose.Schema({
     wordCount: { type: Number, required: true}
 });
 
+FragmentSchema.index({ phrase: 'text' });
+
 const Fragment = module.exports = mongoose.model('Fragment', FragmentSchema);

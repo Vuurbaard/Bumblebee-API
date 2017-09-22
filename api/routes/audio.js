@@ -14,77 +14,33 @@ const guid = require('guid');
 const request = require('request');
 const process = require('process');
 
-router.post('/youtube', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+const Audio = require('../services/audio');
+const Fragments = require('../services/fragments');
+
+router.post('/download', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+
+	let url = req.body.url;
+	
+	Audio.download(url).then(file => {
+		Fragments.getByID(file.name).then(fragments => {
+			console.log(file.name, 'has fragments', fragments);
+			res.json({url: file.publicpath, id: file.name, fragments: fragments});
+		});
+	});
+
+});
+
+router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     
-    let url = req.body.url;
-    let id = url.replace('https://www.youtube.com/watch?v=', '');
-    let filename = id + '.mp3'
-    let filepath = path.resolve(__dirname, '../youtube/' + filename);
-    let publicfilepath = '/youtube/' + filename;
+    let id = req.body.id;
+	let fragments = req.body.fragments;
+	
+	Fragments.submit(id, fragments).then(() => {
+		res.json({ success: true });
+	}).catch(err => {
+		res.json({ success: false, error: err });
+	});
 
-    fs.exists(filepath, (exists) => {
-        if(!exists) {
-            ffmpeg()
-                .input(ytdl(url))
-                .noVideo()
-                .audioBitrate(64)
-                .save(filepath)
-                .on('error', console.error)
-                .on('progress', function (progress) {
-                    // process.stdout.cursorTo(0);
-                    // process.stdout.clearLine(1);
-                    // process.stdout.write(progress.timemark);
-                }).on('end', function () {
-                    console.log("\r\nDone converting audio file", id);
-
-                    console.log('Getting words from IBM watson speech to text... Please wait.');
-                    var options = {
-                        url: 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true&profanity_filter=false',
-                        headers: {'Content-Type': 'audio/mpeg'},
-                        // body: fs.readFileSync(__dirname + '\\..\\youtube\\' + filename),
-                        body:  fs.readFileSync(filepath)
-                    };
-
-                    request.post(options, function (err, response, body) {
-                        if (err) { return console.error('upload failed:', err); }
-                        
-                        console.log('Done gettings words from IBM watson', body);
-
-                        var body = JSON.parse(body.toString());
-
-                        var fragments = [];
-                        for(var result of body.results) {
-                            // console.log(result);
-                            for(var alternative of result.alternatives) {
-                                for(var timestamp of alternative.timestamps) {
-                                    // console.log("Timestamp:", timestamp);
-                                    fragments.push({word: timestamp[0], start: timestamp[1], end: timestamp[2], predicted: true});
-                                }
-                            }
-                        }
-
-                        res.json({url: publicfilepath, fragments: fragments});
-
-                    }).auth('ca4e920b-6e5f-46a1-866f-33f904b65e73', 'iJktKEPGrhLn', false); 
-                });
-        }
-        else {
-            // TODO: Error handling
-            Fragment.find({
-                'id' : id,
-                'wordCount': 1
-            }, function(err, frags){
-
-                let fragments = new Array();
-                
-                for(let frag of frags) {
-                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase, predicted: false});
-                }
-
-                res.json({url: publicfilepath, fragments: fragments});
-            });
-        }
-    });
 });
 
 
@@ -124,57 +80,6 @@ router.get('/fragments', passport.authenticate('jwt', {session: false}), (req, r
     }
 
     //res.json({ success: false });
-});
-
-router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, res, next) => {
-    
-    let id = req.body.id;
-    let fragments = req.body.fragments;
-
-    fragments.sort(function(a,b) { return parseFloat(a.start) - parseFloat(b.start) } ); // Sort fragments on attribute 'start'
-
-    console.log('Saving fragments for id:', id, fragments);
-
-    let phrases = new Array();
-
-	for (var start = 0; start < fragments.length; start++) {
-        let phrase = "";
-        let wordCount = 0;
-		let startFragment = fragments[start];
-
-		for (let i = start; i < fragments.length; i++) {
-            let fragment = fragments[i];
-            
-            phrase = phrase + fragment.word.toLowerCase() + " ";
-            wordCount++;
-
-            if(!fragment._id) { // Don't push if it is already in the database
-                phrases.push(new Fragment({
-                    id: id,
-                    start: startFragment.start,
-                    end: fragment.end,
-                    phrase: phrase.substring(0, phrase.length - 1),
-                    reviewed: false,
-                    wordCount: wordCount
-                }));
-            }
-
-		}
-	}
-
-	// console.log('All possible phrases:');
-    console.log(phrases);
-    
-    Fragment.insertMany(phrases)
-		.then(function (mongooseDocuments) {
-			res.json({ success: true });
-		})
-		.catch(function (err) {
-            console.log(err);
-			res.json({ success: false, error: err });
-		});
-
-    //res.json({success: false});
 });
 
 function makePhraseCombinations(arr){
