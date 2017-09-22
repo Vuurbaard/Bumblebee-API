@@ -21,8 +21,8 @@ mongoose.connection.on('error', (err) => {
 const app = express();
 const port = 3000;
 
-const users = require('./routes/users');
-const audio = require('./routes/audio');
+const usersRoute = require('./routes/users');
+const audioRoute = require('./routes/audio');
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -33,8 +33,8 @@ app.use('/youtube/:file', function (req, res, next) {
     next();
 });
 
-app.use('/youtube', express.static(path.join(__dirname, 'youtube')));
-app.use('/fragments', express.static(path.join(__dirname, 'fragments')));
+app.use('/youtube', express.static(path.join(__dirname, 'audio/youtube')));
+app.use('/fragments', express.static(path.join(__dirname, 'audio/fragments')));
 
 app.use(bodyparser.json());
 app.use(passport.initialize());
@@ -43,8 +43,8 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 // Routes
-app.use('/users', users);
-app.use('/audio', audio);
+app.use('/users', usersRoute);
+app.use('/audio', audioRoute);
 
 app.get('/', (req, res) => {
     res.send('Invalid endpoint');
@@ -57,3 +57,17 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
     console.log('Server listening on port', port);
 })
+
+
+// test
+// var engine = require('./services/engine');
+// engine.tts('please let this work');
+
+// var fragments = require('./services/fragments');
+// fragments.search('please let this work');
+
+// var audio = require('./services/audio');
+// audio.download('https://www.youtube.com/watch?v=9-yUbFi7VUY').then(file => {
+// 	console.log('file:', file);
+	
+// });

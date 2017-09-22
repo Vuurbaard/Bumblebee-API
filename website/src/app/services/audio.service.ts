@@ -18,12 +18,12 @@ export class AudioService {
 
    }
 
-  downloadYouTubeAudio(url : string) {
+  download(url : string) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.post(this.host + '/audio/youtube', { url: url }, { headers: headers }).map(res => res.json());
+    return this.http.post(this.host + '/audio/download', { url: url }, { headers: headers }).map(res => res.json());
   }
 
   // getFragments(id : string,) {
