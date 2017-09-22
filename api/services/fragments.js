@@ -37,6 +37,17 @@ Fragments.prototype.getByID = function (id) {
 	return deferred.promise;
 }
 
+Fragments.prototype.getAll = function () {
+	
+	var deferred = q.defer();
+
+	Fragment.find({}).then(fragments => {
+		deferred.resolve(fragments);
+	});
+
+	return deferred.promise;
+}
+
 Fragments.prototype.submit = function (id, fragments) {
 
 	var deferred = q.defer();

@@ -45,41 +45,25 @@ router.post('/fragments', passport.authenticate('jwt', {session: false}), (req, 
 
 
 router.get('/fragments', passport.authenticate('jwt', {session: false}), (req, res, next) => {
-    // If ID given, get id otherwise get all
+
     let id = req.query.id;
     
-    // No ID given, show everything
-
     if(id) {
-        
-        // Get the fragments
-        Fragment.find({ id : id }, function (err,frags) {
-            if(err) {
-                res.send(err);
-            }
-            else {
+        Fragments.getByID(id).then(fragments => {
+			let fragmentsForWebsite = new Array();
+			
+			for(let frag of frags) {
+				fragmentsForWebsite.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase});
+			}
 
-                let fragments = new Array();
-                
-                for(let frag of frags) {
-                    fragments.push({_id: frag._id, start: frag.start, end: frag.end, word: frag.phrase});
-                }
-
-                res.json(fragments);
-            }
-        });     
+			res.json(fragmentsForWebsite);
+		});
     }
     else {
-        Fragment.find({}, function (err,frags) {
-            if(err){
-                res.send(err);
-            }else{
-                res.json(frags);
-            }
-        });   
+		Fragments.getAll().then(fragments => {
+			res.json(fragments);
+		}); 
     }
-
-    //res.json({ success: false });
 });
 
 function makePhraseCombinations(arr){
