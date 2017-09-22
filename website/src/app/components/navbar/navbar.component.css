@@ -11,7 +11,7 @@
 
 .navbar-header .navbar-brand {
     width: 200px;
-    background-color: #f6a821;
+    background-color: #F6A720;
     height: 60px;
     padding: 20px 25px;
     font-weight: 400;
@@ -65,3 +65,23 @@
     color: #949ba2;
 }
 
+.navbar button.navbar-toggle {
+	display: block !important;
+	margin: 0px;
+	padding: 0px 15px;
+	border: 0px;
+	height: 60px;
+}
+
+.navbar button.navbar-toggle span {
+	background-color: #949ba2;
+}
+
+.navbar button.navbar-toggle:hover,
+.navbar button.navbar-toggle:focus {
+	background-color: transparent;
+}
+
+.navbar button.navbar-toggle:hover span {
+	background-color: #F6A720;
+}
