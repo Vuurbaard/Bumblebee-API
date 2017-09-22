@@ -1,0 +1,40 @@
+<div class="fluid-container">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="view-header">
+				<div class="header-icon">
+					<i class="pe page-header-icon pe-7s-server"></i>
+				</div>
+				<div class="header-title">
+					<h3 class="m-b-xs">Fragment overview</h3>
+					<small>
+						Overview of every existing combination of fragments
+					</small>
+				</div>
+			</div>
+			<hr>
+		</div>
+	</div>
+</div>
+		
+<div class="well fluid-container">
+	<!-- <div>{{ something }}</div> -->
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<th width="200">YouTube ID</th>
+				<th>Phrase</th>
+				<th>Word Count</th>
+				<th>Reviewed</th>
+				<!-- <th>Actions</th> -->
+			</thead>
+			<tr *ngFor='let fragment of frags'>
+				<td>{{fragment.id}}</td>
+				<td>{{fragment.phrase}}</td>
+				<td>{{fragment.wordCount}}</td>
+				<td>{{fragment.reviewed}}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
