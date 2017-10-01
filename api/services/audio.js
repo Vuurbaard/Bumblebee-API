@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
-
+var Source = require('../models/source');
 
 var Audio = function () {
 	this.extension = ".mp3";
@@ -14,7 +14,7 @@ Audio.prototype.download = function(url) {
 
 	if(url.indexOf('youtube.com') != -1) {
 		this.downloadFromYouTube(url).then(file => {
-			deferred.resolve(file);
+			deferred.resolve({file: file, origin: "YouTube" });
 		}).catch(deferred.reject);
 	}
 
@@ -24,13 +24,12 @@ Audio.prototype.download = function(url) {
 Audio.prototype.downloadFromYouTube = function(url) {
 
 	let youtubeID = url.replace('https://www.youtube.com/watch?v=', '');
-	let id = "YT" + youtubeID;
-    let filename = id + this.extension;
+    let filename = youtubeID + this.extension;
     let filepath = path.resolve(__dirname, '../audio/youtube/' + filename);
 	let publicfilepath = '/youtube/' + filename;
 	
 	var file = {
-		name: id,
+		id: youtubeID,
 		filename, filename,
 		path: filepath,
 		publicpath: publicfilepath
@@ -50,13 +49,34 @@ Audio.prototype.downloadFromYouTube = function(url) {
 			deferred.reject(err);
 		})
 		.on('end', function () {
-			console.log("Done downloading", id, "from YouTube");
+			console.log("Done downloading", youtubeID, "from YouTube");
 			deferred.resolve(file);
 		});
 	}
 	else {
 		deferred.resolve(file);
 	}
+
+	return deferred.promise;
+}
+
+Audio.prototype.saveSource = function(id, origin) {
+	var deferred = q.defer();
+
+	var query = { 'id': id, 'origin': origin},
+	update = {},
+	options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+	console.log('Saving or updating source', query);
+
+	Source.findOneAndUpdate(query, update, options, function (error, result) {
+		if (error) {
+			console.log(error);
+			return;
+		}
+
+		deferred.resolve(result);
+	});
 
 	return deferred.promise;
 }
