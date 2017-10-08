@@ -9,31 +9,38 @@
 var words = [
 	{
 		text: "please",
-		fragments: [{ source: 1 }]
+		fragments: [{ source: 1 }],
+		links: ["let"]
 	},
 	{
 		text: "let",
-		fragments: [{ source: 1 }, { source: 2 }]
+		fragments: [{ source: 1 }, { source: 2 }],
+		links: ["me", "this"]
 	},
 	{
 		text: "this",
-		fragments: [{ source: 1 }]
+		fragments: [{ source: 1 }],
+		links: ["work"]
 	},
 	{
 		text: "work",
-		fragments: [{ source: 1 }]
+		fragments: [{ source: 1 }],
+		links: []
 	},
 	{
 		text: "dont",
-		fragments: [{ source: 2 }]
+		fragments: [{ source: 2 }],
+		links: ["let"]
 	},
 	{
 		text: "me",
-		fragments: [{ source: 2 }]
+		fragments: [{ source: 2 }],
+		links: ["down"]
 	},
 	{
 		text: "down",
-		fragments: [{ source: 2 }]
+		fragments: [{ source: 2 }],
+		links: []
 	},
 ]
 
