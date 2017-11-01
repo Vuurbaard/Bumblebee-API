@@ -82,14 +82,11 @@ function magic() {
 			});
 
 			for(var linkedNode of linkedNodes) {
+
 				node.edges.push(linkedNode);
 			}
 		}
 	}
-
-	// TODO: Generate weight of edges
-
-	//console.log(nodes);
 
 	// Convert the shit to the node-dijkstra library structure
 	for(var node of nodes) {
@@ -97,7 +94,13 @@ function magic() {
 		var edges = {};
 
 		for(var edge of node.edges) {
-			edges[edge.name] = 1; // 1 is the weight/costs of this edge TODO: FIX WEIGHT!
+
+			var weight = 2;
+			if(node.source != edge.source) {
+				weight = 1;
+			}
+
+			edges[edge.name] = weight; 
 		}
 
 		console.log('node:', node.name, 'edges:', edges);
@@ -117,45 +120,5 @@ function magic() {
 
 	// console.log(wat);
 }
-
-// function intersectingFragments(a, b) {
-// 	if (!a || !b) { return []; }
-
-// 	var result = a.fragments.filter(function (fragmentA) {
-// 		for (var fragmentB of b.fragments) {
-// 			// if(fragmentB.source.id.equals(fragmentA.source.id)) {
-// 			if (fragmentB.source == fragmentA.source) {
-// 				return true;
-// 			}
-// 		}
-// 		return false;
-// 	});
-
-// 	return result;
-// }
-
-function wordIsLinked(a, b) {
-	if (!a || !b) { return false; }
-
-	for(var link of a.links) {
-		if(link == b.text) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// function fragmentHasSameSource(a, b) {
-// 	if (!a || !b) { return false; }
-
-// 	for(var link of a.links) {
-// 		if(link == b.text) {
-// 			return true;
-// 		}
-// 	}
-
-// 	return false;
-// }
 
 magic();
