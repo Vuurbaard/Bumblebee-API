@@ -1,5 +1,13 @@
-const Graph = require('node-dijkstra');
+const Graph = require('node-dijkstra'); // https://github.com/albertorestifo/node-dijkstra
 const route = new Graph();
+
+// Example dijkstra library code:
+// route.addNode('A', { B:1 })
+// route.addNode('B', { A:1, C:2, D: 4 })
+// route.addNode('C', { B:2, D:1 })
+// route.addNode('D', { C:1, B:4 })
+// route.path('A', 'D', {cost: true}) // => [ 'A', 'B', 'C', 'D' ] 
+
 
 // phrases:
 //		please let this work
@@ -65,7 +73,7 @@ function magic() {
 				name: word.text + " (source " + fragment.source + ")",
 				word: word,
 				source: fragment.source, 
-				edges: new Array(),
+				edges: new Array()
 			}
 
 			nodes.push(node);
@@ -82,9 +90,30 @@ function magic() {
 			});
 
 			for(var linkedNode of linkedNodes) {
-
-				node.edges.push(linkedNode);
+				node.edges.push({node: linkedNode, cost: 1});
 			}
+		}
+	}
+
+	// Calculate costs
+	for(var node of nodes) {
+
+		for(var edge of node.edges) {
+			if(node.source != edge.node.source) {
+				edge.cost = 2;
+			}
+		}
+
+		var traces = traceEdges(node, new Array());
+		console.log('traces for', node.name, traces);
+
+		for(var edge of traces) {
+
+			var cost = 1 / traces.length;
+			if(cost < edge.cost && cost < 1) {
+				edge.cost = cost;
+			}
+
 		}
 	}
 
@@ -94,13 +123,7 @@ function magic() {
 		var edges = {};
 
 		for(var edge of node.edges) {
-
-			var weight = 2;
-			if(node.source != edge.source) {
-				weight = 1;
-			}
-
-			edges[edge.name] = weight; 
+			edges[edge.node.name] = edge.cost; 
 		}
 
 		console.log('node:', node.name, 'edges:', edges);
@@ -111,14 +134,22 @@ function magic() {
 	var wat = route.path('please (source 1)', 'down (source 2)', {cost: true});
 	console.log(wat);
 
-	// route.addNode('A', { B:1 })
-	// route.addNode('B', { A:1, C:2, D: 4 })
-	// route.addNode('C', { B:2, D:1 })
-	// route.addNode('D', { C:1, B:4 })
-	 
-	// var wat = route.path('A', 'D', {cost: true}) // => [ 'A', 'B', 'C', 'D' ] 
-
-	// console.log(wat);
 }
 
 magic();
+
+
+function traceEdges(node, traces) {
+	console.log('starting trace for', node.name);
+
+	for(var edge of node.edges) {
+		if(edge.node.source == node.source) {
+			console.log('adding', edge.name, 'to traces');
+			traces.push(edge);
+			traceEdges(edge.node, traces);
+		}
+	}
+
+	return traces;
+
+}
