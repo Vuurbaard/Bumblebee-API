@@ -23,5 +23,4 @@ deploy to production:
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
   
  only:
-  - master
   - v2
