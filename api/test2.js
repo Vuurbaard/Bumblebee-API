@@ -130,7 +130,7 @@ function magic(words) {
 		}
 	}
 	else {
-		// TODO: Just one word, so let's pick a random fragment of it.
+		// Just one word, so let's pick a random fragment of it.
 		var random = Math.floor(Math.random() * startWord.fragments.length);
 		var fragment = startWord.fragments[random];
 		console.log('just one word, so picked random fragment:', fragment);
@@ -141,11 +141,12 @@ function magic(words) {
 }
 
 function traceEdges(node, traces) {
-	//console.log('starting trace for', node.name);
+	// console.log('starting trace for', node.name);
 
 	for (var edge of node.edges) {
-		if (edge.node.source == node.source) {
-			//console.log('adding', edge.name, 'to traces');
+
+		if (edge.node.source.equals(node.source)) {
+			// console.log('adding', edge, 'to traces');
 			traces.push(edge);
 			traceEdges(edge.node, traces);
 		}
@@ -198,12 +199,13 @@ function isWordLinked(a, b) {
 }
 
 function blackmagic(input) {
-	console.log('starting new blackmagic for', input);
+	
 	var input = input.toLowerCase();
 	var input = input.split(' ');
+	console.log('starting new blackmagic for', input);
 
 	// Find the words in the database
-	Word.find({ text: input }).populate('links').populate('fragments').then(function (words) {
+	Word.find({ text: input }).populate('links').populate('fragments').populate('fragments.source').then(function (words) {
 
 		// Database results are not ordered, let's order them
 		var orderedWords = new Array();
@@ -214,7 +216,7 @@ function blackmagic(input) {
 			orderedWords.push(w);
 		}
 
-		// console.log('ordered words:', orderedWords);
+		console.log('ordered words:', orderedWords);
 
 		// Gather which words are linked together
 		var linkedWords = traceWordLinks(orderedWords);
@@ -233,9 +235,14 @@ function blackmagic(input) {
 
 		console.log('fragments to query:', fragmentsToQuery);
 
-		Fragment.find({ '_id': fragmentsToQuery }).populate('word').populate('source').then(function (fragments) {
-			// TODO: Are these ordered or not? I can't tell yet.
-			//console.log('fragments:', fragments);
+		Fragment.find({ '_id': {$in: fragmentsToQuery} }).populate('word').populate('source').then(function (fragments) {
+			
+			// THIS SHIT ISNT ORDERED EITHER... FFFFFFFFFFFFF
+			fragments.sort(function(a, b) {
+				return fragmentsToQuery.findIndex(x => a._id.equals(x)) - fragmentsToQuery.findIndex(x => b._id.equals(x));
+			});
+
+			console.log('fragments:', fragments);
 
 			fileMagic(fragments);
 		});
@@ -291,7 +298,7 @@ function fileMagic(fragments) {
 			files.push(__dirname + "/audio/fragments/" + fragment.file);
 		});
 
-		console.log('temp files:', files);
+		//console.log('temp files:', files);
 
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
@@ -312,6 +319,6 @@ function fileMagic(fragments) {
 	});
 }
 
-blackmagic("please let this down");
-// blackmagic("please let this down");
-// blackmagic("dont let me work");
+//blackmagic("let this work");
+//blackmagic("please let me down");
+//blackmagic("dont let me work");
