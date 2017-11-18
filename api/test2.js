@@ -199,7 +199,7 @@ function isWordLinked(a, b) {
 }
 
 function blackmagic(input) {
-	
+
 	var input = input.toLowerCase();
 	var input = input.split(' ');
 	console.log('starting new blackmagic for', input);
@@ -213,7 +213,9 @@ function blackmagic(input) {
 			var w = words.find(function (w) {
 				return word == w.text;
 			});
-			orderedWords.push(w);
+			if (w) {
+				orderedWords.push(w);
+			}
 		}
 
 		console.log('ordered words:', orderedWords);
@@ -235,10 +237,10 @@ function blackmagic(input) {
 
 		console.log('fragments to query:', fragmentsToQuery);
 
-		Fragment.find({ '_id': {$in: fragmentsToQuery} }).populate('word').populate('source').then(function (fragments) {
-			
+		Fragment.find({ '_id': { $in: fragmentsToQuery } }).populate('word').populate('source').then(function (fragments) {
+
 			// THIS SHIT ISNT ORDERED EITHER... FFFFFFFFFFFFF
-			fragments.sort(function(a, b) {
+			fragments.sort(function (a, b) {
 				return fragmentsToQuery.findIndex(x => a._id.equals(x)) - fragmentsToQuery.findIndex(x => b._id.equals(x));
 			});
 
@@ -320,5 +322,5 @@ function fileMagic(fragments) {
 }
 
 //blackmagic("let this work");
-//blackmagic("please let me down");
+blackmagic("please wat this down");
 //blackmagic("dont let me work");
