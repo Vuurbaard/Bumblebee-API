@@ -5,18 +5,6 @@ var Word = require('../models/word');
 
 var Fragments = function () { };
 
-Fragments.prototype.blackmagic = function (text) {
-
-	var deferred = q.defer();
-
-	
-
-	return deferred.promise;
-}
-
-
-
-
 Fragments.prototype.submit = function (sourceId, fragments) {
 
 	var deferred = q.defer();
