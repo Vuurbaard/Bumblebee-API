@@ -5,143 +5,15 @@ var Word = require('../models/word');
 
 var Fragments = function () { };
 
-Fragments.prototype.search = function (phrase) {
+Fragments.prototype.blackmagic = function (text) {
 
 	var deferred = q.defer();
 
-	this.findWords(phrase).then(this.findBestMatch.bind(this));
+	
 
 	return deferred.promise;
 }
 
-Fragments.prototype.findWords = function (phrase) {
-	var deferred = q.defer();
-
-	var words = phrase.split(' ');
-
-	(function find(index, foundWords) {
-
-		var word = words[index];
-
-		Word.find({ text: word }).populate('links').populate('fragments').then(function (word) {
-			//console.log('Found word', word[0]);
-			foundWords.push(word[0]);
-
-			if (index == words.length - 1) {
-				deferred.resolve(foundWords);
-			}
-			else {
-				find(++index, foundWords);
-			}
-		});
-	})(0, new Array());
-
-	return deferred.promise;
-}
-
-Fragments.prototype.findBestMatch = function (words) {
-	// console.log('Gotta find best fragment matches for', words);
-	// FYI: Words are already database records.
-	var wordCombinations = new Array();
-
-	for (var i = 0; i < words.length; i++) {
-		var word = words[i];
-		var nextWord = words[i + 1];
-
-		if (this.isWordLinked(word, nextWord)) {
-			var combination = new Array();
-			combination.push(word);
-			//console.log('starting new trace...');
-
-			// This word has a link to the next word, so we need to trace it to the deepest link level
-			var traces = 1;
-			while (this.isWordLinked(word, nextWord)) {
-				//console.log('tracing', word.text, '->', nextWord.text);
-				combination.push(nextWord);
-
-				word = words[i + traces];
-				nextWord = words[i + traces + 1];
-				traces++;
-			}
-			wordCombinations.push(combination);
-			//console.log(words[i].text, 'traces down to', combination);
-			i += combination.length - 1;
-		}
-		else {
-			wordCombinations.push([word]);
-		}
-	}
-
-	console.log(wordCombinations); // i.e. [['please', 'let', 'this'], ['down']]
-
-	var fragments = new Array();
-
-	for (var combinations of wordCombinations) {
-		if (combinations.length > 1) {
-			// Shit there are more words linked together in this array
-			// The fact that they are linked together already means these words share atleast one same fragment source
-			for (var i = 0; i < combinations.length; i++) {
-				var word = combinations[i];
-				var nextWord = combinations[i + 1];
-
-				var fragmentIntersectionsBySource = this.getFragmentIntersectionsBySource(word, nextWord);
-
-				// SEND HELP
-
-				// // if it has just A fragment source intersection we need to trace this fragment down till the last matched word
-				// if (fragmentIntersectionsBySource.length == 1) {
-				// 	result.push({ word: word.text, fragments: fragmentIntersectionsBySource });
-				// }
-				// else {
-				// 	// We have got multiple fragments source intersections for this word so we need to trace all of them down till we find the best one
-				// 	// TODO: SEND HELP
-				// }
-			}
-		}
-		else if (combinations.length == 1) {
-			// Only got one word in the combination so let's pick a random fragment
-			fragments.push(combinations[0].fragments[0]); // TODO: Randomize
-		}
-	}
-
-	console.log('Done?');
-}
-
-Fragments.prototype.getFragmentIntersectionsBySource = function (a, b) {
-	if (!a || !b) { return new Array(); }
-
-	var result = a.fragments.filter(function (aFragment) {
-		return b.fragments.some(function (bFragment) {
-			return aFragment.source.equals(bFragment.source);
-		});
-	})
-
-	return result;
-}
-
-Fragments.prototype.isWordLinked = function (a, b) {
-	if (!a || !b) { return false; }
-
-	for (var linkedWord of a.links) {
-		if (linkedWord._id.equals(b._id)) { // (_id is not a string)
-			return true;
-		}
-	}
-	return false;
-}
-
-Fragments.prototype.isWordLinkedByFragmentSource = function (a, b) {
-	if (!a || !b) { return false; }
-
-	for (var wordAFragment of a.fragments) {
-		for (var wordBFragment of b.fragments) {
-			if (wordAFragment.source.equals(wordBFragment.source)) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
 
 
 
