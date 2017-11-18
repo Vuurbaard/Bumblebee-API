@@ -24,4 +24,4 @@ deploy to production:
   
  only:
   - master
-  - performance
+  - v2
