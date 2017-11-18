@@ -322,5 +322,5 @@ function fileMagic(fragments) {
 }
 
 //blackmagic("let this work");
-blackmagic("please wat this down");
+// blackmagic("please wat this down");
 //blackmagic("dont let me work");
