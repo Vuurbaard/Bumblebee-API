@@ -1,6 +1,8 @@
+// Dijkstra shizzle
 const Graph = require('node-dijkstra'); // https://github.com/albertorestifo/node-dijkstra
 const route = new Graph();
 
+// Database shit
 const config = require('./config/database');
 const mongoose = require('mongoose');
 const Fragment = require('./models/fragment');
@@ -8,6 +10,12 @@ const Word = require('./models/word');
 const Source = require('./models/source');
 
 mongoose.connect(config.database);
+
+// File stuff
+const ffmpeg = require('fluent-ffmpeg');
+const audioconcat = require('audioconcat');
+const guid = require('guid');
+
 
 function magic(words) {
 
@@ -199,8 +207,8 @@ function blackmagic(input) {
 
 		// Database results are not ordered, let's order them
 		var orderedWords = new Array();
-		for(var word of input) {
-			var w = words.find(function(w) {
+		for (var word of input) {
+			var w = words.find(function (w) {
 				return word == w.text;
 			});
 			orderedWords.push(w);
@@ -214,25 +222,94 @@ function blackmagic(input) {
 
 		// For each word in the combinations, do magic for each fragment
 		var fragmentsToQuery = new Array();
-		for(var words of linkedWords) {
+		for (var words of linkedWords) {
 
 			var fragments = magic(words);
 			//console.log("fragments:", fragments);
-			for(var fragmentId of fragments) {
+			for (var fragmentId of fragments) {
 				fragmentsToQuery.push(fragmentId);
 			}
 		}
 
 		console.log('fragments to query:', fragmentsToQuery);
 
-		Fragment.find({'_id': fragmentsToQuery}).populate('word').populate('source').then(function(fragments) {
+		Fragment.find({ '_id': fragmentsToQuery }).populate('word').populate('source').then(function (fragments) {
 			// TODO: Are these ordered or not? I can't tell yet.
-			console.log('fragments:', fragments);
-			
+			//console.log('fragments:', fragments);
+
+			fileMagic(fragments);
+		});
+	});
+
+}
+
+function fileMagic(fragments) {
+
+	// Generate temp files from fragments
+	let tempFiles = new Array();
+
+	let promises = fragments.map(function (fragment) {
+		return new Promise(function (resolve, reject) {
+
+			let filepath = __dirname + './audio/youtube/' + fragment.source.id + '.mp3';
+
+			ffmpeg(filepath)
+				.setStartTime(fragment.start)
+				.setDuration(fragment.end - fragment.start)
+				.output(__dirname + './audio/fragments/' + fragment._id + '.mp3')
+				.on('end', function (err) {
+					if (!err) {
+						var order = fragments.indexOf(fragment);
+						tempFiles.push({ order: order, file: fragment._id + '.mp3' });
+						resolve();
+						//console.log('conversion Done');
+					}
+				})
+				.on('error', function (err) {
+					console.log('ffmpeg error:', err);
+					resolve();
+				}).run();
 
 		});
 	});
 
+	Promise.all(promises).then(function () {
+
+		function compare(a, b) {
+			if (a.order < b.order)
+				return -1;
+			if (a.order > b.order)
+				return 1;
+			return 0;
+		}
+
+		tempFiles.sort(compare);
+
+		// Audioconcat needs a non relative path. 
+		let files = new Array();
+		tempFiles.forEach(function (fragment) {
+			files.push(__dirname + "/audio/fragments/" + fragment.file);
+		});
+
+		console.log('temp files:', files);
+
+		// Concatenate the temp fragment files into one big one
+		let outputfilename = guid.create() + '.mp3';
+		audioconcat(files)
+			.concat(__dirname + "./audio/temp/" + outputfilename)
+			.on('start', function (command) {
+				console.log('ffmpeg process started:', command)
+			})
+			.on('error', function (err, stdout, stderr) {
+				console.error('Error:', err)
+				console.error('ffmpeg stderr:', stderr)
+				//res.status(500).json({ error: 'FFMpeg failed to process file' });
+			})
+			.on('end', function () {
+				console.log('Audio created in:', "/audio/temp/" + outputfilename)
+				// res.json({ file: "/fragments/" + outputfilename });
+			})
+	});
 }
 
 blackmagic("please let this down");
