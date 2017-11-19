@@ -34,7 +34,7 @@ app.use('/youtube/:file', function (req, res, next) {
 });
 
 app.use('/youtube', express.static(path.join(__dirname, 'audio/youtube')));
-app.use('/fragments', express.static(path.join(__dirname, 'audio/temp')));
+app.use('/audio/temp', express.static(path.join(__dirname, 'audio/temp')));
 
 app.use(bodyparser.json());
 app.use(passport.initialize());
