@@ -329,7 +329,7 @@ Engine.prototype.fileMagic = function(fragments, res) {
 			})
 			.on('end', function () {
 				console.log('Audio created in:', "/audio/temp/" + outputfilename);
-				res.json({ file: "/fragments/" + outputfilename });
+				res.json({ file: "/audio/temp/" + outputfilename });
 			})
 	});
 }
