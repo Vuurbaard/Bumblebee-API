@@ -14,18 +14,9 @@ const ffmpeg = require('fluent-ffmpeg');
 const audioconcat = require('audioconcat');
 const guid = require('guid');
 
-var Engine = function () {};
+var Engine = function () { };
 
-// Engine.prototype.tts = function (text, res) {
-// 	console.log('tts:', text);
-	
-// 	this.blackmagic(text, res);
-
-// };
-
-
-
-Engine.prototype.magic = function(words) {
+Engine.prototype.magic = function (words) {
 
 	var nodes = new Array();
 
@@ -96,6 +87,8 @@ Engine.prototype.magic = function(words) {
 	}
 
 
+	// TODO: Soften the score even if word is not linked but shares the same source
+
 	var fragments = new Array();
 
 	var startWord = words[0];
@@ -148,7 +141,7 @@ Engine.prototype.magic = function(words) {
 	return fragments;
 }
 
-Engine.prototype.traceEdges = function(node, traces) {
+Engine.prototype.traceEdges = function (node, traces) {
 	// console.log('starting trace for', node.name);
 
 	for (var edge of node.edges) {
@@ -163,7 +156,7 @@ Engine.prototype.traceEdges = function(node, traces) {
 	return traces;
 }
 
-Engine.prototype.traceWordLinks = function(words) {
+Engine.prototype.traceWordLinks = function (words) {
 	var wordCombinations = new Array();
 
 	for (var i = 0; i < words.length; i++) {
@@ -195,7 +188,7 @@ Engine.prototype.traceWordLinks = function(words) {
 	return wordCombinations;
 }
 
-Engine.prototype.isWordLinked = function(a, b) {
+Engine.prototype.isWordLinked = function (a, b) {
 	if (!a || !b) { return false; }
 
 	for (var linkedWord of a.links) {
@@ -206,7 +199,7 @@ Engine.prototype.isWordLinked = function(a, b) {
 	return false;
 }
 
-Engine.prototype.blackmagic = function(input, res) {
+Engine.prototype.blackmagic = function (input, res) {
 
 	var me = this;
 	var input = input.toLowerCase();
@@ -216,8 +209,10 @@ Engine.prototype.blackmagic = function(input, res) {
 	// Find the words in the database
 	Word.find({ text: input }).populate('links').populate('fragments').populate('fragments.source').then(function (words) {
 
-		if(words.length == 0) {
-			me.res.status(500).json({ error: 'Could not find any matching words'});
+		console.log('words:', words);
+
+		if (words.length == 0) {
+			me.res.status(500).json({ error: 'Could not find any matching words' });
 		}
 
 		// Database results are not ordered, let's order them
@@ -248,25 +243,32 @@ Engine.prototype.blackmagic = function(input, res) {
 			}
 		}
 
-		console.log('fragments to query:', fragmentsToQuery);
+		console.log('fragments to query:', fragmentsToQuery.length);
 
-		Fragment.find({ '_id': { $in: fragmentsToQuery } }).populate('word').populate('source').then(function (fragments) {
+		var fragments = new Array();
+		(function findFragment(index) {
+			Fragment.findById(fragmentsToQuery[index]).populate('word').populate('source').then(function (fragment) {
+				fragments.push(fragment);
 
-			// THIS SHIT ISNT ORDERED EITHER... FFFFFFFFFFFFF
-			fragments.sort(function (a, b) {
-				return fragmentsToQuery.findIndex(x => a._id.equals(x)) - fragmentsToQuery.findIndex(x => b._id.equals(x));
+				if(index != fragmentsToQuery.length -1) {
+					findFragment(++index);
+				}
+				else {
+					console.log('ordered fragments:', fragments);
+
+					// TODO: Now combine fragments that have the same source so it will play fluently
+
+					me.fileMagic(fragments, res);
+				}
 			});
+		})(0);
 
-			console.log('fragments:', fragments);
-
-			me.fileMagic(fragments, res);
-		});
 	});
 
 }
 
-Engine.prototype.fileMagic = function(fragments, res) {
-	
+Engine.prototype.fileMagic = function (fragments, res) {
+
 	// Generate temp files from fragments
 	let tempFiles = new Array();
 
