@@ -251,7 +251,7 @@ Engine.prototype.blackmagic = function (input, res) {
 		console.log('words:', words);
 
 		if (words.length == 0) {
-			me.res.status(500).json({ error: 'Could not find any matching words' });
+			res.status(422).json({ error: 'Could not find any matching words' });
 		}
 
 		// Database results are not ordered, let's order them
