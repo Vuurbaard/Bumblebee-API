@@ -193,10 +193,49 @@ Engine.prototype.isWordLinked = function (a, b) {
 
 	for (var linkedWord of a.links) {
 		if (linkedWord.text == b.text) {
+			
 			return true;
 		}
 	}
 	return false;
+}
+
+Engine.prototype.traceFragmentsBySameSourceAndWordLink = function (fragments) {
+	var combinations = new Array();
+
+	for (var i = 0; i < fragments.length; i++) {
+		var fragment = fragments[i];
+		var nextFragment = fragments[i + 1];
+
+		if (this.isFragmentLinkedBySource(fragment, nextFragment) && this.isWordLinked(fragment.word, nextFragment.word)) {
+			var combination = new Array();
+			combination.push(fragment);
+
+			// This fragment has a link to the next fragment by source, so we need to trace it to the deepest link level
+			var traces = 1;
+			while (this.isFragmentLinkedBySource(fragment, nextFragment) && this.isWordLinked(fragment.word, nextFragment.word)) {
+				combination.push(nextFragment);
+
+				fragment = fragments[i + traces];
+				nextFragment = fragments[i + traces + 1];
+				traces++;
+			}
+			combinations.push(combination);
+			i += combination.length - 1;
+		}
+		else {
+			combinations.push([fragment]);
+		}
+	}
+
+	//console.log('wordCombinations:', wordCombinations);
+	return combinations;
+}
+
+Engine.prototype.isFragmentLinkedBySource = function (a, b) {
+	if (!a || !b) { return false; }
+	if(a._id.equals(b.id)) { return false; }
+	return a.source._id.equals(b.source._id);
 }
 
 Engine.prototype.blackmagic = function (input, res) {
@@ -247,18 +286,31 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		var fragments = new Array();
 		(function findFragment(index) {
-			Fragment.findById(fragmentsToQuery[index]).populate('word').populate('source').then(function (fragment) {
+			Fragment.findById(fragmentsToQuery[index]).populate('word').populate({path: 'word', populate: { path: 'links' }}).populate('source').then(function (fragment) {
 				fragments.push(fragment);
 
-				if(index != fragmentsToQuery.length -1) {
+				if (index != fragmentsToQuery.length - 1) {
 					findFragment(++index);
 				}
 				else {
-					console.log('ordered fragments:', fragments);
+					//console.log('ordered fragments:', fragments);
+					//me.fileMagic(fragments, res);
 
-					// TODO: Now combine fragments that have the same source so it will play fluently
+					// Combine fragments that have the same source so it will play fluently
+					var combined = me.traceFragmentsBySameSourceAndWordLink(fragments);
 
-					me.fileMagic(fragments, res);
+					//console.log('combined:', combined);
+					
+					var combinedFragments = new Array();
+					for(var combinedBySourceAndLink of combined) {
+						console.log('test:', combinedBySourceAndLink);
+						var combinedFragment = {start: combinedBySourceAndLink[0].start, end: combinedBySourceAndLink[combinedBySourceAndLink.length - 1].end, id: combinedBySourceAndLink[0]._id + "-" + combinedBySourceAndLink[combinedBySourceAndLink.length - 1]._id, source: combinedBySourceAndLink[0].source};
+						combinedFragments.push(combinedFragment);
+					}
+
+					console.log('combined by start/end:', combinedFragments);
+
+					me.fileMagic(combinedFragments, res);
 				}
 			});
 		})(0);
@@ -280,11 +332,11 @@ Engine.prototype.fileMagic = function (fragments, res) {
 			ffmpeg(filepath)
 				.setStartTime(fragment.start)
 				.setDuration(fragment.end - fragment.start)
-				.output(__dirname + '/../audio/fragments/' + fragment._id + '.mp3')
+				.output(__dirname + '/../audio/fragments/' + fragment.id + '.mp3')
 				.on('end', function (err) {
 					if (!err) {
 						var order = fragments.indexOf(fragment);
-						tempFiles.push({ order: order, file: fragment._id + '.mp3' });
+						tempFiles.push({ order: order, file: fragment.id + '.mp3' });
 						resolve();
 						//console.log('conversion Done');
 					}
