@@ -29,13 +29,31 @@ Engine.prototype.magic = function (words) {
 				word: word,
 				id: fragment.id,
 				source: fragment.source,
-				edges: new Array()
+				start: fragment.start,
+				edges: new Array(),
 			}
 
 			console.log('generated node', node.name);
 			nodes.push(node);
 		}
 	}
+
+	console.log('unsorted on source/start:', nodes);
+	// Sort nodes on source first and start time second
+	nodes.sort(function (a, b) { 
+		if(a.source.id == b.source.id)
+		{
+			return (a.start < b.start) ? -1 : (a.start > b.start) ? 1 : 0;
+		}
+		else
+		{
+			return 0;
+			//return (a.start < b.start) ? -1 : 1;
+		}
+	});
+
+	console.log('sorted on source/start:', nodes);
+
 
 	// Generate the edges
 	for (var node of nodes) {
@@ -64,6 +82,7 @@ Engine.prototype.magic = function (words) {
 		var traces = this.traceEdges(node, new Array());
 		//console.log('traces for', node.name, traces);
 
+		// TODO: Soften the score even if word is not linked but shares the same source
 		for (var edge of traces) {
 			var cost = 1 / traces.length;
 			if (cost < edge.cost && cost < 1) {
@@ -73,6 +92,7 @@ Engine.prototype.magic = function (words) {
 	}
 
 	// Convert the shit to the node-dijkstra library structure
+	var debugGraph = new Array();
 	for (var node of nodes) {
 
 		var edges = {};
@@ -81,16 +101,13 @@ Engine.prototype.magic = function (words) {
 			edges[edge.node.id] = edge.cost;
 		}
 
-		console.log('node:', node.id, 'edges:', edges);
+		debugGraph.push({node: node, edges: edges});
+		//console.log('node:', node.id, 'edges:', edges);
 
 		route.addNode(node.id, edges);
 	}
 
-
-	// TODO: Soften the score even if word is not linked but shares the same source
-
 	var fragments = new Array();
-
 	var startWord = words[0];
 	var endWord = words[words.length - 1];
 
@@ -138,7 +155,7 @@ Engine.prototype.magic = function (words) {
 		fragments.push(fragment.id);
 	}
 
-	return fragments;
+	return {fragments:fragments, nodes: debugGraph, path: path };
 }
 
 Engine.prototype.traceEdges = function (node, traces) {
@@ -265,19 +282,20 @@ Engine.prototype.blackmagic = function (input, res) {
 			}
 		}
 
-		console.log('ordered words:', orderedWords);
+		//console.log('ordered words:', orderedWords);
 
 		// Gather which words are linked together
 		var linkedWords = me.traceWordLinks(orderedWords);
-		console.log('linkedWords:', linkedWords); // i.e. [['please', 'let', 'this'], ['down']]
+		//console.log('linkedWords:', linkedWords); // i.e. [['please', 'let', 'this'], ['down']]
 
 		// For each word in the combinations, do magic for each fragment
 		var fragmentsToQuery = new Array();
 		for (var words of linkedWords) {
 
-			var fragments = me.magic(words);
-			//console.log("fragments:", fragments);
-			for (var fragmentId of fragments) {
+			var magic = me.magic(words);
+
+			//console.log("fragments:", magic.fragments);
+			for (var fragmentId of magic.fragments) {
 				fragmentsToQuery.push(fragmentId);
 			}
 		}
@@ -303,14 +321,14 @@ Engine.prototype.blackmagic = function (input, res) {
 					
 					var combinedFragments = new Array();
 					for(var combinedBySourceAndLink of combined) {
-						console.log('test:', combinedBySourceAndLink);
+						//console.log('test:', combinedBySourceAndLink);
 						var combinedFragment = {start: combinedBySourceAndLink[0].start, end: combinedBySourceAndLink[combinedBySourceAndLink.length - 1].end, id: combinedBySourceAndLink[0]._id + "-" + combinedBySourceAndLink[combinedBySourceAndLink.length - 1]._id, source: combinedBySourceAndLink[0].source};
 						combinedFragments.push(combinedFragment);
 					}
 
-					console.log('combined by start/end:', combinedFragments);
+					//console.log('combined by start/end:', combinedFragments);
 
-					me.fileMagic(combinedFragments, res);
+					me.fileMagic(combinedFragments, res, {nodes: magic.nodes, path: magic.path});
 				}
 			});
 		})(0);
@@ -319,7 +337,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 }
 
-Engine.prototype.fileMagic = function (fragments, res) {
+Engine.prototype.fileMagic = function (fragments, res, debug) {
 
 	// Generate temp files from fragments
 	let tempFiles = new Array();
@@ -383,7 +401,7 @@ Engine.prototype.fileMagic = function (fragments, res) {
 			})
 			.on('end', function () {
 				console.log('Audio created in:', "/audio/temp/" + outputfilename);
-				res.json({ file: "/audio/temp/" + outputfilename });
+				res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
 			})
 	});
 }
