@@ -41,8 +41,12 @@ body {
 .well,
 .list-group-item,
 .input-group-addon,
+.btn,
 .btn-default {
-    background-color: rgba(68, 70, 79, 0.5);
+	background-color: rgba(68, 70, 79, 0.5);
+	border: 0px;
+	border-radius: 0px;
+	color: #ffffff;
 }
 
 .btn-primary {
@@ -51,6 +55,11 @@ body {
 
 .btn-primary:hover {
     background: #f5a212;
+}
+
+.form-control {
+	border: 0px;
+	border-radius: 0px;
 }
 
 a {

@@ -16,7 +16,8 @@
     padding: 20px 25px;
     font-weight: 400;
     letter-spacing: 0px;
-    text-transform: uppercase;
+	text-transform: uppercase;
+	color: #FFFFFF;
 }
 
 .navbar-header .navbar-brand:hover {
