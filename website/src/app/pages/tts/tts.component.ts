@@ -58,13 +58,21 @@ export class TtsComponent implements OnInit {
 
 		var nodesToDraw = new Array();
 		for(var node of nodes) {
-			nodesToDraw.push({id: node.node.id, label: node.node.name});
+			var color = '#FFF';
+			if(path.path.indexOf(node.node.id) !== -1) {
+				color = '#f5a212';
+			}
+			nodesToDraw.push({id: node.node.id, label: node.node.name, shape: 'box', color: color});
 		}
 
 		var edgesToDraw = new Array();
 		for(var node of nodes) {
 			for(var edge of node.node.edges) {
-				edgesToDraw.push({from: node.node.id, to: edge.node.id, label: edge.cost.toString()});
+				var color = '#FFF';
+				if(path.path.indexOf(edge.node.id) !== -1) {
+					color = '#f5a212';
+				}
+				edgesToDraw.push({from: node.node.id, to: edge.node.id, label: edge.cost.toString(), color: color});
 			}
 		}
 
@@ -77,7 +85,18 @@ export class TtsComponent implements OnInit {
 			nodes: nodesToDraw,
 			edges: edgesToDraw
 		};
-		var options = {};
+		var options = {
+			layout: {
+				randomSeed: 2,
+				hierarchical: {
+					// direction: 'LR'
+				}
+			},
+			edges: {
+				//smooth: true,
+				arrows: {to : true }
+			}
+		};
 		var network = new vis.Network(container, data, options);
 	}
 }
