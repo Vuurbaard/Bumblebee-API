@@ -25,7 +25,7 @@ Engine.prototype.magic = function (words) {
 		for (var fragment of word.fragments) {
 
 			var node = {
-				name: word.text + " (source " + fragment.source + ")",
+				name: word.text + "\r\n\(source " + fragment.source + ")",
 				word: word,
 				id: fragment.id,
 				source: fragment.source,

@@ -3,10 +3,14 @@
     display: none;
 }
 
+html, body {
+	height: 100%;
+}
+
 body {
     background: #2f323b;
     font-family: 'Roboto', sans-serif;
-    color: #949ba2;
+	color: #949ba2;
 }
 
 .content {
