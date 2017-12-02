@@ -271,7 +271,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 	// Find the words in the database
 	Word.find({ text: input }).populate('links').populate('fragments').populate('fragments.source').then(function (words) {
-
+		
 		console.log('words:', words);
 
 		if (words.length == 0) {
@@ -340,6 +340,8 @@ Engine.prototype.blackmagic = function (input, res) {
 			});
 		})(0);
 
+	}).catch(error => {
+		console.error(error);
 	});
 
 }
