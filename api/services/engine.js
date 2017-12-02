@@ -38,22 +38,21 @@ Engine.prototype.magic = function (words) {
 		}
 	}
 
-	console.log('unsorted on source/start:', nodes);
+	//console.log('unsorted on source/start:', nodes);
 	// Sort nodes on source first and start time second
-	nodes.sort(function (a, b) { 
-		if(a.source.id == b.source.id)
-		{
-			return (a.start < b.start) ? -1 : (a.start > b.start) ? 1 : 0;
-		}
-		else
-		{
-			return 0;
-			//return (a.start < b.start) ? -1 : 1;
-		}
-	});
+	// nodes.sort(function (a, b) { 
+	// 	if(a.source.id == b.source.id)
+	// 	{
+	// 		return (a.start < b.start) ? -1 : (a.start > b.start) ? 1 : 0;
+	// 	}
+	// 	else
+	// 	{
+	// 		return 0;
+	// 		//return (a.start < b.start) ? -1 : 1;
+	// 	}
+	// });
 
-	console.log('sorted on source/start:', nodes);
-
+	//console.log('sorted on source/start:', nodes);
 
 	// Generate the edges
 	for (var node of nodes) {
@@ -70,25 +69,33 @@ Engine.prototype.magic = function (words) {
 		}
 	}
 
-	// Calculate costs
+	// Set cost of edges to 2 if they do not share the same source
 	for (var node of nodes) {
-
 		for (var edge of node.edges) {
 			if (node.source != edge.node.source) {
 				edge.cost = 2;
 			}
 		}
+	}
 
-		var traces = this.traceEdges(node, new Array());
-		//console.log('traces for', node.name, traces);
+	// Calculate costs
+	for (var node of nodes) {
+		// Softens the score of edges if it shares the same source
+		var edges = this.traceEdges(node, new Array());
 
-		// TODO: Soften the score even if word is not linked but shares the same source
-		for (var edge of traces) {
-			var cost = 1 / traces.length;
+		console.log('=========');
+
+		for (var edge of edges) {
+			var cost = 1 / edges.length;
 			if (cost < edge.cost && cost < 1) {
+
+				console.log('updating cost of edge:', edge, 'to', cost);
 				edge.cost = cost;
 			}
 		}
+
+		// TODO: Soften the score even if word is not linked but shares the same source
+		console.log('edge traces for node', node.name + ":", edges);
 	}
 
 	// Convert the shit to the node-dijkstra library structure
@@ -101,8 +108,8 @@ Engine.prototype.magic = function (words) {
 			edges[edge.node.id] = edge.cost;
 		}
 
-		debugGraph.push({node: node, edges: edges});
-		//console.log('node:', node.id, 'edges:', edges);
+		debugGraph.push({ node: node, edges: edges });
+		console.log('node:', node.id, 'edges:', edges);
 
 		route.addNode(node.id, edges);
 	}
@@ -155,16 +162,16 @@ Engine.prototype.magic = function (words) {
 		fragments.push(fragment.id);
 	}
 
-	return {fragments:fragments, nodes: debugGraph, path: path };
+	return { fragments: fragments, nodes: debugGraph, path: path };
 }
 
 Engine.prototype.traceEdges = function (node, traces) {
-	// console.log('starting trace for', node.name);
+	//console.log('starting trace for', node.name);
 
 	for (var edge of node.edges) {
 
 		if (edge.node.source.equals(node.source)) {
-			// console.log('adding', edge, 'to traces');
+			//console.log('adding', edge, 'to traces');
 			traces.push(edge);
 			this.traceEdges(edge.node, traces);
 		}
@@ -210,7 +217,7 @@ Engine.prototype.isWordLinked = function (a, b) {
 
 	for (var linkedWord of a.links) {
 		if (linkedWord.text == b.text) {
-			
+
 			return true;
 		}
 	}
@@ -251,7 +258,7 @@ Engine.prototype.traceFragmentsBySameSourceAndWordLink = function (fragments) {
 
 Engine.prototype.isFragmentLinkedBySource = function (a, b) {
 	if (!a || !b) { return false; }
-	if(a._id.equals(b.id)) { return false; }
+	if (a._id.equals(b.id)) { return false; }
 	return a.source._id.equals(b.source._id);
 }
 
@@ -304,7 +311,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		var fragments = new Array();
 		(function findFragment(index) {
-			Fragment.findById(fragmentsToQuery[index]).populate('word').populate({path: 'word', populate: { path: 'links' }}).populate('source').then(function (fragment) {
+			Fragment.findById(fragmentsToQuery[index]).populate('word').populate({ path: 'word', populate: { path: 'links' } }).populate('source').then(function (fragment) {
 				fragments.push(fragment);
 
 				if (index != fragmentsToQuery.length - 1) {
@@ -318,17 +325,17 @@ Engine.prototype.blackmagic = function (input, res) {
 					var combined = me.traceFragmentsBySameSourceAndWordLink(fragments);
 
 					//console.log('combined:', combined);
-					
+
 					var combinedFragments = new Array();
-					for(var combinedBySourceAndLink of combined) {
+					for (var combinedBySourceAndLink of combined) {
 						//console.log('test:', combinedBySourceAndLink);
-						var combinedFragment = {start: combinedBySourceAndLink[0].start, end: combinedBySourceAndLink[combinedBySourceAndLink.length - 1].end, id: combinedBySourceAndLink[0]._id + "-" + combinedBySourceAndLink[combinedBySourceAndLink.length - 1]._id, source: combinedBySourceAndLink[0].source};
+						var combinedFragment = { start: combinedBySourceAndLink[0].start, end: combinedBySourceAndLink[combinedBySourceAndLink.length - 1].end, id: combinedBySourceAndLink[0]._id + "-" + combinedBySourceAndLink[combinedBySourceAndLink.length - 1]._id, source: combinedBySourceAndLink[0].source };
 						combinedFragments.push(combinedFragment);
 					}
 
 					//console.log('combined by start/end:', combinedFragments);
 
-					me.fileMagic(combinedFragments, res, {nodes: magic.nodes, path: magic.path});
+					me.fileMagic(combinedFragments, res, { nodes: magic.nodes, path: magic.path });
 				}
 			});
 		})(0);
