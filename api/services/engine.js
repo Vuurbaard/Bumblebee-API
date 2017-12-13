@@ -1,4 +1,5 @@
 var q = require('q');
+var colors = require('colors');
 
 // Dijkstra shizzle
 const Graph = require('node-dijkstra'); // https://github.com/albertorestifo/node-dijkstra
@@ -21,11 +22,15 @@ Engine.prototype.magic = function (words) {
 	var nodes = new Array();
 
 	// Generate the nodes
+	console.log('generating nodes...'.green);
 	for (var word of words) {
+		// console.log('=========');
 		for (var fragment of word.fragments) {
 
+			// console.log(word.text, " has fragments:",  fragment);
+
 			var node = {
-				name: word.text + "\r\n\(source " + fragment.source + ")",
+				name: word.text + "\r\n\(id " + fragment.id + ")" + "\r\n\(source " + fragment.source + ")" + "\r\n(start " + fragment.start + ")",
 				word: word,
 				id: fragment.id,
 				source: fragment.source,
@@ -33,42 +38,78 @@ Engine.prototype.magic = function (words) {
 				edges: new Array(),
 			}
 
-			console.log('generated node', node.name);
-			nodes.push(node);
+			// if nodes doesnt contain this fragment yet, add it.
+			var found = false;
+			for (var n of nodes) {
+				if (n.id == fragment.id) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				//console.log('generated node', node.name);
+				nodes.push(node);
+			}
+
 		}
 	}
 
-	//console.log('unsorted on source/start:', nodes);
 	// Sort nodes on source first and start time second
-	// nodes.sort(function (a, b) { 
-	// 	if(a.source.id == b.source.id)
-	// 	{
-	// 		return (a.start < b.start) ? -1 : (a.start > b.start) ? 1 : 0;
-	// 	}
-	// 	else
-	// 	{
-	// 		return 0;
-	// 		//return (a.start < b.start) ? -1 : 1;
-	// 	}
-	// });
-
+	nodes.sort(function (a, b) {
+		if (a.source.id == b.source.id) {
+			return (a.start < b.start) ? -1 : (a.start > b.start) ? 1 : 0;
+		}
+		else {
+			return 0;
+		}
+	});
 	//console.log('sorted on source/start:', nodes);
 
+	for (var node of nodes) {
+		console.log('node:'.yellow, node.word.text, node.id, node.start);
+	}
+
 	// Generate the edges
+	console.log('generating edges...'.green);
 	for (var node of nodes) {
 		for (var link of node.word.links) {
 
-			// find every node with the same word
+			// find every node with the same link word
 			var linkedNodes = nodes.filter(function (linkedNode) {
-				return link.text == linkedNode.word.text;
+				return link.text == linkedNode.word.text && linkedNode.id != node.id;
 			});
 
 			for (var linkedNode of linkedNodes) {
-				node.edges.push({ node: linkedNode, cost: 1 });
+				// check if we haven't added this edge before
+				var alreadyAdded = false;
+				for (var edge of node.edges) {
+					if (edge.node.id == linkedNode.id)  {
+						alreadyAdded = true;
+						break;
+					}
+				}
+
+				if (!alreadyAdded) {
+					console.log('edge:'.yellow, node.word.text, node.id, '->'.yellow, linkedNode.word.text, linkedNode.id);
+					node.edges.push({ node: linkedNode, cost: 1 });
+				}
 			}
 		}
 	}
 
+	// console.log('removing all unnecessary edges'.green);
+	// for (var node of nodes) {
+	// 	var edges = this.traceEdgesBySourceAndStart(node, new Array());
+	// 	// console.log(edges.length);
+	// 	// console.log(edges);
+
+	// 	for(var i = 0; i < edges.length; i++) {
+	// 		console.log('removing edge:'.yellow, node.word.text, node.id, '->'.yellow, edges[i].node.word.text, edges[i].node.id);
+	// 		delete edges[i];
+	// 	}
+	// }
+
+	console.log("setting cost of edges to 2 if source doesn't match".green);
 	// Set cost of edges to 2 if they do not share the same source
 	for (var node of nodes) {
 		for (var edge of node.edges) {
@@ -79,62 +120,72 @@ Engine.prototype.magic = function (words) {
 	}
 
 	// Calculate costs
+	console.log('calculating the cost of all the edges...'.green);
 	for (var node of nodes) {
 		// Softens the score of edges if it shares the same source
 		var edges = this.traceEdges(node, new Array());
 
-		console.log('=========');
+		// console.log(edges.length);
+		// console.log(edges);
 
 		for (var edge of edges) {
 			var cost = 1 / edges.length;
 			if (cost < edge.cost && cost < 1) {
-
-				console.log('updating cost of edge:', edge, 'to', cost);
+				console.log('updating cost of edge:'.yellow, node.word.text, node.id, '->'.yellow, edge.node.word.text, edge.node.id, 'to'.yellow, cost);
 				edge.cost = cost;
 			}
 		}
 
-		// TODO: Soften the score even if word is not linked but shares the same source
-		console.log('edge traces for node', node.name + ":", edges);
+		console.log(node.word.text.yellow, node.id.yellow);
+
+		for (var edge of edges) {
+			console.log(node.word.text, node.id, '->'.yellow, edge.node.word.text, edge.node.id, edge.cost);
+		}
 	}
 
+	console.log('converting the shit to node-dijkstra library structure...'.green);
 	// Convert the shit to the node-dijkstra library structure
 	var debugGraph = new Array();
 	for (var node of nodes) {
 
 		var edges = {};
-
 		for (var edge of node.edges) {
 			edges[edge.node.id] = edge.cost;
 		}
 
-		debugGraph.push({ node: node, edges: edges });
-		console.log('node:', node.id, 'edges:', edges);
+		var debugEdges = new Array();
+		for (var edge of node.edges) {
+			debugEdges.push({ id: edge.node.id, cost: edge.cost });
+		}
+
+		debugGraph.push({ 'node': { id: node.id, name: node.name }, edges: debugEdges });
+		//console.log('node:', node.id, 'edges:', edges);
 
 		route.addNode(node.id, edges);
 	}
 
-	var fragments = new Array();
-	var startWord = words[0];
-	var endWord = words[words.length - 1];
+	// console.log(route.graph.map);
 
-	if (startWord != endWord) {
+	var fragments = new Array();
+
+	if (nodes.length > 1) {
+		var startWord = words[0];
+		var endWord = words[words.length - 1];
 		var paths = new Array();
 
+		console.log('startWord:', startWord.text, 'endWord:', endWord.text);
+
 		for (var startFragment of startWord.fragments) {
-			//var startNodeName = startWord.text + " (source " + startFragment.source + ")";
 			var startNodeName = startFragment.id;
 
 			for (var endFragment of endWord.fragments) {
-				//var endNodeName = endWord.text + " (source " + endFragment.source + ")";
 				var endNodeName = endFragment.id;
 
 				var path = route.path(startNodeName, endNodeName, { cost: true });
 
-				if (path.score != 0) {
+				if (path.cost != 0) {
 					paths.push(path);
 				}
-
 			}
 		}
 
@@ -154,26 +205,28 @@ Engine.prototype.magic = function (words) {
 			fragments.push(fragment);
 		}
 	}
-	else {
-		// Just one word, so let's pick a random fragment of it.
-		var random = Math.floor(Math.random() * startWord.fragments.length);
-		var fragment = startWord.fragments[random];
-		console.log('just one word, so picked random fragment:', fragment);
-		fragments.push(fragment.id);
-	}
 
 	return { fragments: fragments, nodes: debugGraph, path: path };
 }
 
 Engine.prototype.traceEdges = function (node, traces) {
-	//console.log('starting trace for', node.name);
+	//console.log('starting trace for'.green, node.word.text, node.id);
 
 	for (var edge of node.edges) {
-
 		if (edge.node.source.equals(node.source)) {
-			//console.log('adding', edge, 'to traces');
-			traces.push(edge);
-			this.traceEdges(edge.node, traces);
+
+			var alreadyAdded = false;
+			for (var edge of traces) {
+				if (edge.node.id == node.id) {
+					alreadyAdded = true;
+				}
+			}
+
+			if (!alreadyAdded) {
+				console.log('adding'.yellow, node.word.text, node.id, '->'.yellow, edge.node.word.text, edge.node.id);
+				traces.push(edge);
+				this.traceEdges(edge.node, traces);
+			}
 		}
 	}
 
@@ -271,7 +324,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 	// Find the words in the database
 	Word.find({ text: input }).populate('links').populate('fragments').populate('fragments.source').then(function (words) {
-		
+
 		console.log('words:', words);
 
 		if (words.length == 0) {
@@ -307,7 +360,7 @@ Engine.prototype.blackmagic = function (input, res) {
 			}
 		}
 
-		console.log('fragments to query:', fragmentsToQuery.length);
+		console.log('fragments to query:', fragmentsToQuery);
 
 		var fragments = new Array();
 		(function findFragment(index) {
@@ -394,7 +447,7 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 			files.push(__dirname + "/../audio/fragments/" + fragment.file);
 		});
 
-		//console.log('temp files:', files);
+		console.log('temp files:', files);
 
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
@@ -406,10 +459,11 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 			.on('error', function (err, stdout, stderr) {
 				console.error('Error:', err)
 				console.error('ffmpeg stderr:', stderr)
-				res.status(500).json({ error: 'FFMpeg failed to process file' });
+				res.status(500).json({ error: 'FFMpeg failed to process file:' });
 			})
 			.on('end', function () {
 				console.log('Audio created in:', "/audio/temp/" + outputfilename);
+
 				res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
 			})
 	});
