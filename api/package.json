@@ -13,6 +13,7 @@
     "audioconcat": "^0.1.2",
     "bcryptjs": "*",
     "body-parser": "*",
+    "colors": "^1.1.2",
     "cors": "*",
     "express": "*",
     "ffmpeg": "0.0.4",
