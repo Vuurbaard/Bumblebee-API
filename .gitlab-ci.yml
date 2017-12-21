@@ -14,13 +14,15 @@ deploy to production:
  stage: deploy
  environment: production
  script:
+  - cat .gitlab-ci.yml
   - apt-get update && apt-get install rsync -qq -y
-  - rsync --exclude='.git/' -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
+  - rsync --exclude='.git/' --exclude='node_modules/' --exclude='api/audio/' --delete -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
+  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cat /home/node/bumblebee/.gitlab-ci.yml'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/api && npm install'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && npm install'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/discord && npm install'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod --aot=false'
   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
-  
  only:
   - master
+  - v2

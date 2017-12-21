@@ -1,16 +1,10 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const config = require('../config/database');
 
 const FragmentSchema = mongoose.Schema({
-    id: { type: String,  required: true },
     start: { type: String, required: true },
-    end: { type: String, required: true },
-    phrase: { type: String, required: true },
-    reviewed: { type: Boolean, required: true},
-    wordCount: { type: Number, required: true}
+	end: { type: String, required: true },
+	source: { type: mongoose.Schema.Types.ObjectId, ref: 'Source'},
+	word: { type: mongoose.Schema.Types.ObjectId, ref: 'Word'},
 });
-
-FragmentSchema.index({ phrase: 'text' });
 
 const Fragment = module.exports = mongoose.model('Fragment', FragmentSchema);

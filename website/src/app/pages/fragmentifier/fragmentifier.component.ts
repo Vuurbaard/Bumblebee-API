@@ -22,9 +22,11 @@ export class FragmentifierComponent implements OnInit {
 	end: Number;
 	isFragmenting: Boolean = false;
 	fragments: Array<any> = [];
-	youtube: string = "https://www.youtube.com/watch?v=9-yUbFi7VUY";
+	url: string = "https://www.youtube.com/watch?v=9-yUbFi7VUY";
 	private host: String;
-	id: string; // ID from the audio file of the API
+
+	// Gets returned from the API
+	sourceId: string;
 
 	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router) {
 
@@ -59,15 +61,20 @@ export class FragmentifierComponent implements OnInit {
 	}
 
 	download() {
-		console.log('Downloading from url:', this.youtube);
-		this.audioService.download(this.youtube).subscribe(data => {
+		console.log('Downloading from url:', this.url);
+		this.audioService.download(this.url).subscribe(data => {
 			console.log('Downloaded:', data);
 			this.wavesurfer.load(this.host + data.url);
 			this.downloaded = true;
-			this.id = data.id;
+			this.sourceId = data.sourceId;
 
 			if (data.fragments) {
-				this.fragments = data.fragments;
+				var fragments = new Array();
+
+				for(var fragment of data.fragments) {
+					fragments.push({word: fragment.word.text, start: fragment.start, end: fragment.end});
+				}
+				this.fragments = fragments;
 			}
 		});
 	}
@@ -124,7 +131,7 @@ export class FragmentifierComponent implements OnInit {
 	save() {
 		//let id = this.youtube.replace('https://www.youtube.com/watch?v=', '');
 
-		this.audioService.saveFragments(this.id, this.fragments).subscribe(data => {
+		this.audioService.saveFragments(this.sourceId, this.fragments).subscribe(data => {
 			if (data.success) {
 				this.flashMessagesService.show('Fragments are submitted for review! Thank you!', {
 					cssClass: 'alert-success',

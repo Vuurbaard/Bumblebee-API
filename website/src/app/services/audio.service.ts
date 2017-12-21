@@ -26,27 +26,12 @@ export class AudioService {
     return this.http.post(this.host + '/audio/download', { url: url }, { headers: headers }).map(res => res.json());
   }
 
-  // getFragments(id : string,) {
-  //   let headers = new Headers();
-  //   headers.append('Content-Type', 'application/json');
-  //   headers.append('Authorization', this.authService.getToken());
-
-  //   let params: URLSearchParams = new URLSearchParams();
-  //   params.set('id', id);
-
-  //   let requestOptions = new RequestOptions();
-  //   requestOptions.headers = headers;
-  //   requestOptions.body.id = id;
-
-  //   return this.http.get('http://127.0.0.1:3000/audio/fragments', requestOptions).map(res => res.json());
-  // }
-
-  saveFragments(id : string, fragments: Array<any>) {
+  saveFragments(sourceId: string, fragments: Array<any>) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', this.authService.getToken());
 
-    return this.http.post(this.host + '/audio/fragments', { id: id, fragments: fragments }, { headers: headers }).map(res => res.json());
+    return this.http.post(this.host + '/audio/fragments', { sourceId: sourceId, fragments: fragments }, { headers: headers }).map(res => res.json());
   }
 
   tts(text: string) {
