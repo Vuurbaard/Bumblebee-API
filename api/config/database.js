@@ -1,4 +1,4 @@
 module.exports = {
-    database: 'mongodb://localhost:27017/bumblebeev2',
+    database: 'mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2',
     secret: 'anything'
 }

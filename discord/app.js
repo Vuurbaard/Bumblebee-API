@@ -1,3 +1,8 @@
+//import { setTimeout } from 'timers';
+
+// Read ENV file
+require('dotenv').config();
+
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const request = require('request');
@@ -9,30 +14,9 @@ let authToken = "";
 let queues = [];
 
 client.on('ready', () => {
-	console.log('Ready!');
 
-	var options = {
-		url: 'http://127.0.0.1:3000/users/authenticate',
-		body: { "username": "Zunz", "password": "123" },
-		json: true
-	};
-
-	console.log('Trying to authenticate with Bumblebee API...');
-	request.post(options, function (error, response, body) {
-		if (body) {
-			if (body.success) {
-				console.log('Authenticated!');
-				this.authToken = body.token;
-			}
-			else {
-				console.log(body.error);
-			}
-		}
-		else {
-			// Seems like the API is down?
-			console.error("Cannot connect to the API", options);
-		}
-	});
+	// Try to login
+	login();
 
 });
 
@@ -57,7 +41,7 @@ client.on('message', message => {
 	queue.push(function (queuer) {
 		message.member.voiceChannel.join().then(connection => {
 			var options = {
-				url: 'http://127.0.0.1:3000/audio/tts',
+				url: 'http://' + api() + '/audio/tts',
 				body: { "text": message.content },
 				json: true,
 				headers: { 'Authorization': this.authToken }
@@ -114,3 +98,39 @@ client.on('debug', info => {
 });
 
 client.login(config.clientToken);
+
+function api(){
+	return process.env.API_HOST + ':' + process.env.API_PORT;
+}
+
+function login(){
+	console.log('Ready!');
+	
+	var options = {
+		url: 'http://' + api() + '/users/authenticate',
+		body: { "username": "Zunz", "password": "123" },
+		json: true
+	};
+
+	console.log('Trying to authenticate with Bumblebee API...');
+	request.post(options, function (error, response, body) {
+		if (body) {
+			if (body.success) {
+				console.log('Authenticated!');
+				this.authToken = body.token;
+			}
+			else {
+				console.log(body);
+				console.log(body.error);
+			}
+		}
+		else {
+			// Seems like the API is down?
+			console.error("Cannot connect to the API", options);
+			setTimeout(() => {
+				console.log("Retrying...");
+				login();
+			}, 5000)
+		}
+	});
+}
