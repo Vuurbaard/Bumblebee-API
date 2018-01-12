@@ -1,3 +1,4 @@
+
 var q = require('q');
 var colors = require('colors');
 
@@ -41,6 +42,7 @@ Engine.prototype.blackmagic = function (input, res) {
 		}
 	}
 
+	console.log("Combinations");
 	console.log(combinations);
 
 	// Find the words in the database
@@ -95,8 +97,14 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		// Now try to match these random traces ontop of the given input to get the results
 		console.log('trying to match (random) traces...'.green);
-
+		
 		var inputToProcess = input;
+
+		console.log("===== Random Traces ======");
+		console.log(randomTraces);
+
+		console.log("===== Input ======");
+		console.log(inputToProcess);
 
 		for (var traces of randomTraces) {
 
@@ -108,17 +116,65 @@ Engine.prototype.blackmagic = function (input, res) {
 				words.push(trace.word.text);
 			}
 
+			console.log("==== Words for trace =====");
+			console.log(words)
+
 			console.log('trying to remove:'.green, words, 'from'.green, inputToProcess);
 
-			for(var word of words) {
-				// TODO: find index and trace traces in that array so we know start and end index, then make those null?
-				
-				
+			let tmp = [];
+
+			if(words.length > 0){
+				// Find the first word
+				let start = 0;
+				let index = -1;
+				while(inputToProcess.indexOf(words[0],start) >= 0){
+					let ind = inputToProcess.indexOf(words[0],start);
+					// Sanity check
+					if(inputToProcess.length >= (ind + words.length)){
+						let br = false;
+						let indx = ind;
+						for(var word of words){
+							if(inputToProcess[indx] == word){
+								indx = indx + 1;
+							}else{
+								br = true;
+								break;
+							}
+						}
+						if(!br){
+							start = ind + 1;
+							index = ind;
+						}
+						start = ind + 1;
+					}else{
+						// Break the while loop
+						start = ind + 1;
+					}
+				}
+
+				if(index >= 0){
+					// Replace words with fragments from inputToProcess
+					inputToProcess.splice(index, words.length);
+					let rTraces = traces.reverse();
+					for (var trace of rTraces) {
+						inputToProcess.splice(index,0, trace);
+					}
+				}
+
 			}
+
+			// for(var word of words) {
+			// 	// TODO: find index and trace traces in that array so we know start and end index, then make those null?
+			// 	let start = 0;
+			// 	// Replace matchedTraces with the current words found
+			// 	while( inputToProcess.indexOf(word, start) > 0 ){
+
+			// 	}
+			// }
 			
 		}
 
-		deferred.resolve({ status: 200 });
+		deferred.resolve({ status: 200 , fragments : inputToProcess.filter( val => { return !(typeof(val) == "string") }) });
 
 	}).catch(error => {
 		console.error(error);
