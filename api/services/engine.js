@@ -46,7 +46,7 @@ Engine.prototype.blackmagic = function (input, res) {
 	console.log(combinations);
 
 	// Find the words in the database
-	Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).then(function (words) {
+	Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } }).then(function (words) {
 
 		if (words.length == 0) {
 			deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
@@ -174,8 +174,14 @@ Engine.prototype.blackmagic = function (input, res) {
 			
 		}
 
-		deferred.resolve({ status: 200 , fragments : inputToProcess.filter( val => { return !(typeof(val) == "string") }) });
-
+		let path = "";
+		return deferred.resolve(new Promise((resolve,reject) => {
+			me.fileMagic(inputToProcess.filter( val => { return !(typeof(val) == "string") } ), res, false).then( (data) => {
+				console.log("????");
+				console.log(data);
+				resolve(data);
+			});
+		}));
 	}).catch(error => {
 		console.error(error);
 		deferred.reject({ status: 500, message: error });
@@ -235,5 +241,84 @@ Engine.prototype.traceFragments = function (index, words, fragment, traces) {
 
 	return traces;
 }
+
+
+
+Engine.prototype.fileMagic = function (fragments, res, debug) {
+
+	// Generate temp files from fragments
+	let tempFiles = new Array();
+
+	let promises = fragments.map(function (fragment) {
+		return new Promise(function (resolve, reject) {
+			
+			let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
+			console.log(filepath);
+
+			ffmpeg(filepath)
+				.setStartTime(fragment.start)
+				.setDuration(fragment.end - fragment.start)
+				.output(__dirname + '/../audio/fragments/' + fragment.id + '.mp3')
+				.on('end', function (err) {
+					if (!err) {
+						var order = fragments.indexOf(fragment);
+						tempFiles.push({ order: order, file: fragment.id + '.mp3' });
+						resolve();
+						//console.log('conversion Done');
+					}
+				})
+				.on('error', function (err) {
+					console.log('ffmpeg error:', err);
+					resolve();
+				}).run();
+
+		});
+	});
+	
+	return Promise.all(promises).then(function () {
+
+		function compare(a, b) {
+			if (a.order < b.order)
+				return -1;
+			if (a.order > b.order)
+				return 1;
+			return 0;
+		}
+		tempFiles.sort(compare);
+
+		// Audioconcat needs a non relative path. 
+		let files = new Array();
+		tempFiles.forEach(function (fragment) {
+			files.push(__dirname + "/../audio/fragments/" + fragment.file);
+		});
+
+		console.log('temp files:', files);
+
+		// Concatenate the temp fragment files into one big one
+		let outputfilename = guid.create() + '.mp3';
+
+		return new Promise((resolve,reject) => {
+			audioconcat(files)
+			.concat(__dirname + "/../audio/temp/" + outputfilename)
+			.on('start', function (command) {
+				console.log('ffmpeg process started:', command)
+			})
+			.on('error', function (err, stdout, stderr) {
+				console.error('Error:', err)
+				console.error('ffmpeg stderr:', stderr)
+				resolve({ error: 'FFMpeg failed to process file:' });
+				//res.status(500).json({ error: 'FFMpeg failed to process file:' });
+			})
+			.on('end', function () {
+				console.log('Audio created in:', "/audio/temp/" + outputfilename);
+				resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status : 200 });
+				//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
+			})
+
+		});
+	});
+}
+
+
 
 module.exports = new Engine();
