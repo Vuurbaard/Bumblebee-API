@@ -60,7 +60,26 @@ router.post('/tts', (req, res, next) => {
 
 	let text = req.body.text.toLowerCase();
 
-	Engine.blackmagic(text, res);
+	Engine.blackmagic(text).then(result => {
+		console.log('blackmagic result:', result);
+		res.json({success: true});
+	}).catch(error => {
+
+		//console.log(error.toString().red);
+		if(error.stack) {
+			console.log(error.stack.toString().red);
+		}
+		else {
+			console.log(error.toString().red);
+		}
+
+		if(error.status) {
+			res.status(error.status).json(error);
+		}
+		else {
+			res.status(500);
+		}
+	});
     
 });
 
