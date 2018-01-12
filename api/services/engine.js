@@ -66,7 +66,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		// FYI: Traces are fragments
 		// pick random, let's say we have 5 traces with the same length, pick one per length. if that makes sense.
-
+		console.log(traces);
 		// Group by length, then pick random?
 		var groupBy = function (xs, key) {
 			return xs.reduce(function (rv, x) {
@@ -77,12 +77,14 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		var grouped = groupBy(traces, 'length');
 		//console.log('grouped:', grouped);
-
 		var randomTraces = new Array();
+
+
 		// Pick random trace from the grouped fragments
 		for (var key in grouped) {
+			
 			var group = grouped[key];
-
+			console.log(group);
 			var random = Math.floor((Math.random() * group.length));
 			var randomTrace = group[random];
 			randomTraces.push(randomTrace);
@@ -93,18 +95,19 @@ Engine.prototype.blackmagic = function (input, res) {
 			return b.length - a.length;
 		});
 
+
 		//console.log('random traces (per length):'.green, randomTraces);
 
 		// Now try to match these random traces ontop of the given input to get the results
-		console.log('trying to match (random) traces...'.green);
+		// console.log('trying to match (random) traces...'.green);
 		
 		var inputToProcess = input;
 
-		console.log("===== Random Traces ======");
-		console.log(randomTraces);
+		// console.log("===== Random Traces ======");
+		// console.log(randomTraces);
 
-		console.log("===== Input ======");
-		console.log(inputToProcess);
+		// console.log("===== Input ======");
+		// console.log(inputToProcess);
 
 		for (var traces of randomTraces) {
 
@@ -155,22 +158,14 @@ Engine.prototype.blackmagic = function (input, res) {
 				if(index >= 0){
 					// Replace words with fragments from inputToProcess
 					inputToProcess.splice(index, words.length);
-					let rTraces = traces.reverse();
-					for (var trace of rTraces) {
-						inputToProcess.splice(index,0, trace);
-					}
+					// Use the whole fragment as one
+					let fragment = traces[0]
+					let lastFragment = traces[traces.length - 1];
+					fragment.end = lastFragment.end;
+					inputToProcess.splice(index,0, fragment);
 				}
 
 			}
-
-			// for(var word of words) {
-			// 	// TODO: find index and trace traces in that array so we know start and end index, then make those null?
-			// 	let start = 0;
-			// 	// Replace matchedTraces with the current words found
-			// 	while( inputToProcess.indexOf(word, start) > 0 ){
-
-			// 	}
-			// }
 			
 		}
 
