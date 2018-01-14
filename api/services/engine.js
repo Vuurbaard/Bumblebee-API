@@ -13,7 +13,7 @@ const audioconcat = require('audioconcat');
 const guid = require('guid');
 
 var Engine = function () {
-	this.blackmagic('please let this work');
+	// this.blackmagic('please let this work');
 	//this.blackmagic('gas gas gas');
 };
 
@@ -24,13 +24,6 @@ Engine.prototype.blackmagic = function (input, res) {
 	var input = input.toLowerCase().split(' ');
 
 	console.log('starting new blackmagic for:'.green, input.toString().yellow);
-
-	//var combinations = new Array();
-	// for(var i = 0; i < input.length; i++) {
-	// 	for(var j = i + 1; j <= input.length; j++) {
-	// 		combinations.push(input.slice(i, j));
-	// 	}	
-	// }
 
 	let combinations = new Array();
 
@@ -120,7 +113,7 @@ Engine.prototype.blackmagic = function (input, res) {
 						for (var word of words) {
 							if (inputToProcess[indx] == word) {
 								indx = indx + 1;
-							} 
+							}
 							else {
 								br = true;
 								break;
@@ -131,7 +124,7 @@ Engine.prototype.blackmagic = function (input, res) {
 							index = ind;
 						}
 						start = ind + 1;
-					} 
+					}
 					else {
 						// Break the while loop
 						start = ind + 1;
@@ -139,8 +132,6 @@ Engine.prototype.blackmagic = function (input, res) {
 
 					//console.log(start, index);
 				}
-
-				
 
 				if (index >= 0) {
 					// Replace words with fragments from inputToProcess
@@ -159,8 +150,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
-			me.fileMagic(inputToProcess.filter(val => { return !(typeof (val) == "string") }), res, false).then((data) => {
-				console.log("????");
+			me.fileMagic(inputToProcess.filter(val => { return !(typeof (val) == "string") }), false).then((data) => {
 				console.log(data);
 				resolve(data);
 			});
@@ -228,7 +218,7 @@ Engine.prototype.traceFragments = function (index, words, fragment, traces) {
 
 
 
-Engine.prototype.fileMagic = function (fragments, res, debug) {
+Engine.prototype.fileMagic = function (fragments, debug) {
 
 	// Generate temp files from fragments
 	let tempFiles = new Array();
@@ -294,7 +284,7 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 					//res.status(500).json({ error: 'FFMpeg failed to process file:' });
 				})
 				.on('end', function () {
-					console.log('Audio created in:', "/audio/temp/" + outputfilename);
+					console.log('Audio created in:'.green, "/audio/temp/" + outputfilename);
 					resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status: 200 });
 					//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
 				})

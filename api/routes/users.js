@@ -30,11 +30,12 @@ router.post('/authenticate', (req, res, next) => {
     console.log('Trying to authenticate user', username);
 
     User.getUserByUsername(username, (err, user) => {
+
         if(err) { throw err; }
         if(!user) {
             return res.json({success: false, msg: 'User not found'});
-        }
-        
+		}
+		
         User.comparePassword(password, user.password, (err, isMatched) => {
             if(err) { throw err; }
             if(isMatched) {
@@ -60,7 +61,7 @@ router.post('/authenticate', (req, res, next) => {
     });
 });
 
-router.get('/profile', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+router.get('/profile', passport.authenticate('jwt', {session: true}), (req, res, next) => {
     res.json({user: req.user});
 });
 
