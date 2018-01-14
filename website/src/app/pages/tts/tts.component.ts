@@ -49,8 +49,8 @@ export class TtsComponent implements OnInit {
 		this.audioService.tts(text).subscribe(data => {
 			this.wavesurfer.load(this.host + data.file);
 
-			console.log(data.debug);
-			this.drawGraph(data.debug.nodes, data.debug.path);
+			//console.log(data.debug);
+			//this.drawGraph(data.debug.nodes, data.debug.path);
 		});
 	}
 
