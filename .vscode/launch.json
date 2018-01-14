@@ -9,7 +9,7 @@
 			"request": "launch",
 			"name": "API (nodemon)",
 			"runtimeExecutable": "nodemon",
-			"program": "${workspaceRoot}/api/test.js",
+			"program": "${workspaceRoot}/api/app.js",
 			"restart": true,
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"

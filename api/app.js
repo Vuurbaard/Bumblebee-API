@@ -59,17 +59,3 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
     console.log('Server listening on port', port);
 })
-
-
-// test
-// var engine = require('./services/engine');
-// engine.tts('please let this work');
-
-// var fragments = require('./services/fragments');
-// fragments.search('please let this work');
-
-// var audio = require('./services/audio');
-// audio.download('https://www.youtube.com/watch?v=9-yUbFi7VUY').then(file => {
-// 	console.log('file:', file);
-	
-// });
