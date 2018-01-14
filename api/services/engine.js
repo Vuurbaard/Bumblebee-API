@@ -65,42 +65,23 @@ Engine.prototype.blackmagic = function (input, res) {
 		//console.log('traces:'.yellow, traces);
 
 		// FYI: Traces are fragments
-		// pick random, let's say we have 5 traces with the same length, pick one per length. if that makes sense.
-		console.log(traces);
-		// Group by length, then pick random?
-		var groupBy = function (xs, key) {
-			return xs.reduce(function (rv, x) {
-				(rv[x[key]] = rv[x[key]] || []).push(x);
-				return rv;
-			}, {});
-		};
-
-		var grouped = groupBy(traces, 'length');
-		//console.log('grouped:', grouped);
-		var randomTraces = new Array();
-
-
-		// Pick random trace from the grouped fragments
-		for (var key in grouped) {
-			
-			var group = grouped[key];
-			console.log(group);
-			var random = Math.floor((Math.random() * group.length));
-			var randomTrace = group[random];
-			randomTraces.push(randomTrace);
-			//console.log(randomTrace);
+		function shuffle(a) {
+			var j, x, i;
+			for (i = a.length - 1; i > 0; i--) {
+				j = Math.floor(Math.random() * (i + 1));
+				x = a[i];
+				a[i] = a[j];
+				a[j] = x;
+			}
 		}
 
-		randomTraces.sort(function (a, b) {
+		shuffle(traces);
+
+		traces.sort(function (a, b) {
 			return b.length - a.length;
 		});
 
-
-		//console.log('random traces (per length):'.green, randomTraces);
-
-		// Now try to match these random traces ontop of the given input to get the results
-		// console.log('trying to match (random) traces...'.green);
-		
+		var randomTraces = traces;
 		var inputToProcess = input;
 
 		// console.log("===== Random Traces ======");
@@ -126,57 +107,65 @@ Engine.prototype.blackmagic = function (input, res) {
 
 			let tmp = [];
 
-			if(words.length > 0){
+			if (words.length > 0) {
 				// Find the first word
 				let start = 0;
 				let index = -1;
-				while(inputToProcess.indexOf(words[0],start) >= 0){
-					let ind = inputToProcess.indexOf(words[0],start);
+				while (inputToProcess.indexOf(words[0], start) >= 0) {
+					let ind = inputToProcess.indexOf(words[0], start);
 					// Sanity check
-					if(inputToProcess.length >= (ind + words.length)){
+					if (inputToProcess.length >= (ind + words.length)) {
 						let br = false;
 						let indx = ind;
-						for(var word of words){
-							if(inputToProcess[indx] == word){
+						for (var word of words) {
+							if (inputToProcess[indx] == word) {
 								indx = indx + 1;
-							}else{
+							} 
+							else {
 								br = true;
 								break;
 							}
 						}
-						if(!br){
+						if (!br) {
 							start = ind + 1;
 							index = ind;
 						}
 						start = ind + 1;
-					}else{
+					} 
+					else {
 						// Break the while loop
 						start = ind + 1;
 					}
+
+					//console.log(start, index);
 				}
 
-				if(index >= 0){
+				
+
+				if (index >= 0) {
 					// Replace words with fragments from inputToProcess
 					inputToProcess.splice(index, words.length);
+
 					// Use the whole fragment as one
 					let fragment = traces[0]
 					let lastFragment = traces[traces.length - 1];
 					fragment.end = lastFragment.end;
-					inputToProcess.splice(index,0, fragment);
+					inputToProcess.splice(index, 0, fragment);
 				}
 
 			}
-			
+
 		}
 
 		let path = "";
-		return deferred.resolve(new Promise((resolve,reject) => {
-			me.fileMagic(inputToProcess.filter( val => { return !(typeof(val) == "string") } ), res, false).then( (data) => {
+		return deferred.resolve(new Promise((resolve, reject) => {
+			me.fileMagic(inputToProcess.filter(val => { return !(typeof (val) == "string") }), res, false).then((data) => {
 				console.log("????");
 				console.log(data);
 				resolve(data);
 			});
 		}));
+
 	}).catch(error => {
 		console.error(error);
 		deferred.reject({ status: 500, message: error });
@@ -227,7 +216,7 @@ Engine.prototype.traceFragments = function (index, words, fragment, traces) {
 	if (nextWord) {
 		for (var nextFragment of nextWord.fragments) {
 			if (nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
-				console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.source, '(' + nextFragment.word.text + " " + nextFragment.start + ')', '('.yellow + fragment.source.toString().yellow + ')'.yellow);
+				console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')', '('.yellow + fragment.source.id.toString().yellow + ')'.yellow);
 				traces.push(nextFragment);
 				this.traceFragments(index + 1, words, nextFragment, traces);
 			}
@@ -246,7 +235,7 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 
 	let promises = fragments.map(function (fragment) {
 		return new Promise(function (resolve, reject) {
-			
+
 			let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
 			console.log(filepath);
 
@@ -269,7 +258,7 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 
 		});
 	});
-	
+
 	return Promise.all(promises).then(function () {
 
 		function compare(a, b) {
@@ -292,23 +281,23 @@ Engine.prototype.fileMagic = function (fragments, res, debug) {
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
 
-		return new Promise((resolve,reject) => {
+		return new Promise((resolve, reject) => {
 			audioconcat(files)
-			.concat(__dirname + "/../audio/temp/" + outputfilename)
-			.on('start', function (command) {
-				console.log('ffmpeg process started:', command)
-			})
-			.on('error', function (err, stdout, stderr) {
-				console.error('Error:', err)
-				console.error('ffmpeg stderr:', stderr)
-				resolve({ error: 'FFMpeg failed to process file:' });
-				//res.status(500).json({ error: 'FFMpeg failed to process file:' });
-			})
-			.on('end', function () {
-				console.log('Audio created in:', "/audio/temp/" + outputfilename);
-				resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status : 200 });
-				//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
-			})
+				.concat(__dirname + "/../audio/temp/" + outputfilename)
+				.on('start', function (command) {
+					console.log('ffmpeg process started:', command)
+				})
+				.on('error', function (err, stdout, stderr) {
+					console.error('Error:', err)
+					console.error('ffmpeg stderr:', stderr)
+					resolve({ error: 'FFMpeg failed to process file:' });
+					//res.status(500).json({ error: 'FFMpeg failed to process file:' });
+				})
+				.on('end', function () {
+					console.log('Audio created in:', "/audio/temp/" + outputfilename);
+					resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status: 200 });
+					//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
+				})
 
 		});
 	});
