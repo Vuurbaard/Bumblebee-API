@@ -10,7 +10,7 @@ declare var WaveSurfer: any;
 @Component({
 	selector: 'fragmentifier',
 	templateUrl: './fragmentifier.component.html',
-	styleUrls: ['./fragmentifier.component.css'],
+	styleUrls: ['./fragmentifier.component.scss'],
 })
 export class FragmentifierComponent implements OnInit {
 
