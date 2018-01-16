@@ -132,7 +132,7 @@ Engine.prototype.blackmagic = function (input, res) {
 				}
 
 				if (index >= 0) {
-					// Replace words with fragments from inputToProcess
+					// Replace words with fragments in inputToProcess
 					inputToProcess.splice(index, words.length);
 					let rTraces = traces.reverse();
 					for (var trace of rTraces) {
@@ -145,18 +145,12 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		}
 
-		//console.log('inputToProcess:'.yellow, inputToProcess);
 		var fragments = new Array();
 		inputToProcess = inputToProcess.filter(val => { return !(typeof (val) == "string") })
-		
+
 		for (var i = 0; i < inputToProcess.length; i++) {
-			//console.log('order:'.red, i);
-			// inputToProcess[i].order = i;
 			fragments.push({ order: i, fragment: inputToProcess[i] })
 		}
-
-		//console.log('inputToProcess:'.red, inputToProcess);
-		// inputToProcess.filter(val => { return !(typeof (val) == "string") })
 
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
@@ -237,7 +231,6 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 	console.log(fragments);
 
 	for (var fragment of fragments) {
-		//console.log('order:'.yellow, fragment.order);
 
 		(function (fragment) {
 			var promise = new Promise(function (resolve, reject) {
@@ -280,8 +273,6 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 			files.push(__dirname + "/../audio/fragments/" + fragment.file);
 		});
 
-		//console.log('temp files:', files);
-
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
 
@@ -295,12 +286,10 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 					console.error('Error:', err)
 					console.error('ffmpeg stderr:', stderr)
 					resolve({ error: 'FFMpeg failed to process file:' });
-					//res.status(500).json({ error: 'FFMpeg failed to process file:' });
 				})
 				.on('end', function () {
 					console.log('Audio created in:'.green, "/audio/temp/" + outputfilename);
 					resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status: 200 });
-					//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
 				})
 
 		});
