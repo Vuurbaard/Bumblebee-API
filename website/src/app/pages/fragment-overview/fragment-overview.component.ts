@@ -4,7 +4,7 @@ import { FragmentService } from '../../services/fragment.service';
 @Component({
 	selector: 'app-fragment-overview',
 	templateUrl: './fragment-overview.component.html',
-	styleUrls: ['./fragment-overview.component.css']
+	styleUrls: ['./fragment-overview.component.scss']
 })
 export class FragmentOverviewComponent implements OnInit {
 
