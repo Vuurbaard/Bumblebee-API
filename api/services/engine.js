@@ -129,31 +129,43 @@ Engine.prototype.blackmagic = function (input, res) {
 						// Break the while loop
 						start = ind + 1;
 					}
-
-					//console.log(start, index);
 				}
 
 				if (index >= 0) {
 					// Replace words with fragments from inputToProcess
 					inputToProcess.splice(index, words.length);
+					let rTraces = traces.reverse();
+					for (var trace of rTraces) {
+						inputToProcess.splice(index, 0, trace);
+					}
 
-					// Use the whole fragment as one
-					let fragment = traces[0]
-					let lastFragment = traces[traces.length - 1];
-					fragment.end = lastFragment.end;
-					inputToProcess.splice(index, 0, fragment);
 				}
 
 			}
 
 		}
 
+		//console.log('inputToProcess:'.yellow, inputToProcess);
+		var fragments = new Array();
+		inputToProcess = inputToProcess.filter(val => { return !(typeof (val) == "string") })
+		
+		for (var i = 0; i < inputToProcess.length; i++) {
+			//console.log('order:'.red, i);
+			// inputToProcess[i].order = i;
+			fragments.push({ order: i, fragment: inputToProcess[i] })
+		}
+
+		//console.log('inputToProcess:'.red, inputToProcess);
+		// inputToProcess.filter(val => { return !(typeof (val) == "string") })
+
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
-			me.fileMagic(inputToProcess.filter(val => { return !(typeof (val) == "string") }), false).then((data) => {
+
+			me.fileMagic(fragments, false).then((data) => {
 				console.log(data);
 				resolve(data);
 			});
+
 		}));
 
 	}).catch(error => {
@@ -216,38 +228,40 @@ Engine.prototype.traceFragments = function (index, words, fragment, traces) {
 	return traces;
 }
 
-
-
 Engine.prototype.fileMagic = function (fragments, debug) {
 
 	// Generate temp files from fragments
 	let tempFiles = new Array();
+	let promises = new Array();
 
-	let promises = fragments.map(function (fragment) {
-		return new Promise(function (resolve, reject) {
+	console.log(fragments);
 
-			let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
-			console.log(filepath);
+	for (var fragment of fragments) {
+		//console.log('order:'.yellow, fragment.order);
 
-			ffmpeg(filepath)
-				.setStartTime(fragment.start)
-				.setDuration(fragment.end - fragment.start)
-				.output(__dirname + '/../audio/fragments/' + fragment.id + '.mp3')
-				.on('end', function (err) {
-					if (!err) {
-						var order = fragments.indexOf(fragment);
-						tempFiles.push({ order: order, file: fragment.id + '.mp3' });
+		(function (fragment) {
+			var promise = new Promise(function (resolve, reject) {
+
+				let filepath = __dirname + '/../audio/youtube/' + fragment.fragment.source.id.toString() + '.mp3';
+
+				ffmpeg(filepath)
+					.setStartTime(fragment.fragment.start)
+					.setDuration(fragment.fragment.end - fragment.fragment.start)
+					.output(__dirname + '/../audio/fragments/' + fragment.fragment.id + '.mp3')
+					.on('end', function (err) {
+						if (!err) {
+							tempFiles.push({ order: fragment.order, file: fragment.fragment.id + '.mp3' });
+							resolve();
+						}
+					})
+					.on('error', function (err) {
+						console.log('ffmpeg error:', err);
 						resolve();
-						//console.log('conversion Done');
-					}
-				})
-				.on('error', function (err) {
-					console.log('ffmpeg error:', err);
-					resolve();
-				}).run();
-
-		});
-	});
+					}).run();
+			});
+			promises.push(promise);
+		})(fragment);
+	}
 
 	return Promise.all(promises).then(function () {
 
@@ -266,7 +280,7 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 			files.push(__dirname + "/../audio/fragments/" + fragment.file);
 		});
 
-		console.log('temp files:', files);
+		//console.log('temp files:', files);
 
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
@@ -292,7 +306,5 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 		});
 	});
 }
-
-
 
 module.exports = new Engine();
