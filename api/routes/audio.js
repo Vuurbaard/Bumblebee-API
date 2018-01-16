@@ -62,11 +62,9 @@ router.post('/tts', (req, res, next) => {
 
 	Engine.blackmagic(text).then(result => {
 		console.log('blackmagic result:', result);
-		console.log("?!?!?!");
 		res.json(result);
 	}).catch(error => {
 
-		//console.log(error.toString().red);
 		if(error.stack) {
 			console.log(error.stack.toString().red);
 		}
