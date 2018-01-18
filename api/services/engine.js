@@ -13,7 +13,7 @@ const audioconcat = require('audioconcat');
 const guid = require('guid');
 
 var Engine = function () {
-	// this.blackmagic('please let this work');
+	this.blackmagic('please let this work');
 	//this.blackmagic('gas gas gas');
 };
 
@@ -82,6 +82,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		// console.log("===== Input ======");
 		// console.log(inputToProcess);
+		var fragments = new Array();
 
 		for (var traces of randomTraces) {
 
@@ -97,8 +98,6 @@ Engine.prototype.blackmagic = function (input, res) {
 			console.log(words)
 
 			console.log('trying to remove:'.green, words, 'from'.green, inputToProcess);
-
-			let tmp = [];
 
 			if (words.length > 0) {
 				// Find the first word
@@ -133,6 +132,12 @@ Engine.prototype.blackmagic = function (input, res) {
 
 				if (index >= 0) {
 					// Replace words with fragments in inputToProcess
+
+					//console.log(index, trace);
+
+					traces[0].end = traces[traces.length - 1].end;
+				 	fragments.push({order: index, fragment: traces[0]});
+
 					inputToProcess.splice(index, words.length);
 					let rTraces = traces.reverse();
 					for (var trace of rTraces) {
@@ -145,12 +150,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		}
 
-		var fragments = new Array();
-		inputToProcess = inputToProcess.filter(val => { return !(typeof (val) == "string") })
-
-		for (var i = 0; i < inputToProcess.length; i++) {
-			fragments.push({ order: i, fragment: inputToProcess[i] })
-		}
+		console.log('fragments'.red, fragments);
 
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
