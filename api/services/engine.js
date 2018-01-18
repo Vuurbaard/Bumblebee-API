@@ -150,7 +150,31 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		}
 
+		fragments = fragments.filter(val => { return !(typeof (val) == "string") })
 		console.log('fragments'.red, fragments);
+
+		// var fragments = new Array();
+		// inputToProcess = inputToProcess.filter(val => { return !(typeof (val) == "string") })
+
+		// for (var i = 0; i < inputToProcess.length; i++) {
+		// 	fragments.push({ order: i, fragment: inputToProcess[i] })
+		// }
+
+		// console.log('Trying to fix start/end times of fragments...'.green);
+		// // Fix start / end times for fragments
+		// for(var i = 0; i < fragments.length; i++) {
+
+		// 	var fragment = fragments[i].fragment;
+
+		// 	console.log(fragment, fragments[i + 1].fragment);
+
+		// 	while(fragments[i + 1] && Number(fragments[i].start) < Number(fragments[i + 1].start) && fragments[i + 1].source.equals(fragments[i].source)) {
+		// 		fragments[i].end = fragments[i + 1].end;
+
+		// 		i++;
+		// 		//fragments.splice(i + 1, 1); // wut
+		// 	}
+		// }
 
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
