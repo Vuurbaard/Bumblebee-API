@@ -13,7 +13,7 @@ const audioconcat = require('audioconcat');
 const guid = require('guid');
 
 var Engine = function () {
-	// this.blackmagic('please let this work');
+	this.blackmagic('please let this work');
 	//this.blackmagic('gas gas gas');
 };
 
@@ -82,6 +82,7 @@ Engine.prototype.blackmagic = function (input, res) {
 
 		// console.log("===== Input ======");
 		// console.log(inputToProcess);
+		var fragments = new Array();
 
 		for (var traces of randomTraces) {
 
@@ -97,8 +98,6 @@ Engine.prototype.blackmagic = function (input, res) {
 			console.log(words)
 
 			console.log('trying to remove:'.green, words, 'from'.green, inputToProcess);
-
-			let tmp = [];
 
 			if (words.length > 0) {
 				// Find the first word
@@ -129,31 +128,38 @@ Engine.prototype.blackmagic = function (input, res) {
 						// Break the while loop
 						start = ind + 1;
 					}
-
-					//console.log(start, index);
 				}
 
 				if (index >= 0) {
-					// Replace words with fragments from inputToProcess
-					inputToProcess.splice(index, words.length);
+					// Replace words with fragments in inputToProcess
 
-					// Use the whole fragment as one
-					let fragment = traces[0]
-					let lastFragment = traces[traces.length - 1];
-					fragment.end = lastFragment.end;
-					inputToProcess.splice(index, 0, fragment);
+					//console.log(index, trace);
+
+					traces[0].end = traces[traces.length - 1].end;
+				 	fragments.push({order: index, fragment: traces[0]});
+
+					inputToProcess.splice(index, words.length);
+					let rTraces = traces.reverse();
+					for (var trace of rTraces) {
+						inputToProcess.splice(index, 0, trace);
+					}
+
 				}
 
 			}
 
 		}
 
+		console.log('fragments'.red, fragments);
+
 		let path = "";
 		return deferred.resolve(new Promise((resolve, reject) => {
-			me.fileMagic(inputToProcess.filter(val => { return !(typeof (val) == "string") }), false).then((data) => {
+
+			me.fileMagic(fragments, false).then((data) => {
 				console.log(data);
 				resolve(data);
 			});
+
 		}));
 
 	}).catch(error => {
@@ -216,38 +222,39 @@ Engine.prototype.traceFragments = function (index, words, fragment, traces) {
 	return traces;
 }
 
-
-
 Engine.prototype.fileMagic = function (fragments, debug) {
 
 	// Generate temp files from fragments
 	let tempFiles = new Array();
+	let promises = new Array();
 
-	let promises = fragments.map(function (fragment) {
-		return new Promise(function (resolve, reject) {
+	console.log(fragments);
 
-			let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
-			console.log(filepath);
+	for (var fragment of fragments) {
 
-			ffmpeg(filepath)
-				.setStartTime(fragment.start)
-				.setDuration(fragment.end - fragment.start)
-				.output(__dirname + '/../audio/fragments/' + fragment.id + '.mp3')
-				.on('end', function (err) {
-					if (!err) {
-						var order = fragments.indexOf(fragment);
-						tempFiles.push({ order: order, file: fragment.id + '.mp3' });
+		(function (fragment) {
+			var promise = new Promise(function (resolve, reject) {
+
+				let filepath = __dirname + '/../audio/youtube/' + fragment.fragment.source.id.toString() + '.mp3';
+
+				ffmpeg(filepath)
+					.setStartTime(fragment.fragment.start)
+					.setDuration(fragment.fragment.end - fragment.fragment.start)
+					.output(__dirname + '/../audio/fragments/' + fragment.fragment.id + '.mp3')
+					.on('end', function (err) {
+						if (!err) {
+							tempFiles.push({ order: fragment.order, file: fragment.fragment.id + '.mp3' });
+							resolve();
+						}
+					})
+					.on('error', function (err) {
+						console.log('ffmpeg error:', err);
 						resolve();
-						//console.log('conversion Done');
-					}
-				})
-				.on('error', function (err) {
-					console.log('ffmpeg error:', err);
-					resolve();
-				}).run();
-
-		});
-	});
+					}).run();
+			});
+			promises.push(promise);
+		})(fragment);
+	}
 
 	return Promise.all(promises).then(function () {
 
@@ -266,8 +273,6 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 			files.push(__dirname + "/../audio/fragments/" + fragment.file);
 		});
 
-		console.log('temp files:', files);
-
 		// Concatenate the temp fragment files into one big one
 		let outputfilename = guid.create() + '.mp3';
 
@@ -281,18 +286,14 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 					console.error('Error:', err)
 					console.error('ffmpeg stderr:', stderr)
 					resolve({ error: 'FFMpeg failed to process file:' });
-					//res.status(500).json({ error: 'FFMpeg failed to process file:' });
 				})
 				.on('end', function () {
 					console.log('Audio created in:'.green, "/audio/temp/" + outputfilename);
 					resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status: 200 });
-					//res.json({ file: "/audio/temp/" + outputfilename, debug: debug });
 				})
 
 		});
 	});
 }
-
-
 
 module.exports = new Engine();

@@ -9,7 +9,7 @@ declare var vis: any;
 @Component({
 	selector: 'app-tts',
 	templateUrl: './tts.component.html',
-	styleUrls: ['./tts.component.css']
+	styleUrls: ['./tts.component.scss']
 })
 export class TtsComponent implements OnInit {
 
