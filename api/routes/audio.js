@@ -11,7 +11,6 @@ const audioconcat = require('audioconcat');
 const path = require('path');
 const fs = require('fs');
 const guid = require('guid');
-const request = require('request');
 const process = require('process');
 
 const Audio = require('../services/audio');
