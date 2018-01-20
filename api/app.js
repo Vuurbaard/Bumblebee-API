@@ -8,7 +8,6 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const config = require('./config/database');
 const fs = require('fs');
-const request = require('request');
 
 mongoose.connect(config.database);
 
