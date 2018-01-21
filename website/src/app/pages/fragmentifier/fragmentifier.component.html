@@ -18,8 +18,11 @@
 </div>
 
 <div class="fluid-container" [hidden]="downloaded">
-	<div class="panel panel-filled">
+	<div class="panel panel-filled" [class.ld-loading]="loading">
 		<div class="panel-body">
+			<div class="loader">
+				<div class="loader-bar"></div>
+			</div>
 			<form (submit)="download()" class="form-horizontal">
 				<div class="form-group">
 					<label for="inputYouTube" class="col-lg-2 control-label">YouTube url</label>
@@ -39,8 +42,11 @@
 
 <div class="fluid-container" [hidden]="!downloaded">
 
-	<div class="panel panel-filled">
+	<div class="panel panel-filled" [class.ld-loading]="loading">
 		<div class="panel-body">
+			<div class="loader">
+				<div class="loader-bar"></div>
+			</div>
 
 			<div id="waveform"></div>
 
