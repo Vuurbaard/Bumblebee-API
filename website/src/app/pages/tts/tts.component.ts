@@ -47,7 +47,7 @@ export class TtsComponent implements OnInit {
 
 	play(text: string) {
 		this.audioService.tts(text).subscribe(data => {
-			debugger;
+
 			this.wavesurfer.load(this.host + data.file);
 
 			//console.log(data.debug);

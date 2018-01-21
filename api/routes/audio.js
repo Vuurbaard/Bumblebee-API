@@ -61,7 +61,7 @@ router.post('/tts', (req, res, next) => {
 
 	Engine.asyncmagic(text).then((result) => {
 
-		console.log('blackmagic result:', result);
+		console.log('asyncmagic result:', result);
 		res.json(result);
 
 	}).catch(error => {

@@ -21,11 +21,13 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
+
 	console.log("Discord message:", message.content);
 
 	if (message.channel.name != "bot") { return; }
 	if (!message.member) { return; }
 	if (!message.member.voiceChannel) { return; }
+	if (message.member.user.bot) { return; }
 
 	// Generate unique name for the queue we are going to use
 	// Readable + unique
@@ -51,8 +53,9 @@ client.on('message', message => {
 				if (body && body.file) {
 					let filepath = __dirname + '/../api' + body.file;
 
-					console.log('Playing file:', filepath);
+					console.log('Playing file:', filepath);					
 
+					
 					const dispatcher = connection.playFile(filepath, function (err, intent) {
 						console.log('err:', err);
 						console.log('intent:', intent);
@@ -75,6 +78,14 @@ client.on('message', message => {
 						console.log(info)
 					});
 
+					if(body.wordsNotFound && body.wordsNotFound.length > 0) {
+						message.reply('Missing words: ' + body.wordsNotFound);
+					}
+
+				}
+				else if(body.wordsNotFound && body.wordsNotFound.length > 0) {
+					message.reply('Missing words: ' + body.wordsNotFound);
+					queuer.finish();
 				}
 				else {
 					console.error("Something went wrong doing the API request", error, body);
@@ -85,8 +96,7 @@ client.on('message', message => {
 		}).catch(function (err) {
 			console.log(err);
 			queuer.finish()
-		}
-			);
+		});
 	});
 
 	queue.run();
@@ -99,13 +109,13 @@ client.on('debug', info => {
 
 client.login(config.clientToken);
 
-function api(){
+function api() {
 	return process.env.API_HOST + ':' + process.env.API_PORT;
 }
 
-function login(){
+function login() {
 	console.log('Ready!');
-	
+
 	var options = {
 		url: 'http://' + api() + '/users/authenticate',
 		body: { "username": "Zunz", "password": "123" },
