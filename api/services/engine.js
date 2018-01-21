@@ -16,12 +16,12 @@ var Engine = function () {
 	//this.blackmagic('please let this work');
 	//this.blackmagic('gas gas gas');
 
-	try {
-		this.asyncmagic('please work');
-	}
-	catch (err) {
-		console.log("Error:".red, err);
-	}
+	//try {
+		//this.asyncmagic('please work');
+	//}
+	//catch (err) {
+	//	console.log("Error:".red, err);
+	//}
 
 };
 
@@ -48,7 +48,10 @@ Engine.prototype.asyncmagic = async function (input) {
 	let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 
 	if (words.length == 0) {
-		deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
+		// deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
+		console.log('words not found:', combinations )
+		deferred.resolve({wordsNotFound: input });
+		return deferred.promise;
 	}
 
 	// Database results are not ordered, let's order them
@@ -137,13 +140,9 @@ Engine.prototype.asyncmagic = async function (input) {
 
 	fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
-	var debug = {
-		wordsNotFound: inputToProcess.filter(val => { return (typeof (val) == "string") })
-	}
-
 	this.fileMagic(fragments).then((data) => {
 		//console.log(data);
-		data.debug = debug;
+		data.wordsNotFound = inputToProcess.filter(val => { return (typeof (val) == "string") });
 		deferred.resolve(data);
 	});
 
