@@ -17,6 +17,7 @@ export class FragmentifierComponent implements OnInit {
 	wavesurfer: any;
 	slider: any;
 	canvas: any;
+	loading: Boolean = false;
 	downloaded: Boolean = false;
 	start: Number;
 	end: Number;
@@ -62,10 +63,13 @@ export class FragmentifierComponent implements OnInit {
 
 	download() {
 		console.log('Downloading from url:', this.url);
+		this.loading = true; 
+
 		this.audioService.download(this.url).subscribe(data => {
 			console.log('Downloaded:', data);
 			this.wavesurfer.load(this.host + data.url);
 			this.downloaded = true;
+			this.loading = false; 
 			this.sourceId = data.sourceId;
 
 			if (data.fragments) {
