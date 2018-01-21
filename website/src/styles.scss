@@ -110,16 +110,16 @@ body.hide-menu #menu:before {
 	}
 }
 
-// .flash-messages {
-// 	position: fixed;
-// 	z-index: 99999;
-// 	right: 15px;
-// 	top: 75px;
-// }
+.flash-messages {
+	position: fixed;
+	z-index: 99999;
+	right: 15px;
+	top: 75px;
+}
 
-// .flash-messages .flash-message {
-// 	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-// }
+.flash-messages .flash-message {
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
 
 // .view-header {
 //     margin: 20px 0;

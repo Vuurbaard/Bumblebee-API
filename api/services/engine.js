@@ -16,12 +16,12 @@ var Engine = function () {
 	//this.blackmagic('please let this work');
 	//this.blackmagic('gas gas gas');
 
-	try {
-		this.asyncmagic('please work');
-	}
-	catch (err) {
-		console.log("Error:".red, err);
-	}
+	//try {
+		//this.asyncmagic('please work');
+	//}
+	//catch (err) {
+	//	console.log("Error:".red, err);
+	//}
 
 };
 
@@ -43,13 +43,15 @@ Engine.prototype.asyncmagic = async function (input) {
 		}
 	}
 
-	console.log("Combinations");
-	console.log(combinations);
+	console.log("combinations:".green, combinations.toString().yellow);
 
 	let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 
 	if (words.length == 0) {
-		deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
+		// deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
+		console.log('words not found:', combinations )
+		deferred.resolve({wordsNotFound: input });
+		return deferred.promise;
 	}
 
 	// Database results are not ordered, let's order them
@@ -59,22 +61,14 @@ Engine.prototype.asyncmagic = async function (input) {
 		if (w) { orderedWords.push(w); }
 	}
 
+	// FYI: Traces are fragments
 	var traces = await this.trace(orderedWords);
 	console.log('traces:'.yellow, traces);
 
-	// FYI: Traces are fragments
-	function shuffle(a) {
-		var j, x, i;
-		for (i = a.length - 1; i > 0; i--) {
-			j = Math.floor(Math.random() * (i + 1));
-			x = a[i];
-			a[i] = a[j];
-			a[j] = x;
-		}
-	}
+	// Shuffle the traces to gain some randomness
+	this.shuffle(traces);
 
-	shuffle(traces);
-
+	// Sort them by length, highest length first
 	traces.sort(function (a, b) {
 		return b.length - a.length;
 	});
@@ -127,11 +121,13 @@ Engine.prototype.asyncmagic = async function (input) {
 			}
 
 			if (index >= 0) {
-				// Replace words with fragments in inputToProcess
 
+				// Set end time of the first fragment to the end time of the last fragment in this trace
+				// It is a bit cheaty, but it works.
 				traces[0].end = traces[traces.length - 1].end;
 				fragments.push({ order: index, fragment: traces[0] });
 
+				// Replace words with fragments in inputToProcess
 				inputToProcess.splice(index, wordsFromTrace.length);
 				let rTraces = traces.reverse();
 				for (var trace of rTraces) {
@@ -142,166 +138,12 @@ Engine.prototype.asyncmagic = async function (input) {
 		}
 	}
 
-	fragments = fragments.filter(val => { return !(typeof (val) == "string") })
-	console.log('fragments'.red, fragments);
+	fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
-	this.fileMagic(fragments, false).then((data) => {
-		console.log(data);
+	this.fileMagic(fragments).then((data) => {
+		//console.log(data);
+		data.wordsNotFound = inputToProcess.filter(val => { return (typeof (val) == "string") });
 		deferred.resolve(data);
-	});
-
-	return deferred.promise;
-}
-
-Engine.prototype.blackmagic = function (input) {
-
-	var me = this;
-	var deferred = q.defer();
-	var input = input.toLowerCase().split(' ');
-
-	console.log('starting new blackmagic for:'.green, input.toString().yellow);
-
-	let combinations = new Array();
-
-	for (var start = 0; start < input.length; start++) {
-		var phrase = "";
-		for (var i = start; i < input.length; i++) {
-			phrase = phrase + input[i] + " ";
-			combinations.push(phrase.substring(0, phrase.length - 1));
-		}
-	}
-
-	console.log("Combinations");
-	console.log(combinations);
-
-	// Find the words in the database
-	Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } }).then(function (words) {
-
-		if (words.length == 0) {
-			deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
-		}
-
-		// Database results are not ordered, let's order them
-		var orderedWords = new Array();
-		for (var word of combinations) {
-			var w = words.find(function (w) { return word == w.text; });
-			if (w) { orderedWords.push(w); }
-		}
-
-		//console.log('ordered words:', orderedWords);
-
-		var traces = me.trace(orderedWords);
-		//console.log('traces:'.yellow, traces);
-
-		// FYI: Traces are fragments
-		function shuffle(a) {
-			var j, x, i;
-			for (i = a.length - 1; i > 0; i--) {
-				j = Math.floor(Math.random() * (i + 1));
-				x = a[i];
-				a[i] = a[j];
-				a[j] = x;
-			}
-		}
-
-		shuffle(traces);
-
-		traces.sort(function (a, b) {
-			return b.length - a.length;
-		});
-
-		var randomTraces = traces;
-		var inputToProcess = input;
-
-		// console.log("===== Random Traces ======");
-		// console.log(randomTraces);
-
-		// console.log("===== Input ======");
-		// console.log(inputToProcess);
-		var fragments = new Array();
-
-		for (var traces of randomTraces) {
-
-			if (inputToProcess.length == 0) { break; }
-
-			// Build array of words from this specific trace so we can match it with the input
-			var words = new Array();
-			for (var trace of traces) {
-				words.push(trace.word.text);
-			}
-
-			console.log("==== Words for trace =====");
-			console.log(words)
-
-			console.log('trying to remove:'.green, words, 'from'.green, inputToProcess);
-
-			if (words.length > 0) {
-				// Find the first word
-				let start = 0;
-				let index = -1;
-				while (inputToProcess.indexOf(words[0], start) >= 0) {
-					let ind = inputToProcess.indexOf(words[0], start);
-					// Sanity check
-					if (inputToProcess.length >= (ind + words.length)) {
-						let br = false;
-						let indx = ind;
-						for (var word of words) {
-							if (inputToProcess[indx] == word) {
-								indx = indx + 1;
-							}
-							else {
-								br = true;
-								break;
-							}
-						}
-						if (!br) {
-							start = ind + 1;
-							index = ind;
-						}
-						start = ind + 1;
-					}
-					else {
-						// Break the while loop
-						start = ind + 1;
-					}
-				}
-
-				if (index >= 0) {
-					// Replace words with fragments in inputToProcess
-
-					//console.log(index, trace);
-
-					var firstFragment = traces[0];
-					var lastFragment = traces[traces.length - 1];
-
-					inputToProcess.splice(index, words.length);
-					let rTraces = traces.reverse();
-					for (var trace of rTraces) {
-						inputToProcess.splice(index, 0, trace);
-					}
-
-				}
-
-			}
-
-		}
-
-		fragments = fragments.filter(val => { return !(typeof (val) == "string") })
-		//console.log('fragments'.red, fragments);
-
-		let path = "";
-		return deferred.resolve(new Promise((resolve, reject) => {
-
-			me.fileMagic(fragments, false).then((data) => {
-				console.log(data);
-				resolve(data);
-			});
-
-		}));
-
-	}).catch(error => {
-		console.error(error);
-		deferred.reject({ status: 500, message: error });
 	});
 
 	return deferred.promise;
@@ -350,25 +192,18 @@ Engine.prototype.traceFragments = async function (index, words, fragment, traces
 		for (var nextFragment of nextWord.fragments) {
 			if (nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
 
-				// console.log('firstFragment'.red, fragment.word.text);
-				// console.log('lastFragment'.red, nextFragment.word.text);
+				var fragmentsInBetween = await Fragment.count({
+					start: { $gt: fragment.start, $lt: nextFragment.start },
+					source: fragment.source
+				});
 
-				//(async function (me, fragment, nextFragment, index, traces) {
+				console.log('fragmentsInBetween:'.red, fragmentsInBetween);
 
-					var fragmentsInBetween = await Fragment.find({
-						start: { $gt: fragment.start, $lt: nextFragment.start },
-						source: fragment.source
-					}).populate('word');
-
-					console.log('fragmentsInBetween:'.red, fragmentsInBetween);
-
-					if (fragmentsInBetween.length == 0) {
-						console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')', '('.yellow + fragment.source.id.toString().yellow + ')'.yellow);
-						traces.push(nextFragment);
-						this.traceFragments(index + 1, words, nextFragment, traces);
-					}
-				//})(this, fragment, nextFragment, index, traces);
-
+				if (fragmentsInBetween == 0) {
+					console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')', '('.yellow + fragment.source.id.toString().yellow + ')'.yellow);
+					traces.push(nextFragment);
+					this.traceFragments(index + 1, words, nextFragment, traces);
+				}
 			}
 		}
 	}
@@ -376,13 +211,11 @@ Engine.prototype.traceFragments = async function (index, words, fragment, traces
 	return traces;
 }
 
-Engine.prototype.fileMagic = function (fragments, debug) {
+Engine.prototype.fileMagic = function (fragments) {
 
 	// Generate temp files from fragments
 	let tempFiles = new Array();
 	let promises = new Array();
-
-	console.log(fragments);
 
 	for (var fragment of fragments) {
 
@@ -443,11 +276,21 @@ Engine.prototype.fileMagic = function (fragments, debug) {
 				})
 				.on('end', function () {
 					console.log('Audio created in:'.green, "/audio/temp/" + outputfilename);
-					resolve({ file: "/audio/temp/" + outputfilename, debug: debug, status: 200 });
+					resolve({ file: "/audio/temp/" + outputfilename });
 				})
 
 		});
 	});
+}
+
+Engine.prototype.shuffle = function (a) {
+	var j, x, i;
+	for (i = a.length - 1; i > 0; i--) {
+		j = Math.floor(Math.random() * (i + 1));
+		x = a[i];
+		a[i] = a[j];
+		a[j] = x;
+	}
 }
 
 module.exports = new Engine();
