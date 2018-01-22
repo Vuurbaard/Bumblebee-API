@@ -63,7 +63,10 @@ Engine.prototype.asyncmagic = async function (input) {
 
 	// FYI: Traces are fragments
 	var traces = await this.trace(orderedWords);
-	console.log('traces:'.yellow, traces);
+	console.log('traces:'.green);
+	for(var trace of traces) {
+		console.log(trace[0].word.text, '->'.green, trace[trace.length - 1].word.text);
+	}
 
 	// Shuffle the traces to gain some randomness
 	this.shuffle(traces);
@@ -87,7 +90,7 @@ Engine.prototype.asyncmagic = async function (input) {
 			wordsFromTrace.push(trace.word.text);
 		}
 
-		console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
+		//console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
 
 		if (wordsFromTrace.length > 0) {
 			// Find the first word
@@ -197,12 +200,12 @@ Engine.prototype.traceFragments = async function (index, words, fragment, traces
 					source: fragment.source
 				});
 
-				console.log('fragmentsInBetween:'.red, fragmentsInBetween);
+				//console.log('fragmentsInBetween:'.red, fragmentsInBetween);
 
 				if (fragmentsInBetween == 0) {
-					console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')', '('.yellow + fragment.source.id.toString().yellow + ')'.yellow);
+					console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
 					traces.push(nextFragment);
-					this.traceFragments(index + 1, words, nextFragment, traces);
+					await this.traceFragments(index + 1, words, nextFragment, traces);
 				}
 			}
 		}
