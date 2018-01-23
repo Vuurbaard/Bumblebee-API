@@ -17,7 +17,7 @@ var Engine = function () {
 	//this.blackmagic('gas gas gas');
 
 	//try {
-		//this.asyncmagic('please work');
+	//this.asyncmagic('please work');
 	//}
 	//catch (err) {
 	//	console.log("Error:".red, err);
@@ -49,8 +49,8 @@ Engine.prototype.asyncmagic = async function (input) {
 
 	if (words.length == 0) {
 		// deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
-		console.log('words not found:', combinations )
-		deferred.resolve({wordsNotFound: input });
+		console.log('words not found:', combinations)
+		deferred.resolve({ wordsNotFound: input });
 		return deferred.promise;
 	}
 
@@ -64,7 +64,7 @@ Engine.prototype.asyncmagic = async function (input) {
 	// FYI: Traces are fragments
 	var traces = await this.trace(orderedWords);
 	console.log('traces:'.green);
-	for(var trace of traces) {
+	for (var trace of traces) {
 		console.log(trace[0].word.text, '->'.green, trace[trace.length - 1].word.text);
 	}
 
@@ -90,7 +90,7 @@ Engine.prototype.asyncmagic = async function (input) {
 			wordsFromTrace.push(trace.word.text);
 		}
 
-		//console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
+		console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
 
 		if (wordsFromTrace.length > 0) {
 			// Find the first word
@@ -127,19 +127,38 @@ Engine.prototype.asyncmagic = async function (input) {
 
 				// Set end time of the first fragment to the end time of the last fragment in this trace
 				// It is a bit cheaty, but it works.
-				traces[0].end = traces[traces.length - 1].end;
-				fragments.push({ order: index, fragment: traces[0] });
+				for (var i = 0; i < traces.length; i++) {
+					var fragment = traces[i];
+
+					console.log('traces:'.red, traces);
+
+					if (!fragments[index]) {
+						fragments[index] = {
+							order: index,
+							start: fragment.start,
+							end: fragment.end,
+							id: fragment.id,
+							source: fragment.source,
+							endFragment: fragment
+						}
+					}
+					else {
+						fragments[index].end = fragment.end;
+						fragments[index].endFragment = fragment;
+					}
+				}
 
 				// Replace words with fragments in inputToProcess
 				inputToProcess.splice(index, wordsFromTrace.length);
-				let rTraces = traces.reverse();
-				for (var trace of rTraces) {
+				for (var trace of  traces.reverse()) {
 					inputToProcess.splice(index, 0, trace);
 				}
 
 			}
 		}
 	}
+
+	console.log('fragments:'.red, fragments)
 
 	fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
@@ -225,15 +244,16 @@ Engine.prototype.fileMagic = function (fragments) {
 		(function (fragment) {
 			var promise = new Promise(function (resolve, reject) {
 
-				let filepath = __dirname + '/../audio/youtube/' + fragment.fragment.source.id.toString() + '.mp3';
+				let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
+				let outputpath = __dirname + '/../audio/fragments/' + fragment.id + '-' + fragment.endFragment.id +'.mp3';
 
 				ffmpeg(filepath)
-					.setStartTime(fragment.fragment.start)
-					.setDuration(fragment.fragment.end - fragment.fragment.start)
-					.output(__dirname + '/../audio/fragments/' + fragment.fragment.id + '.mp3')
+					.setStartTime(fragment.start)
+					.setDuration(fragment.end - fragment.start)
+					.output(outputpath)
 					.on('end', function (err) {
 						if (!err) {
-							tempFiles.push({ order: fragment.order, file: fragment.fragment.id + '.mp3' });
+							tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment.id + '.mp3' });
 							resolve();
 						}
 					})
