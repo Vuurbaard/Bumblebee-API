@@ -25,6 +25,7 @@ import { FragmentOverviewComponent } from './pages/fragment-overview/fragment-ov
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { MenuComponent } from './components/menu/menu.component';
 import { TtsComponent } from './pages/tts/tts.component';
+import { SidebarComponent } from './pages/sidebar/sidebar.component';
 
 const appRoutes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -52,6 +53,7 @@ const appRoutes: Routes = [
 		OrderByPipe,
 		MenuComponent,
 		TtsComponent,
+		SidebarComponent,
 	],
 	imports: [
 		BrowserModule,
