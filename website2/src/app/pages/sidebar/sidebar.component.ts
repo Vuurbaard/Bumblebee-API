@@ -1,15 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer } from '@angular/core';
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+	selector: 'app-sidebar',
+	templateUrl: './sidebar.component.html',
+	styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
 
-  constructor() { }
+	constructor(public renderer: Renderer) { }
 
-  ngOnInit() {
-  }
+	ngOnInit() {
+	}
 
+	toggleSubnav() {
+		//this.renderer.setElementClass(document.body, 'nav-toggle', this.showMenu);
+		// $('.nav-second').on('show.bs.collapse', function () {
+		// 	$('.nav-second.in').collapse('hide');
+		// });
+	}
 }
