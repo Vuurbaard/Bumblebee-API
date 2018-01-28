@@ -22,6 +22,8 @@ import { OverviewComponent } from './pages/overview/overview.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HttpModule } from '@angular/http';
 import { FlashMessagesModule } from 'angular2-flash-messages';
+import { AudioService } from './services/audio.service';
+import { OrderByPipe } from './pipes/order-by.pipe';
 
 export function jwtOptionsFactory() {
 	return {
@@ -40,7 +42,8 @@ export function jwtOptionsFactory() {
 		LoginComponent,
 		FragmentifierComponent,
 		OverviewComponent,
-		DashboardComponent
+		DashboardComponent,
+		OrderByPipe
 	],
 	imports: [
 		BrowserModule,
@@ -57,7 +60,7 @@ export function jwtOptionsFactory() {
 		}),
 		ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
 	],
-	providers: [AuthenticationService],
+	providers: [AuthenticationService, AudioService],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }
