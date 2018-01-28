@@ -17,6 +17,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { RegisterComponent } from './pages/users/register/register.component';
 import { LoginComponent } from './pages/users/login/login.component';
+import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.component';
+import { OverviewComponent } from './pages/overview/overview.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 export function jwtOptionsFactory() {
 	return {
@@ -32,7 +35,10 @@ export function jwtOptionsFactory() {
 		NavbarComponent,
 		SidebarComponent,
 		RegisterComponent,
-		LoginComponent
+		LoginComponent,
+		FragmentifierComponent,
+		OverviewComponent,
+		DashboardComponent
 	],
 	imports: [
 		BrowserModule,
