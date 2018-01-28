@@ -21,6 +21,7 @@ import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.comp
 import { OverviewComponent } from './pages/overview/overview.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HttpModule } from '@angular/http';
+import { FlashMessagesModule } from 'angular2-flash-messages';
 
 export function jwtOptionsFactory() {
 	return {
@@ -47,6 +48,7 @@ export function jwtOptionsFactory() {
 		FormsModule,
 		HttpModule,
 		HttpClientModule,
+		FlashMessagesModule.forRoot(),
 		JwtModule.forRoot({
 			jwtOptionsProvider: {
 				provide: JWT_OPTIONS,
