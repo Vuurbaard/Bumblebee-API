@@ -20,6 +20,10 @@ export class NavbarComponent implements OnInit {
 		
 	}
 
+	logout() {
+		this.authService.logout();
+	}
+
 	toggleMenu() {
 		this.showMenu = !this.showMenu;	
 		this.renderer.setElementClass(document.body, 'nav-toggle', this.showMenu);

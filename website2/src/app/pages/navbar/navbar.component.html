@@ -23,9 +23,12 @@
 				<input type="text" class="form-control" placeholder="Enter text for magic" style="width: 175px">
 			</form>
 			<ul class="nav navbar-nav navbar-right">
+				<li *ngIf="authService.isLoggedIn()">
+					<a (click)="logout()">Logout</a>
+				</li>
 				<li *ngIf="authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" class=" profil-link">
 					<a [routerLink]="['/profile']">
-						<span class="profile-address">Your user</span>
+						<span class="profile-address">{{authService.user.username}}</span>
 						<img src="http://webapplayers.com/luna_admin-v1.3/images/profile.jpg" class="img-circle" alt="">
 					</a>
 				</li>
@@ -37,9 +40,7 @@
 					<a [routerLink]="['/register']">Register</a>
 				</li>
 
-				<li *ngIf="authService.isLoggedIn()">
-					<a (click)="logout()">Logout</a>
-				</li>
+
 			</ul>
 		</div>
 	</div>

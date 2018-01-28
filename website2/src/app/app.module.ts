@@ -20,6 +20,7 @@ import { LoginComponent } from './pages/users/login/login.component';
 import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.component';
 import { OverviewComponent } from './pages/overview/overview.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HttpModule } from '@angular/http';
 
 export function jwtOptionsFactory() {
 	return {
@@ -44,6 +45,7 @@ export function jwtOptionsFactory() {
 		BrowserModule,
 		AppRoutingModule,
 		FormsModule,
+		HttpModule,
 		HttpClientModule,
 		JwtModule.forRoot({
 			jwtOptionsProvider: {
