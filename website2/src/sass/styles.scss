@@ -1,6 +1,9 @@
 @import './variables';
-@import url('http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900"');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900"');
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css');
+@import url('../assets/pe-icon-7-stroke/css/pe-icon-7-stroke.css');
+@import url('../assets/pe-icon-7-stroke/css/helper.css');
+@import url('../assets/stroke-icons/styles.scss');
 
 body {
 	background: $background;
@@ -8,29 +11,29 @@ body {
 	color: $font-color;
 }
 
-router-outlet {
-	margin-top: 60px;
-    margin-left: 200px;
-    position: relative;
-    padding: 30px;
-    transition: margin-left 0.3s ease-out;
-    -webkit-transition: margin-left 0.3s ease-out;
-}
+// router-outlet {
+// 	margin-top: 60px;
+//     margin-left: 200px;
+//     position: relative;
+//     padding: 30px;
+//     transition: margin-left 0.3s ease-out;
+//     -webkit-transition: margin-left 0.3s ease-out;
+// }
 
-router-outlet:before {
-    content: '';
-    position: absolute;
-    top: -675px;
-    bottom: 0;
-    z-index: -2;
-    left: 0;
-    right: 0;
-    background-image: -webkit-radial-gradient(top, circle farthest-corner, #393b45 0%, #2d3038 70%);
-    background-image: -moz-radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
-    background-image: -o-radial-gradient(center, circle cfarthest-cornerover, #393b45 0%, #2d3038 70%);
-    background-image: radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
-    background-position: 50%, 50%;
-}
+// router-outlet:before {
+//     content: '';
+//     position: absolute;
+//     top: -675px;
+//     bottom: 0;
+//     z-index: -2;
+//     left: 0;
+//     right: 0;
+//     background-image: -webkit-radial-gradient(top, circle farthest-corner, #393b45 0%, #2d3038 70%);
+//     background-image: -moz-radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
+//     background-image: -o-radial-gradient(center, circle cfarthest-cornerover, #393b45 0%, #2d3038 70%);
+//     background-image: radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
+//     background-position: 50%, 50%;
+// }
 
 body.hide-menu #menu,
 body.hide-menu #menu:before {
@@ -876,10 +879,7 @@ body {
   z-index: -2;
   left: 0;
   right: 0;
-  background-image: -webkit-radial-gradient(top, circle farthest-corner, #393b45 0%, #2d3038 70%);
-  background-image: -moz-radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
-  background-image: -o-radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
-  background-image: radial-gradient(center, circle farthest-corner, #393b45 0%, #2d3038 70%);
+  background-image: radial-gradient(circle at top, #393b45 0%, #2d3038 70%);
   background-position: 50%, 50%;
 }
 .navigation {
@@ -1133,7 +1133,7 @@ img.image-xl {
   height: 60px;
   padding: 20px 25px;
   font-weight: 400;
-  letter-spacing: 10px;
+  letter-spacing: 2px;
   color: #FFFFFF;
 }
 .navbar-default .navbar-brand {
