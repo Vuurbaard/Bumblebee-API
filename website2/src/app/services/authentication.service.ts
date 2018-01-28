@@ -22,8 +22,15 @@ export class AuthenticationService {
 	authenticateUser(user) {
 		let headers = new Headers();
 		headers.append('Content-Type', 'application/json');
-	
-		return this.http.post(environment.apiUrl + 'users/authenticate', user, {headers: headers}).map(res => res.json());
+
+		return this.http.post(environment.apiUrl + 'users/authenticate', user, { headers: headers }).map(res => res.json());
+	}
+
+	registerUser(user) {
+		let headers = new Headers();
+		headers.append('Content-Type', 'application/json');
+
+		return this.http.post(environment.apiUrl + 'users/register', user, { headers: headers }).map(res => res.json());
 	}
 
 	storeUserData(token, user) {
@@ -34,7 +41,7 @@ export class AuthenticationService {
 	isLoggedIn() {
 		const token: string = localStorage.getItem('access_token');
 
-    	return token != null && !this.jwtHelper.isTokenExpired(token);
+		return token != null && !this.jwtHelper.isTokenExpired(token);
 	}
 
 	get user() {
