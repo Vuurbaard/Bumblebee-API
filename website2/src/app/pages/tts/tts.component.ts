@@ -31,14 +31,22 @@ export class TtsComponent implements OnInit {
 
 		var tts = this.route.snapshot.params['text'];
 		if (tts) {
-			this.play(tts);
+			this.load(tts);
 		}
 	}
 
-	play(text: string) {
+	load(text: string) {
 		this.audioService.tts(text).subscribe(data => {
 			this.wavesurfer.load(environment.apiUrl + data.file);
 		});
+	}
+
+	play() {
+		this.wavesurfer.play();
+	}
+
+	pause() {
+		this.wavesurfer.pause();
 	}
 
 }
