@@ -1203,11 +1203,22 @@ img.image-xl {
 .navbar-nav > li:first-child > a {
   padding-left: 0;
 }
-.navbar-nav > li:last-child > a {
-  padding: 10px 25px 10px 15px;
-}
+
 .navbar-nav.navbar-right a .label {
   margin: -5px 0 0 5px;
+}
+
+.navbar-default .navbar-nav>.active>a, 
+.navbar-default .navbar-nav>.active>a:focus, 
+.navbar-default .navbar-nav>.active>a:hover {
+	background-color: transparent;
+}
+.profil-link {
+
+	height: 60px;
+}
+li.profil-link > a {
+	padding: 10px;
 }
 .profil-link img {
   height: 40px;
