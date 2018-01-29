@@ -1,1 +1,10 @@
 <div id="waveform-tts"></div>
+
+<div class="row form-group">
+	<div class="controls">
+		<div class="col-md-12 col-xs-12 text-center">
+			<button class="btn btn-default" [hidden]="wavesurfer.isPlaying()" (click)="play()">Play</button>
+			<button class="btn btn-default" [hidden]="!wavesurfer.isPlaying()" (click)="pause()">Pause</button>
+		</div>
+	</div>
+</div>
