@@ -21,9 +21,17 @@
       "prefix": "app",
       "serviceWorker": true,
       "styles": [
-        "sass/styles.scss"
+		"sass/_variables.scss",
+		"sass/styles.scss",
+		"assets/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+		"assets/pe-icon-7-stroke/css/helper.css",
+		"assets/stroke-icons/styles.scss",
+		"assets/fontawesome/css/fontawesome.min.css"
+		
       ],
-      "scripts": [],
+      "scripts": [
+		  "assets/wavesurfer/wavesurfer.min.js"
+	  ],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",
