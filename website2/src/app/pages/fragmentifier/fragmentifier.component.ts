@@ -129,17 +129,17 @@ export class FragmentifierComponent implements OnInit {
 
 		this.audioService.saveFragments(this.sourceId, this.fragments).subscribe(data => {
 			if (data.success) {
-				// this.flashMessagesService.show('Fragments are submitted for review! Thank you!', {
-				// 	cssClass: 'alert-success',
-				// 	timeout: 5000
-				// });
+				this.flashMessagesService.show('Fragments are submitted for review! Thank you!', {
+					cssClass: 'alert-success',
+					timeout: 5000
+				});
 				this.router.navigate(['dashboard']);
 			}
 			else {
-				// this.flashMessagesService.show(data.error, {
-				// 	cssClass: 'alert-danger',
-				// 	timeout: 5000
-				// });
+				this.flashMessagesService.show(data.error, {
+					cssClass: 'alert-danger',
+					timeout: 5000
+				});
 			}
 		});
 
