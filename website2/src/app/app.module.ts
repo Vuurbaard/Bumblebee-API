@@ -1,3 +1,4 @@
+import { AuthGuard } from './guards/auth.guard';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +29,7 @@ import { OrderByPipe } from './pipes/order-by.pipe';
 export function jwtOptionsFactory() {
 	return {
 		tokenGetter: () => {
-			return localStorage.get('access_toke');
+			return localStorage.get('access_token');
 		}
 	}
 }
@@ -60,7 +61,7 @@ export function jwtOptionsFactory() {
 		}),
 		ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
 	],
-	providers: [AuthenticationService, AudioService],
+	providers: [AuthenticationService, AudioService, AuthGuard],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }
