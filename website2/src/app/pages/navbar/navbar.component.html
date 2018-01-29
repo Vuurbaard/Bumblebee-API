@@ -19,8 +19,8 @@
 					<i class="stroke-hamburgermenu"></i>
 				</a>
 			</div>
-			<form class="navbar-form navbar-left">
-				<input type="text" class="form-control" placeholder="Enter text for magic" style="width: 175px">
+			<form class="navbar-form navbar-left" (submit)="tryTTS()">
+				<input name="tts" [(ngModel)]="tts" type="text" class="form-control" placeholder="Enter text for magic" style="width: 175px">
 			</form>
 			<ul class="nav navbar-nav navbar-right">
 				<li *ngIf="authService.isLoggedIn()">

@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit, Renderer } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 
@@ -11,13 +12,13 @@ export class NavbarComponent implements OnInit {
 	showMenu: boolean = false;
 	tts: string;
 
-	constructor(public authService: AuthenticationService, public renderer: Renderer) { }
+	constructor(public authService: AuthenticationService, public renderer: Renderer, private router: Router,) { }
 
 	ngOnInit() {
 	}
 
 	tryTTS() {
-		
+		this.router.navigate(['/tts', this.tts]);
 	}
 
 	logout() {
@@ -27,9 +28,6 @@ export class NavbarComponent implements OnInit {
 	toggleMenu() {
 		this.showMenu = !this.showMenu;	
 		this.renderer.setElementClass(document.body, 'nav-toggle', this.showMenu);
-
-		// this.renderer.setElementClass(document.body, 'nav-toggle', true);
-		//$("body").toggleClass("nav-toggle");
 	}
 
 }
