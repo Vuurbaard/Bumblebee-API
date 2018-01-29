@@ -25,6 +25,7 @@ import { HttpModule } from '@angular/http';
 import { FlashMessagesModule } from 'angular2-flash-messages';
 import { AudioService } from './services/audio.service';
 import { OrderByPipe } from './pipes/order-by.pipe';
+import { ProfileComponent } from './pages/users/profile/profile.component';
 
 export function jwtOptionsFactory() {
 	return {
@@ -44,7 +45,8 @@ export function jwtOptionsFactory() {
 		FragmentifierComponent,
 		OverviewComponent,
 		DashboardComponent,
-		OrderByPipe
+		OrderByPipe,
+		ProfileComponent
 	],
 	imports: [
 		BrowserModule,

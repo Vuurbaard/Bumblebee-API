@@ -1,3 +1,4 @@
+import { ProfileComponent } from './pages/users/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 import { OverviewComponent } from './pages/overview/overview.component';
 import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.component';
@@ -12,6 +13,7 @@ const routes: Routes = [
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },
 	{ path: 'dashboard', component: DashboardComponent },
+	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 	{ path: 'fragmentifier', component: FragmentifierComponent, canActivate: [AuthGuard] },
 	{ path: 'overview', component: OverviewComponent, canActivate: [AuthGuard] },
 ]
