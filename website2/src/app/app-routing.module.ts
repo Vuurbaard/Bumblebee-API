@@ -10,10 +10,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
-	// { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+	{ path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },
-	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'tts', component: TtsComponent },
 	{ path: 'tts/:text', component: TtsComponent },
 	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
