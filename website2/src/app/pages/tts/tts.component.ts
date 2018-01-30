@@ -21,8 +21,8 @@ export class TtsComponent implements OnInit {
 
 		this.wavesurfer = WaveSurfer.create({
 			container: '#waveform-tts',
-			waveColor: '#2b3e50',
-			progressColor: 'white'
+			waveColor: 'white',
+			progressColor: '#f6a821'
 		});
 
 		this.wavesurfer.on('ready', function () {
