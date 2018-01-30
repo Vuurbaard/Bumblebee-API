@@ -29,7 +29,6 @@
 				<li *ngIf="authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" class=" profil-link">
 					<a [routerLink]="['/profile']">
 						<span class="profile-address">{{authService.user.username}}</span>
-						<!-- <img src="http://webapplayers.com/luna_admin-v1.3/images/profile.jpg" class="img-circle" alt=""> -->
 						<img src="https://public.acloud.guru/assets/profile-no-image.png" class="img-circle" alt="">
 					</a>
 				</li>
