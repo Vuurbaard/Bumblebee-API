@@ -1,5 +1,13 @@
 @import './variables';
 
+
+@import './roboto/roboto';
+@import './pe-icon-7-stroke/css/pe-icon-7-stroke';
+@import './pe-icon-7-stroke/css/helper';
+@import './stroke-icons/stroke-icons';
+
+@import './fontawesome/scss/fontawesome';
+
 body {
 	background: $background;
 	font-family: 'Roboto', sans-serif;
@@ -2908,70 +2916,3 @@ fieldset[disabled] .form-control {
 	min-width: auto;
 	cursor: pointer;
 }
-
-
-/* roboto-300 - latin */
-@font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 300;
-	src: url('../assets/roboto/roboto-v18-latin-300.eot'); /* IE9 Compat Modes */
-	src: local('Roboto Light'), local('Roboto-Light'),
-		 url('../assets/roboto/roboto-v18-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-		 url('../assets/roboto/roboto-v18-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-300.woff') format('woff'), /* Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
-		 url('../assets/roboto/roboto-v18-latin-300.svg#Roboto') format('svg'); /* Legacy iOS */
-  }
-  /* roboto-regular - latin */
-  @font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 400;
-	src: url('../assets/roboto/roboto-v18-latin-regular.eot'); /* IE9 Compat Modes */
-	src: local('Roboto'), local('Roboto-Regular'),
-		 url('../assets/roboto/roboto-v18-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-		 url('../assets/roboto/roboto-v18-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-regular.woff') format('woff'), /* Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-		 url('../assets/roboto/roboto-v18-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
-  }
-  /* roboto-500 - latin */
-  @font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 500;
-	src: url('../assets/roboto/roboto-v18-latin-500.eot'); /* IE9 Compat Modes */
-	src: local('Roboto Medium'), local('Roboto-Medium'),
-		 url('../assets/roboto/roboto-v18-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-		 url('../assets/roboto/roboto-v18-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-500.woff') format('woff'), /* Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
-		 url('../assets/roboto/roboto-v18-latin-500.svg#Roboto') format('svg'); /* Legacy iOS */
-  }
-  /* roboto-700 - latin */
-  @font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 700;
-	src: url('../assets/roboto/roboto-v18-latin-700.eot'); /* IE9 Compat Modes */
-	src: local('Roboto Bold'), local('Roboto-Bold'),
-		 url('../assets/roboto/roboto-v18-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-		 url('../assets/roboto/roboto-v18-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-700.woff') format('woff'), /* Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
-		 url('../assets/roboto/roboto-v18-latin-700.svg#Roboto') format('svg'); /* Legacy iOS */
-  }
-  /* roboto-900 - latin */
-  @font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 900;
-	src: url('../assets/roboto/roboto-v18-latin-900.eot'); /* IE9 Compat Modes */
-	src: local('Roboto Black'), local('Roboto-Black'),
-		 url('../assets/roboto/roboto-v18-latin-900.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-		 url('../assets/roboto/roboto-v18-latin-900.woff2') format('woff2'), /* Super Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-900.woff') format('woff'), /* Modern Browsers */
-		 url('../assets/roboto/roboto-v18-latin-900.ttf') format('truetype'), /* Safari, Android, iOS */
-		 url('../assets/roboto/roboto-v18-latin-900.svg#Roboto') format('svg'); /* Legacy iOS */
-  }

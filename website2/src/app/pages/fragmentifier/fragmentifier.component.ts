@@ -37,8 +37,8 @@ export class FragmentifierComponent implements OnInit {
 
 		this.wavesurfer = WaveSurfer.create({
 			container: '#waveform',
-			waveColor: '#2b3e50',
-			progressColor: 'white'
+			waveColor: 'white',
+			progressColor: '#f6a821'
 		});
 		
 		this.slider = document.querySelector('#slider');
