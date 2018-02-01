@@ -61,8 +61,8 @@
 						<button class="btn btn-accent" [hidden]="!isFragmenting" (click)="fragmentEnd()">End fragment</button>
 					</div>
 					<div class="col-md-4 col-xs-4 text-center">
-						<button class="btn btn-default" [hidden]="wavesurfer.isPlaying()" (click)="play()">Play</button>
-						<button class="btn btn-default" [hidden]="!wavesurfer.isPlaying()" (click)="pause()">Pause</button>
+						<button class="btn btn-default" [hidden]="playing" (click)="play()">Play</button>
+						<button class="btn btn-default" [hidden]="!playing" (click)="pause()">Pause</button>
 					</div>
 					<div class="col-md-4 col-xs-4 text-right">
 						<button class="btn btn-success" (click)="save()">Save</button>
