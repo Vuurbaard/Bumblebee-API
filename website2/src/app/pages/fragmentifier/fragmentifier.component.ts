@@ -2,7 +2,7 @@ import { AudioService } from './../../services/audio.service';
 import { environment } from './../../../environments/environment';
 import { Router } from '@angular/router';
 import { FlashMessagesService } from 'angular2-flash-messages';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 
 
 declare var WaveSurfer: any;
@@ -24,11 +24,12 @@ export class FragmentifierComponent implements OnInit {
 	isFragmenting: Boolean = false;
 	fragments: Array<any> = [];
 	url: string = "https://www.youtube.com/watch?v=9-yUbFi7VUY";
+	playing: boolean = false;
 
 	// Gets returned from the API
 	sourceId: string;
 
-	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router) {
+	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router, private zone: NgZone) {
 
 	}
 
@@ -40,7 +41,23 @@ export class FragmentifierComponent implements OnInit {
 			waveColor: 'white',
 			progressColor: '#f6a821'
 		});
-		
+
+		this.wavesurfer.on('pause', () => { 
+			this.zone.run(() => {
+				me.playing = false;
+			});
+		});
+		this.wavesurfer.on('finish', () => { 
+			this.zone.run(() => {
+				me.playing = false;
+			});
+		});
+		this.wavesurfer.on('play', () => {
+			this.zone.run(() => {
+				me.playing = true;
+			});
+		});
+
 		this.slider = document.querySelector('#slider');
 
 		this.slider.oninput = function () {
@@ -48,27 +65,27 @@ export class FragmentifierComponent implements OnInit {
 			me.wavesurfer.zoom(zoomLevel);
 		};
 	}
-	
+
 	ngOnDestroy() {
 		this.wavesurfer.destroy();
 	}
 
 	download() {
 		console.log('Downloading from url:', this.url);
-		this.loading = true; 
+		this.loading = true;
 
 		this.audioService.download(this.url).subscribe(data => {
 			console.log('Downloaded:', data);
 			this.wavesurfer.load(environment.apiUrl + data.url);
 			this.downloaded = true;
-			this.loading = false; 
+			this.loading = false;
 			this.sourceId = data.sourceId;
 
 			if (data.fragments) {
 				var fragments = new Array();
 
-				for(var fragment of data.fragments) {
-					fragments.push({word: fragment.word.text, start: fragment.start, end: fragment.end});
+				for (var fragment of data.fragments) {
+					fragments.push({ word: fragment.word.text, start: fragment.start, end: fragment.end });
 				}
 				this.fragments = fragments;
 			}
