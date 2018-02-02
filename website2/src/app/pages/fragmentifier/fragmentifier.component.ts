@@ -42,12 +42,12 @@ export class FragmentifierComponent implements OnInit {
 			progressColor: '#f6a821'
 		});
 
-		this.wavesurfer.on('pause', () => { 
+		this.wavesurfer.on('pause', () => {
 			this.zone.run(() => {
 				me.playing = false;
 			});
 		});
-		this.wavesurfer.on('finish', () => { 
+		this.wavesurfer.on('finish', () => {
 			this.zone.run(() => {
 				me.playing = false;
 			});
@@ -159,7 +159,24 @@ export class FragmentifierComponent implements OnInit {
 				});
 			}
 		});
+	}
 
+	adjust(fragment: any, property: string, direction: string) {
+
+		let adjustBy = 0.01;
+
+		if (property == "start" && direction == "up" && (fragment.start + adjustBy) < fragment.end) {
+			fragment.start += adjustBy;
+		}
+		else if (property == "start" && direction == "down" && (fragment.start - adjustBy) < fragment.end) {
+			fragment.start -= 0.01;
+		}
+		else if (property == "end" && direction == "up" && (fragment.end + adjustBy) > fragment.start) {
+			fragment.end += 0.01;
+		}
+		else if (property == "end" && direction == "down"  && (fragment.end - adjustBy) > fragment.start) {
+			fragment.end -= 0.01;
+		}
 	}
 
 }
