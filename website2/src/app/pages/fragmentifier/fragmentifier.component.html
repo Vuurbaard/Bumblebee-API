@@ -76,14 +76,13 @@
 
 						<span class="input-group-addon ">
 							{{fragment.start | number : '1.2-2'}}
-							<i class="fa fa-play fa-rotate-270 text-warning"></i>
-							<i class="fa fa-play fa-rotate-90 text-warning"></i>
-
+							<i class="fa fa-play fa-rotate-270 text-warning" (click)="adjust(fragment, 'start', 'up')"></i>
+							<i class="fa fa-play fa-rotate-90 text-warning" (click)="adjust(fragment, 'start', 'down')"></i>
 						</span>
 						<span class="input-group-addon">
 							{{fragment.end | number : '1.2-2'}}
-							<i class="fa fa-play fa-rotate-270 text-warning"></i>
-							<i class="fa fa-play fa-rotate-90 text-warning"></i>
+							<i class="fa fa-play fa-rotate-270 text-warning" (click)="adjust(fragment, 'end', 'up')"></i>
+							<i class="fa fa-play fa-rotate-90 text-warning" (click)="adjust(fragment, 'end', 'down')"></i>
 						</span>
 						<span class="input-group-addon play" (click)="playFragment(fragment)">
 							<i class="fa fa-play"></i>
