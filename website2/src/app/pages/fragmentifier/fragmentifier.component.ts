@@ -58,6 +58,12 @@ export class FragmentifierComponent implements OnInit {
 			});
 		});
 
+		this.wavesurfer.on('ready', () => {
+			this.zone.run(() => {
+				me.loading = false;
+			});
+		});
+
 		this.slider = document.querySelector('#slider');
 
 		this.slider.oninput = function () {
@@ -77,15 +83,13 @@ export class FragmentifierComponent implements OnInit {
 		this.audioService.download(this.url).subscribe(data => {
 			console.log('Downloaded:', data);
 			this.wavesurfer.load(environment.apiUrl + data.url);
-			this.downloaded = true;
-			this.loading = false;
 			this.sourceId = data.sourceId;
-
+			this.downloaded = true;
 			if (data.fragments) {
 				var fragments = new Array();
 
 				for (var fragment of data.fragments) {
-					fragments.push({ word: fragment.word.text, start: fragment.start, end: fragment.end });
+					fragments.push({ id: fragment._id, word: fragment.word.text, start: fragment.start, end: fragment.end });
 				}
 				this.fragments = fragments;
 			}
@@ -150,7 +154,8 @@ export class FragmentifierComponent implements OnInit {
 					cssClass: 'alert-success',
 					timeout: 5000
 				});
-				this.router.navigate(['dashboard']);
+				// this.router.navigate(['dashboard']);
+				this.download();
 			}
 			else {
 				this.flashMessagesService.show(data.error, {
@@ -174,7 +179,7 @@ export class FragmentifierComponent implements OnInit {
 		else if (property == "end" && direction == "up" && (fragment.end + adjustBy) > fragment.start) {
 			fragment.end += 0.01;
 		}
-		else if (property == "end" && direction == "down"  && (fragment.end - adjustBy) > fragment.start) {
+		else if (property == "end" && direction == "down" && (fragment.end - adjustBy) > fragment.start) {
 			fragment.end -= 0.01;
 		}
 	}
