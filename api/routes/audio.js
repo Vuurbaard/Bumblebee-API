@@ -38,23 +38,6 @@ router.post('/download', passport.authenticate('jwt', { session: false }), (req,
 
 });
 
-router.post('/fragments', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-
-	let sourceId = req.body.sourceId;
-	let fragments = req.body.fragments;
-
-	Fragments.submit(sourceId, fragments).then(() => {
-		res.json({ success: true });
-	}).catch(err => {
-		res.json({ success: false, error: err });
-	});
-
-});
-
-router.get('/fragments', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-	res.json({ success: false });
-});
-
 router.post('/tts', (req, res, next) => {
 
 	let text = req.body.text.toLowerCase();
