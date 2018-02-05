@@ -40,6 +40,10 @@ body.hide-menu #menu:before {
 	}
 }
 
+.panel-body code {
+	display: inline-block;
+}
+
 .flash-messages {
 	position: fixed;
 	z-index: 99999;

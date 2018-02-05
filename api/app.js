@@ -24,6 +24,8 @@ const port = 3000;
 
 const usersRoute = require('./routes/users');
 const audioRoute = require('./routes/audio');
+const fragmentsRoute = require('./routes/fragments');
+const sourcesRoute = require('./routes/sources');
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -46,6 +48,8 @@ require('./config/passport')(passport);
 // Routes
 app.use('/users', usersRoute);
 app.use('/audio', audioRoute);
+app.use('/fragments', fragmentsRoute);
+app.use('/sources', sourcesRoute);
 
 app.get('/', (req, res) => {
     res.send('Invalid endpoint');
