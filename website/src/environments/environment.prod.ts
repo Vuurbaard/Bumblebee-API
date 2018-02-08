@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+	production: true,
+	apiUrl: "http://bumblebee.mijnproject.nu:3000"
 };

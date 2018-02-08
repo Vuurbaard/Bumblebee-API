@@ -1,68 +1,71 @@
-
+import { AuthGuard } from './guards/auth.guard';
+import { Routes, RouterModule } from '@angular/router';
+import { AuthenticationService } from './services/authentication.service';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import { RouterModule, Routes } from '@angular/router';
 
+import { AppRoutingModule } from './app-routing.module';
+
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
-import { HomeComponent } from './pages/home/home.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ProfileComponent } from './pages/profile/profile.component';
-import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.component';
 
-import { ValidateService } from './services/validate.service';
-import { AuthService } from './services/auth.service';
-import { AudioService } from './services/audio.service';
-import { FragmentService } from './services/fragment.service';
-
-import { FlashMessagesModule } from 'angular2-flash-messages';
-import { AuthGuard } from './guards/auth.guard';
-import { FragmentOverviewComponent } from './pages/fragment-overview/fragment-overview.component';
-import { OrderByPipe } from './pipes/order-by.pipe';
-import { MenuComponent } from './components/menu/menu.component';
-import { TtsComponent } from './pages/tts/tts.component';
+import { environment } from '../environments/environment';
+import { NavbarComponent } from './pages/navbar/navbar.component';
 import { SidebarComponent } from './pages/sidebar/sidebar.component';
 
-const appRoutes: Routes = [
-	{ path: '', component: HomeComponent },
-	{ path: 'register', component: RegisterComponent },
-	{ path: 'login', component: LoginComponent },
-	{ path: 'tts', component: TtsComponent },
-	{ path: 'tts/:text', component: TtsComponent },
-	{ path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-	{ path: 'fragment-overview', component: FragmentOverviewComponent, canActivate: [AuthGuard] },
-	{ path: 'fragmentifier', component: FragmentifierComponent, canActivate: [AuthGuard] },
-]
+import { HttpClientModule } from '@angular/common/http';
+import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
+import { RegisterComponent } from './pages/users/register/register.component';
+import { LoginComponent } from './pages/users/login/login.component';
+import { FragmentifierComponent } from './pages/fragmentifier/fragmentifier.component';
+import { OverviewComponent } from './pages/overview/overview.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HttpModule } from '@angular/http';
+import { FlashMessagesModule } from 'angular2-flash-messages';
+import { AudioService } from './services/audio.service';
+import { OrderByPipe } from './pipes/order-by.pipe';
+import { ProfileComponent } from './pages/users/profile/profile.component';
+import { TtsComponent } from './pages/tts/tts.component';
+
+export function jwtOptionsFactory() {
+	return {
+		tokenGetter: () => {
+			return localStorage.get('access_token');
+		}
+	}
+}
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		NavbarComponent,
-		LoginComponent,
-		RegisterComponent,
-		HomeComponent,
-		DashboardComponent,
-		ProfileComponent,
-		FragmentifierComponent,
-		FragmentOverviewComponent,
-		OrderByPipe,
-		MenuComponent,
-		TtsComponent,
 		SidebarComponent,
+		RegisterComponent,
+		LoginComponent,
+		FragmentifierComponent,
+		OverviewComponent,
+		DashboardComponent,
+		OrderByPipe,
+		ProfileComponent,
+		TtsComponent
 	],
 	imports: [
 		BrowserModule,
+		AppRoutingModule,
 		FormsModule,
 		HttpModule,
-		RouterModule.forRoot(appRoutes),
-		FlashMessagesModule
+		HttpClientModule,
+		FlashMessagesModule.forRoot(),
+		JwtModule.forRoot({
+			jwtOptionsProvider: {
+				provide: JWT_OPTIONS,
+				useFactory: jwtOptionsFactory
+			}
+		}),
+		ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
 	],
-	providers: [ValidateService, AuthService, AuthGuard, AudioService, FragmentService],
+	providers: [AuthenticationService, AudioService, AuthGuard],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }
