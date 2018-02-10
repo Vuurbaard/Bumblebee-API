@@ -1,19 +1,17 @@
 <div *ngIf="authenticationService.user" class="fluid-container">
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="view-header">
-				<div class="header-icon">
-					<i class="pe page-header-icon pe-7s-id"></i>
-				</div>
-				<div class="header-title">
-					<h3 class="m-b-xs">{{authenticationService.user.name}}</h3>
-					<small>
-						This is your profile, you can't do much here yet... We still need to code that. :(
-					</small>
-				</div>
+	<div class="col-lg-12">
+		<div class="view-header">
+			<div class="header-icon">
+				<i class="pe page-header-icon pe-7s-id"></i>
 			</div>
-			<hr>
+			<div class="header-title">
+				<h3 class="m-b-xs">{{authenticationService.user.name}}</h3>
+				<small>
+					This is your profile, you can't do much here yet... We still need to code that. :(
+				</small>
+			</div>
 		</div>
+		<hr>
 	</div>
 </div>
 
