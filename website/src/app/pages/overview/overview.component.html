@@ -10,7 +10,13 @@
 	<div class="panel-body">
 		<div class="waveform"></div>
 
-			<code *ngFor="let fragment of source.fragments" class="m-r-xs m-b-xs">{{fragment.word.text}}</code>
-	
+		<span *ngFor="let fragment of source.fragments">
+				<code  class="m-r-xs m-b-xs">{{fragment.word ? fragment.word.text : ""}}</code>
+			<!-- &nbsp; -->
+		</span>
+		
+		
+		
+		
 	</div>
 </div>

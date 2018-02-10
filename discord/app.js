@@ -24,7 +24,7 @@ client.on('message', message => {
 
 	console.log("Discord message:", message.content);
 
-	if (message.channel.name != "bot") { return; }
+	if (message.channel.name != "bumblebee") { return; }
 	if (!message.member) { return; }
 	if (!message.member.voiceChannel) { return; }
 	if (message.member.user.bot) { return; }
