@@ -10,24 +10,24 @@ build website:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:website-${CI_COMMIT_REF_SLUG} -f website/docker/Dockerfile .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:website-${CI_COMMIT_REF_SLUG}
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} -f website/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
 
 build api:
   image: docker:dind
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:api-${CI_COMMIT_REF_SLUG} -f api/docker/Dockerfile .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:api-${CI_COMMIT_REF_SLUG} 
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} -f api/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} 
 
 build discord:
   image: docker:dind
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:discord-${CI_COMMIT_REF_SLUG} -f discord/docker/Dockerfile .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:discord-${CI_COMMIT_REF_SLUG} 
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} -f discord/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} 
 
 
 # Push the image to Docker Swarm as service and run a rolling deploy
