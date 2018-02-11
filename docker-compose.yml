@@ -30,7 +30,7 @@ services:
             context: ./website/docker/
             dockerfile: Dockerfile
             args:
-                - DOCKER_SRC="./"
+                - DOCKER_SRC="./website/docker/"
         environment:
             - NODE_ENV=development
             - ANGULAR_ENV=dev
