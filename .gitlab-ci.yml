@@ -35,22 +35,38 @@ build discord:
     - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:discord-${CI_COMMIT_REF_SLUG} 
 
 
+# Push the image to Docker Swarm as service and run a rolling deploy
+push to production:
+  image: docker:dind
+  stage: deploy
+  variables:
+    DOCKER_HOST: tcp://192.168.178.30:2375
+    SERVICE_NAME: core
+  image: docker:latest
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker stack deploy --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}-${SERVICE_NAME}
+  environment:
+    name: production
+    url: https://bumblebee.fm
+  only:
+    - master
 
 
 
-deploy to production:
- stage: deploy
- environment: production
- script:
-  - cat .gitlab-ci.yml
-  - apt-get update && apt-get install rsync -qq -y
-  - rsync --exclude='.git/' --exclude='node_modules/' --exclude='api/audio/' --delete -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cat /home/node/bumblebee/.gitlab-ci.yml'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/api && npm install'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && npm install'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/discord && npm install'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod --aot --build-optimizer'
-  - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
- only:
-  - master
-  - pwa
+# deploy to production:
+#  stage: deploy
+#  environment: production
+#  script:
+#   - cat .gitlab-ci.yml
+#   - apt-get update && apt-get install rsync -qq -y
+#   - rsync --exclude='.git/' --exclude='node_modules/' --exclude='api/audio/' --delete -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress . node@192.168.178.29:/home/node/bumblebee
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cat /home/node/bumblebee/.gitlab-ci.yml'
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/api && npm install'
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && npm install'
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/discord && npm install'
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'cd /home/node/bumblebee/website && ng build --prod --aot --build-optimizer'
+#   - ssh -o StrictHostKeyChecking=no node@192.168.178.29 'pm2 restart api && pm2 restart discord && pm2 restart website'
+#  only:
+#   - master
+#   - pwa
