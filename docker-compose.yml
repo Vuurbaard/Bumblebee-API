@@ -20,7 +20,11 @@ services:
             - api
 
     website:
-        build: ./website/docker
+        build:
+            context: ./website/docker/
+            dockerfile: Dockerfile
+            args:
+                - DOCKER_SRC="./"
         container_name: "website"
         environment:
             - NODE_ENV=development
