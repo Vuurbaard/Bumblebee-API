@@ -11,7 +11,7 @@ stages:
  - deploy
 
 build website:
-  image: node:latest
+  image: docker:dind
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
@@ -19,7 +19,7 @@ build website:
     - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:website-${CI_COMMIT_REF_SLUG}
 
 build api:
-  image: node:latest
+  image: docker:dind
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
@@ -27,7 +27,7 @@ build api:
     - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:api-${CI_COMMIT_REF_SLUG} 
 
 build discord:
-  image: node:latest
+  image: docker:dind
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
