@@ -10,6 +10,34 @@ stages:
  - test
  - deploy
 
+build website:
+  image: node:latest
+  script:
+    # install composer and get dependencies
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:website-${CI_COMMIT_REF_SLUG} -f website/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:website-${CI_COMMIT_REF_SLUG}
+
+build api:
+  image: node:latest
+  script:
+    # install composer and get dependencies
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:api-${CI_COMMIT_REF_SLUG} -f api/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:api-${CI_COMMIT_REF_SLUG} 
+
+build discord:
+  image: node:latest
+  script:
+    # install composer and get dependencies
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:discord-${CI_COMMIT_REF_SLUG} -f discord/docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:discord-${CI_COMMIT_REF_SLUG} 
+
+
+
+
+
 deploy to production:
  stage: deploy
  environment: production
