@@ -1,10 +1,5 @@
 image: ubuntu:latest
 
-before_script:
- - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
- - eval $(ssh-agent -s)
- - ssh-add <(echo "$SSH_PRIVATE_KEY")
-
 stages:
  - build
  - test
