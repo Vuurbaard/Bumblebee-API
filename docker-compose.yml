@@ -3,11 +3,13 @@ services:
  
     api:
         build: ./api/docker
-        container_name: "api"
         volumes:
             - ./api:/var/www/html
         depends_on:
             - mongodb
+        environment:
+            - MONGO_HOST=mongodb
+            - MONGO_PORT=27017
         ports:
             - 3000:3000
 
@@ -15,6 +17,10 @@ services:
         build: ./discord/docker
         volumes:
             - ./discord:/var/www/html
+        environment:
+            - NODE_ENV=development
+            - API_HOST=api
+            - API_PORT=3000
         container_name: "discord"
         depends_on:
             - api
@@ -25,9 +31,9 @@ services:
             dockerfile: Dockerfile
             args:
                 - DOCKER_SRC="./"
-        container_name: "website"
         environment:
             - NODE_ENV=development
+            - ANGULAR_ENV=dev
         volumes:
             - ./website:/var/www/html
         ports:
