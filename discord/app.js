@@ -50,12 +50,14 @@ client.on('message', message => {
 
 			request.post(options, function (error, response, body) {
 				if (body && body.file) {
-					let filepath = __dirname + '/../api' + body.file;
+
+					// let filepath = __dirname + '/../api' + body.file;
+					let filepath = 'http://' + api() + body.file;
 
 					console.log('Playing file:', filepath);					
 
 					
-					const dispatcher = connection.playFile(filepath, function (err, intent) {
+					const dispatcher = connection.playStream(filepath, function (err, intent) {
 						console.log('err:', err);
 						console.log('intent:', intent);
 					});
@@ -65,6 +67,22 @@ client.on('message', message => {
 					});
 
 					dispatcher.on('end', function () {
+					
+						var options = {
+							url: filepath,
+							headers: { 'Authorization': this.authToken }
+						};
+						request.delete(options, function(error, response, body) {
+							if(error || response && response.statusCode != 200) {
+								console.log(error, response.statusCode, body);
+								console.log('failed to delete', options.url);
+							}
+							else {
+								console.log('deleted audio at', options.url);
+							}
+							
+						});
+
 						queuer.finish();
 					});
 
