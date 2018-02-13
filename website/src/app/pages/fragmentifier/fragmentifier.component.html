@@ -1,19 +1,17 @@
 <div class="fluid-container">
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="view-header">
-				<div class="header-icon">
-					<i class="pe page-header-icon pe-7s-scissors"></i>
-				</div>
-				<div class="header-title">
-					<h3 class="m-b-xs">Fragmentifier</h3>
-					<small>
-						You can start fragmenting audio from youtube here
-					</small>
-				</div>
+	<div class="col-lg-12">
+		<div class="view-header">
+			<div class="header-icon">
+				<i class="pe page-header-icon pe-7s-scissors"></i>
 			</div>
-			<hr>
+			<div class="header-title">
+				<h3 class="m-b-xs">Fragmentifier</h3>
+				<small>
+					You can start fragmenting audio from youtube here
+				</small>
+			</div>
 		</div>
+		<hr>
 	</div>
 </div>
 
@@ -56,15 +54,15 @@
 
 			<div class="row form-group">
 				<div class="controls">
-					<div class="col-md-4">
+					<div class="col-md-4 col-xs-4">
 						<button class="btn btn-accent" [hidden]="isFragmenting" (click)="fragmentStart()">Start fragment</button>
 						<button class="btn btn-accent" [hidden]="!isFragmenting" (click)="fragmentEnd()">End fragment</button>
 					</div>
-					<div class="col-md-4 text-center">
-						<button class="btn btn-default" [hidden]="wavesurfer.isPlaying()" (click)="play()">Play</button>
-						<button class="btn btn-default" [hidden]="!wavesurfer.isPlaying()" (click)="pause()">Pause</button>
+					<div class="col-md-4 col-xs-4 text-center">
+						<button class="btn btn-default" [hidden]="playing" (click)="play()">Play</button>
+						<button class="btn btn-default" [hidden]="!playing" (click)="pause()">Pause</button>
 					</div>
-					<div class="col-md-4 text-right">
+					<div class="col-md-4 col-xs-4 text-right">
 						<button class="btn btn-success" (click)="save()">Save</button>
 					</div>
 				</div>
@@ -76,23 +74,22 @@
 
 						<span class="input-group-addon ">
 							{{fragment.start | number : '1.2-2'}}
-							<i class="fa fa-play fa-rotate-270 text-warning"></i>
-							<i class="fa fa-play fa-rotate-90 text-warning"></i>
-
+							<i class="fa fa-play fa-rotate-270 text-warning" (click)="adjust(fragment, 'start', 'up')"></i>
+							<i class="fa fa-play fa-rotate-90 text-warning" (click)="adjust(fragment, 'start', 'down')"></i>
 						</span>
 						<span class="input-group-addon">
 							{{fragment.end | number : '1.2-2'}}
-							<i class="fa fa-play fa-rotate-270 text-warning"></i>
-							<i class="fa fa-play fa-rotate-90 text-warning"></i>
+							<i class="fa fa-play fa-rotate-270 text-warning" (click)="adjust(fragment, 'end', 'up')"></i>
+							<i class="fa fa-play fa-rotate-90 text-warning" (click)="adjust(fragment, 'end', 'down')"></i>
 						</span>
 						<span class="input-group-addon play" (click)="playFragment(fragment)">
 							<i class="fa fa-play"></i>
 						</span>
 
-						<input type="text" class="form-control" [(ngModel)]="fragment.word" [attr.disabled]="fragment._id">
+						<input type="text" class="form-control" [(ngModel)]="fragment.word">
 
 						<span class="input-group-btn">
-							<button class="btn btn-danger text-danger" type="button" (click)="removeFragment(fragment)" [attr.disabled]="fragment._id">
+							<button class="btn btn-danger text-danger" type="button" (click)="removeFragment(fragment)" [hidden]="fragment.id" [attr.disabled]="fragment.id">
 								<i class="fa fa-trash-o" aria-hidden="true"></i>
 							</button>
 						</span>

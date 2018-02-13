@@ -2,6 +2,7 @@ const q = require('q');
 var Source = require('../models/source');
 var Fragment = require('../models/fragment');
 var Word = require('../models/word');
+var mongoose = require('mongoose');
 
 var Fragments = function () { };
 
@@ -37,11 +38,15 @@ Fragments.prototype.saveFragments = function (sourceId, fragments, words) {
 			var fragment = fragments[index];
 			var word = words[index];
 
-			var query = { 'source': source, 'start': fragment.start, 'end': fragment.end, word: word },
-				update = {},
-				options = { upsert: true, new: true, setDefaultsOnInsert: true };
+			console.log('======= saving fragment for word', fragment.word);
+			console.log(fragment);
+
+			var query = { _id: fragment.id ? fragment.id : new mongoose.mongo.ObjectID() };
+			var update = { start: fragment.start, end: fragment.end, word: word, source: source };
+			var options = { upsert: true, setDefaultsOnInsert: true, new: true };
 
 			Fragment.findOneAndUpdate(query, update, options, function (error, fragment) {
+
 				if (error) {
 					console.log(error);
 					return;
