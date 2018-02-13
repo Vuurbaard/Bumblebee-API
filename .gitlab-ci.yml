@@ -10,7 +10,7 @@ build website:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} --build-arg DOCKER_SRC=./docker  -f website/docker/Dockerfile ./website/
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} --build-arg DOCKER_SRC=./docker/  -f website/docker/Dockerfile ./website/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
 
 build api:
