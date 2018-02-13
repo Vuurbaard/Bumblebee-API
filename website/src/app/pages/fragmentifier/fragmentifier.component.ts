@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { Http, Headers } from '@angular/http';
-import { AudioService } from '../../services/audio.service';
-import { FlashMessagesService } from 'angular2-flash-messages';
+import { AudioService } from './../../services/audio.service';
+import { environment } from './../../../environments/environment';
 import { Router } from '@angular/router';
-import { isDevMode } from '@angular/core';
+import { FlashMessagesService } from 'angular2-flash-messages';
+import { Component, OnInit, NgZone } from '@angular/core';
+
 
 declare var WaveSurfer: any;
 
 @Component({
-	selector: 'fragmentifier',
+	selector: 'app-fragmentifier',
 	templateUrl: './fragmentifier.component.html',
-	styleUrls: ['./fragmentifier.component.scss'],
+	styleUrls: ['./fragmentifier.component.scss']
 })
 export class FragmentifierComponent implements OnInit {
 
@@ -24,20 +24,13 @@ export class FragmentifierComponent implements OnInit {
 	isFragmenting: Boolean = false;
 	fragments: Array<any> = [];
 	url: string = "https://www.youtube.com/watch?v=9-yUbFi7VUY";
-	private host: String;
+	playing: boolean = false;
 
 	// Gets returned from the API
 	sourceId: string;
 
-	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router) {
+	constructor(private audioService: AudioService, private flashMessagesService: FlashMessagesService, private router: Router, private zone: NgZone) {
 
-		// TODO: Move this to config module?
-		if (isDevMode()) {
-			this.host = 'http://localhost:3000';
-		}
-		else {
-			this.host = 'http://bumblebee.mijnproject.nu:3000';
-		}
 	}
 
 	ngOnInit() {
@@ -48,7 +41,29 @@ export class FragmentifierComponent implements OnInit {
 			waveColor: 'white',
 			progressColor: '#f6a821'
 		});
-		
+
+		this.wavesurfer.on('pause', () => {
+			this.zone.run(() => {
+				me.playing = false;
+			});
+		});
+		this.wavesurfer.on('finish', () => {
+			this.zone.run(() => {
+				me.playing = false;
+			});
+		});
+		this.wavesurfer.on('play', () => {
+			this.zone.run(() => {
+				me.playing = true;
+			});
+		});
+
+		this.wavesurfer.on('ready', () => {
+			this.zone.run(() => {
+				me.loading = false;
+			});
+		});
+
 		this.slider = document.querySelector('#slider');
 
 		this.slider.oninput = function () {
@@ -56,27 +71,25 @@ export class FragmentifierComponent implements OnInit {
 			me.wavesurfer.zoom(zoomLevel);
 		};
 	}
-	
+
 	ngOnDestroy() {
 		this.wavesurfer.destroy();
 	}
 
 	download() {
 		console.log('Downloading from url:', this.url);
-		this.loading = true; 
+		this.loading = true;
 
 		this.audioService.download(this.url).subscribe(data => {
 			console.log('Downloaded:', data);
-			this.wavesurfer.load(this.host + data.url);
-			this.downloaded = true;
-			this.loading = false; 
+			this.wavesurfer.load(environment.apiUrl + data.url);
 			this.sourceId = data.sourceId;
-
+			this.downloaded = true;
 			if (data.fragments) {
 				var fragments = new Array();
 
-				for(var fragment of data.fragments) {
-					fragments.push({word: fragment.word.text, start: fragment.start, end: fragment.end});
+				for (var fragment of data.fragments) {
+					fragments.push({ id: fragment._id, word: fragment.word.text, start: fragment.start, end: fragment.end });
 				}
 				this.fragments = fragments;
 			}
@@ -141,6 +154,8 @@ export class FragmentifierComponent implements OnInit {
 					cssClass: 'alert-success',
 					timeout: 5000
 				});
+				// this.router.navigate(['dashboard']);
+				this.download();
 			}
 			else {
 				this.flashMessagesService.show(data.error, {
@@ -149,6 +164,24 @@ export class FragmentifierComponent implements OnInit {
 				});
 			}
 		});
-
 	}
+
+	adjust(fragment: any, property: string, direction: string) {
+
+		let adjustBy = 0.01;
+
+		if (property == "start" && direction == "up" && (fragment.start + adjustBy) < fragment.end) {
+			fragment.start += adjustBy;
+		}
+		else if (property == "start" && direction == "down" && (fragment.start - adjustBy) < fragment.end) {
+			fragment.start -= 0.01;
+		}
+		else if (property == "end" && direction == "up" && (fragment.end + adjustBy) > fragment.start) {
+			fragment.end += 0.01;
+		}
+		else if (property == "end" && direction == "down" && (fragment.end - adjustBy) > fragment.start) {
+			fragment.end -= 0.01;
+		}
+	}
+
 }

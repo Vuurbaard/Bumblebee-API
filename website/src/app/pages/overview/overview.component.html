@@ -1,0 +1,22 @@
+<div class="panel panel-filled panel-c-accent" *ngFor="let source of sources">
+	<div class="panel-heading">
+		<div class="panel-tools">
+			<a class="" href="https://www.youtube.com/?v={{source.id}}" target="_blank">
+				<i class="fa fa-youtube"></i>
+			</a>
+		</div>
+		<a href="https://www.youtube.com/watch?v={{source.id}}" target="_blank">https://www.youtube.com/watch?v={{source.id}}</a>
+	</div>
+	<div class="panel-body">
+		<div class="waveform"></div>
+
+		<span *ngFor="let fragment of source.fragments">
+				<code  class="m-r-xs m-b-xs">{{fragment.word ? fragment.word.text : ""}}</code>
+			<!-- &nbsp; -->
+		</span>
+		
+		
+		
+		
+	</div>
+</div>

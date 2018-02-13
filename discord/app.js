@@ -8,7 +8,6 @@ const client = new Discord.Client();
 const request = require('request');
 const fs = require('fs');
 const Queuer = require('./queuer');
-const config = require('./config');
 
 let authToken = "";
 let queues = [];
@@ -24,7 +23,7 @@ client.on('message', message => {
 
 	console.log("Discord message:", message.content);
 
-	if (message.channel.name != "bot") { return; }
+	if (message.channel.name != "bumblebee") { return; }
 	if (!message.member) { return; }
 	if (!message.member.voiceChannel) { return; }
 	if (message.member.user.bot) { return; }
@@ -107,10 +106,14 @@ client.on('debug', info => {
 	console.log(info);
 });
 
-client.login(config.clientToken);
+client.login(token());
 
 function api() {
 	return process.env.API_HOST + ':' + process.env.API_PORT;
+}
+
+function token(){
+	return process.env.API_TOKEN;
 }
 
 function login() {
