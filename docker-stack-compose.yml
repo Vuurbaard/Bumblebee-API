@@ -9,7 +9,7 @@ services:
         ports:
             - 3000:3000
         volumes:
-            - "/share/nas/scrn-php/app/:/var/www/html/storage/app/"
+            - "/share/nas/bumblebee/audio/:/var/www/html/audio/"
         deploy:
             restart_policy:
                 condition: on-failure
@@ -20,8 +20,7 @@ services:
             update_config:
                 parallelism: 2
                 delay: 10s
-          
-
+        
     discord:
         image: ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG}
         environment:
