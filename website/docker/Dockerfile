@@ -5,7 +5,9 @@ RUN apt-get update -qq && apt-get install apache2 -qq -y && rm -r /var/lib/apt/l
 RUN a2enmod rewrite && a2enmod headers
 
 # Fix stupid angular CLI stuff
+RUN yarn global add node-gyp
 RUN yarn global add @angular/cli
+
 
 # Default directory to work in
 RUN mkdir -p /var/www/html
