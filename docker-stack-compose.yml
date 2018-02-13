@@ -2,41 +2,63 @@ version: '3'
 services:
  
     api:
-        build: ./api/docker
-        volumes:
-            - ./api:/var/www/html
-        depends_on:
-            - mongodb
+        image: ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG}
         environment:
             - MONGO_HOST=192.168.178.29
             - MONGO_PORT=27017
         ports:
             - 3000:3000
+        volumes:
+            - "/share/nas/scrn-php/app/:/var/www/html/storage/app/"
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+            replicas: 1
+            update_config:
+                parallelism: 2
+                delay: 10s
+          
 
     discord:
-        build: ./discord/docker
-        volumes:
-            - ./discord:/var/www/html
+        image: ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG}
         environment:
             - NODE_ENV=development
             - API_HOST=api
             - API_PORT=3000
-        container_name: "discord"
         depends_on:
             - api
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+            replicas: 1
+            update_config:
+                parallelism: 2
+                delay: 10s
 
     website:
-        build:
-            context: ./website/docker/
-            dockerfile: Dockerfile
-            args:
-                - DOCKER_SRC=./website/docker/
+        image: ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
         environment:
             - NODE_ENV=production
             - ANGULAR_ENV=prod
         ports:
-            - 80:80
+            - 8280:80
         depends_on:
             - api
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+            replicas: 1
+            update_config:
+                parallelism: 2
+                delay: 10s
 volumes:
   db_data:
