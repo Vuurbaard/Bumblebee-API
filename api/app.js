@@ -27,7 +27,7 @@ const audioRoute = require('./routes/audio');
 const fragmentsRoute = require('./routes/fragments');
 const sourcesRoute = require('./routes/sources');
 
-app.use(cors());
+app.use(cors({ origin: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/youtube/:file', function (req, res, next) {
