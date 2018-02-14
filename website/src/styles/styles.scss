@@ -3495,3 +3495,13 @@ fieldset[disabled] .form-control {
 app-fragmentifier i.fa.fa-play {
     cursor: pointer;
 }
+
+.selectable {
+	user-select: text !important;
+}
+
+@media (max-width: 767px) {
+	.selectable {
+		user-select: none !important;
+	}
+}

@@ -1,7 +1,7 @@
 import { FlashMessagesService } from 'angular2-flash-messages';
 import { AuthenticationService } from './../../../services/authentication.service';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
 	selector: 'app-login',
@@ -12,10 +12,20 @@ export class LoginComponent implements OnInit {
 
 	username: string;
 	password: string;
+	redirectTo: string;
 
-	constructor(private authService: AuthenticationService, private router: Router, private flashMessagesService: FlashMessagesService) { }
+	constructor(private authService: AuthenticationService, private router: Router, private route: ActivatedRoute, private flashMessagesService: FlashMessagesService) { }
 
 	ngOnInit() {
+		this.route.params.subscribe(params => {
+			this.redirectTo = params['redirect'];
+			console.log('should redirect to', this.redirectTo);
+
+			this.flashMessagesService.show('You have to login first', {
+				cssClass: 'alert-danger',
+				timeout: 5000
+			});
+		});
 	}
 
 	onLoginSubmit() {
@@ -31,7 +41,14 @@ export class LoginComponent implements OnInit {
 					cssClass: 'alert-success',
 					timeout: 5000
 				});
-				this.router.navigate(['dashboard']);
+
+				if (this.redirectTo) {
+					this.router.navigate([this.redirectTo]);
+				}
+				else {
+					this.router.navigate(['dashboard']);
+				}
+
 			}
 			else {
 				this.flashMessagesService.show(data.msg, {
