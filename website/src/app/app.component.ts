@@ -12,15 +12,23 @@ export class AppComponent {
 	}
 
 	ngOnInit() {
-		this.renderer.setElementClass(document.body, 'nav-toggle', true);
+		if(window.innerWidth > 767) {
+			this.renderer.setElementClass(document.body, 'nav-toggle', true);
+		}
+		else {
+			this.renderer.setElementClass(document.body, 'nav-toggle', false);
+		}
+		
 	}
 
 	swipe(event: any) {
-		console.log(event);
-		if(event == "swipeleft") {
+		
+		console.log(window.innerWidth);
+
+		if(event == "swipeleft" && window.innerWidth < 767) {
 			this.renderer.setElementClass(document.body, 'nav-toggle', false);
 		}
-		else if(event == "swiperight") {
+		else if(event == "swiperight" && window.innerWidth < 767) {
 			this.renderer.setElementClass(document.body, 'nav-toggle', true);
 		}
 	}

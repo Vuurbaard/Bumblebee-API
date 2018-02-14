@@ -14,6 +14,7 @@ const routes: Routes = [
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },
+	{ path: 'login/:redirect', component: LoginComponent },
 	{ path: 'tts', component: TtsComponent },
 	{ path: 'tts/:text', component: TtsComponent },
 	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
