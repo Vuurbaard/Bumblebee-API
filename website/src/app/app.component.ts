@@ -22,9 +22,6 @@ export class AppComponent {
 	}
 
 	swipe(event: any) {
-		
-		console.log(window.innerWidth);
-
 		if(event == "swipeleft" && window.innerWidth < 767) {
 			this.renderer.setElementClass(document.body, 'nav-toggle', false);
 		}
