@@ -42,10 +42,10 @@ Audio.prototype.downloadFromYouTube = function(url) {
 		ffmpeg()
 		.input(ytdl(url))
 		.noVideo()
-		.audioBitrate(64)
+		.audioBitrate(256)
 		.save(filepath)
 		.on('error', err => {
-			// console.error(err);
+			console.error(err);
 			deferred.reject(err);
 		})
 		.on('end', function () {
