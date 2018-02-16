@@ -10,24 +10,22 @@
   "author": "Sander Brokelman",
   "license": "ISC",
   "dependencies": {
-    "audioconcat": "^0.1.2",
+    "audioconcat": "^0.1.3",
     "bcryptjs": "*",
-    "body-parser": "*",
+    "body-parser": "1.18.2",
     "colors": "^1.1.2",
-    "cors": "*",
+    "cors": "2.8.4",
     "dotenv": "^4.0.0",
-    "express": "*",
+    "express": "4.16.2",
     "ffmpeg": "0.0.4",
-    "fluent-ffmpeg": "^2.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "guid": "0.0.12",
-    "jsonwebtoken": "*",
+    "jsonwebtoken": "8.1.1",
     "mongoose": "^4.13.8",
     "multer": "^1.3.0",
-    "node-dijkstra": "^2.5.0",
     "passport": "*",
     "passport-jwt": "*",
     "q": "^1.5.0",
-    "youtube-dl": "^1.11.1",
-    "ytdl-core": "^0.20.1"
+    "ytdl-core": "*"
   }
 }

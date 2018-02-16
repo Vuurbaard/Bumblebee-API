@@ -10,11 +10,16 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res, ne
 	let sourceId = req.body.sourceId;
 	let fragments = req.body.fragments;
 
-	FragmentsService.submit(sourceId, fragments).then(() => {
-		res.json({ success: true });
-	}).catch(err => {
+	try {
+		FragmentsService.submit(sourceId, fragments, req.user._id).then(fragments => {
+			res.json({ success: true });
+		});
+		
+	}
+	catch(err) {
+		console.log(err);
 		res.json({ success: false, error: err });
-	});
+	}
 
 });
 
