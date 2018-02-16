@@ -2,174 +2,121 @@ const q = require('q');
 var Source = require('../models/source');
 var Fragment = require('../models/fragment');
 var Word = require('../models/word');
+var User = require('../models/user');
 var mongoose = require('mongoose');
 
 var Fragments = function () { };
 
-Fragments.prototype.submit = function (sourceId, fragments) {
+Fragments.prototype.submit = function (sourceId, fragments, userId) {
 
-	var deferred = q.defer();
-	var me = this;
+	let deferred = q.defer();
 
 	// Sort fragments on attribute 'start'
 	fragments.sort(function (a, b) { return parseFloat(a.start) - parseFloat(b.start) });
 
-	this.saveWords(fragments).then(function (savedWords) {
+	console.log('Saving fragments...'.green);
 
-		me.saveFragments(sourceId, fragments, savedWords).then(function () {
-			console.log('Done processing fragments... Phew...');
-			deferred.resolve();
-		});
-
-	});
+	this.saveShit(fragments, sourceId, userId, deferred);
 
 	return deferred.promise;
 }
 
-Fragments.prototype.saveFragments = function (sourceId, fragments, words) {
-	// Save all fragments here
-	var deferred = q.defer();
+Fragments.prototype.saveShit = async function (fragments, sourceId, userId, deferred) {
 
-	Source.findById(sourceId).then(function (source) {
-		console.log('Found source to use for fragments:', source);
+	// 1. Save the words first
+	for (var fragment of fragments) {
+		fragment.createdBy = userId;
+		fragment.source = sourceId;
+		// fragment.oldWord = await Word.findOne({text: fragment.word.text});
+		fragment.newWord = await this.saveWord(fragment.word, userId);
+	}
 
-		(function insertOne(index, savedFragments) {
+	console.log('All the shit:', fragments);
 
-			var fragment = fragments[index];
-			var word = words[index];
+	// 2. Save the fragments
+	for (var fragment of fragments) {
+		if (fragment.id) {
+			// This fragment already exists
+			
 
-			console.log('======= saving fragment for word', fragment.word);
-			console.log(fragment);
+			let existingFragment = await Fragment.findById(fragment.id).populate('word');
+			console.log('fragment already exists:', fragment);
 
-			var query = { _id: fragment.id ? fragment.id : new mongoose.mongo.ObjectID() };
-			var update = { start: fragment.start, end: fragment.end, word: word, source: source };
-			var options = { upsert: true, setDefaultsOnInsert: true, new: true };
+			if (!existingFragment.word._id.equals(fragment.newWord._id)) {
+				console.log('NEED TO TO SOME UPDATE MAGIC HERE'.red);
 
-			Fragment.findOneAndUpdate(query, update, options, function (error, fragment) {
+				console.log('pulling', existingFragment.id, 'from', existingFragment.word.fragments);
+				// Remove relation from old word to fragment
+				await Word.findOneAndUpdate(existingFragment.word._id, { $pull: { fragments: fragment.id } });
 
-				if (error) {
-					console.log(error);
-					return;
-				}
-
-				console.log('Inserted or updated the fragment:', fragment);
-				savedFragments.push(fragment);
-
-				if (word.fragments.indexOf(fragment._id) == -1) {
-					console.log('Linking word', word.text, 'to this fragment');
-					word.fragments.push(fragment);
-					word.save(function (err, result) {
-						if (index == fragments.length - 1) {
-							deferred.resolve(savedFragments);
-						}
-						else {
-							insertOne(++index, savedFragments);
-						}
-					});
-				}
-				else {
-					console.log('Word', word.text, 'is already linked to fragment', fragment);
-					if (index == fragments.length - 1) {
-						deferred.resolve(savedFragments);
-					}
-					else {
-						insertOne(++index, savedFragments);
-					}
-				}
-
-
-			});
-
-		})(0, new Array());
-	});
-
-	return deferred.promise;
-}
-
-Fragments.prototype.saveWords = function (fragments) {
-	var deferred = q.defer();
-	var me = this;
-
-	(function insertOne(index, savedWords) {
-
-		var fragment = fragments[index];
-		console.log('Saving word', fragment.word);
-
-		var query = { 'text': fragment.word },
-			update = {},
-			options = { upsert: true, new: true, setDefaultsOnInsert: true };
-
-		Word.findOneAndUpdate(query, update, options, function (error, result) {
-			if (error) {
-				console.log(error);
-				return;
-			}
-
-			console.log('Inserted or updated the word:', result.text);
-			savedWords.push(result);
-
-			if (index == fragments.length - 1) {
-
-				me.linkWords(savedWords).then(function () {
-					deferred.resolve(savedWords);
-				});
+				// Update fragment with the new word relation
+				let updatedFragment = await Fragment.findByIdAndUpdate(fragment.id, { start: fragment.start, end: fragment.end, word: fragment.newWord._id }, { new: true }).populate('word');
+				
+				updatedFragment.word.fragments.push(updatedFragment._id);
+				await updatedFragment.word.save();
 			}
 			else {
-				insertOne(++index, savedWords);
+				// Just return the fragment, aka do nothing here
 			}
-		});
-	})(0, new Array());
-
-	return deferred.promise;
-}
-
-Fragments.prototype.linkWords = function (words) {
-	var deferred = q.defer();
-
-	(function link(index) {
-
-		if (index == words.length) {
-			deferred.resolve(words);
 		}
 		else {
+			fragment.word = fragment.newWord;
+			let newFragment = new Fragment(fragment);
+			await newFragment.save();
+			console.log('saved new fragment:', newFragment);
 
-			var word = words[index];
-			//console.log('Linking', word.text, 'to previous word');
-			var previousIndex = index - 1;
-			var previousWord = words[previousIndex];
+			newFragment.word.fragments.push(newFragment._id);
+			await newFragment.word.save();
 
-			if (previousWord) {
+			fragment = newFragment;
+		}
+	}
 
-				if (previousWord.links.indexOf(word._id) == -1) {
-					previousWord.links.push(word);
+	deferred.resolve(fragments);
+}
 
-					previousWord.save(function (err) {
-						if (err) { console.log(err); }
-						console.log('linked', previousWord.text, 'to', word.text);
-						link(++index);
-					});
-				}
-				else {
-					console.log(previousWord.text, 'is already linked to', word.text);
-					link(++index);
-				}
+Fragments.prototype.saveWord = async function (word, userId) {
+	console.log('saving word for fragment:'.green, word);
 
-			}
-			else {
-				console.log('Did not find previous word to link, skipping this.');
-				link(++index);
+	// FYI: fragment does not neccesary have to be saved here yet. We'll do that later
+
+	let existingWord = await Word.findById(word._id);
+
+	if (existingWord) {
+		if (existingWord.text == word.text) {
+			// Word is already in the database
+			console.log('Word is already in the database');
+		}
+		else {
+			// Someone changed the text of the word
+			console.log('Someone changed the text of the word');
+			existingWord = await Word.findOne({ text: word.text });
+
+			if (!existingWord) {
+				// If the word could not be found, create the word
+				let newWord = new Word({ text: word.text, createdBy: userId });
+				existingWord = await newWord.save();
 			}
 		}
-	})(1); // Start at index 1 because we don't need to link the first result to anything
+	}
+	else {
+		existingWord = await Word.findOne({ text: word.text });
+		if (!existingWord) {
+			// We need to insert this word as it does not exist yet.
+			let newWord = new Word({ text: word.text, createdBy: userId });
+			existingWord = await newWord.save();
+			console.log('Saved word', word);
+		}
+	}
 
-	return deferred.promise;
+	return existingWord;
 }
 
 Fragments.prototype.getFragmentsBySource = function (source) {
 	var deferred = q.defer();
 
 	Fragment.find({ 'source': source }).populate('word').then(function (fragments) {
-		console.log('Found fragments by source', source, fragments);
+		//console.log('Found fragments by source', source, fragments);
 		deferred.resolve(fragments);
 	});
 

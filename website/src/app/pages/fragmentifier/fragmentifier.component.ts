@@ -89,7 +89,7 @@ export class FragmentifierComponent implements OnInit {
 				var fragments = new Array();
 
 				for (var fragment of data.fragments) {
-					fragments.push({ id: fragment._id, word: fragment.word.text, start: fragment.start, end: fragment.end });
+					fragments.push({ id: fragment._id, word: fragment.word, start: fragment.start, end: fragment.end });
 				}
 				this.fragments = fragments;
 			}
@@ -127,7 +127,7 @@ export class FragmentifierComponent implements OnInit {
 			let fragment = {
 				start: this.start,
 				end: this.end,
-				word: "",
+				word: { text: "" },
 			}
 
 			this.fragments.push(fragment);
