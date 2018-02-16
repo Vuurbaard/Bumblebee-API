@@ -8,20 +8,16 @@ var mongoose = require('mongoose');
 var Fragments = function () { };
 
 Fragments.prototype.submit = function (sourceId, fragments, userId) {
-
 	let deferred = q.defer();
 
-	// Sort fragments on attribute 'start'
-	fragments.sort(function (a, b) { return parseFloat(a.start) - parseFloat(b.start) });
+	fragments.sort(function (a, b) { return parseFloat(a.start) - parseFloat(b.start) }); // Sort fragments on attribute 'start'
 
-	console.log('Saving fragments...'.green);
-
-	this.saveShit(fragments, sourceId, userId, deferred);
+	this.saveFragments(fragments, sourceId, userId, deferred);
 
 	return deferred.promise;
 }
 
-Fragments.prototype.saveShit = async function (fragments, sourceId, userId, deferred) {
+Fragments.prototype.saveFragments = async function (fragments, sourceId, userId, deferred) {
 
 	// 1. Save the words first
 	for (var fragment of fragments) {
@@ -39,7 +35,7 @@ Fragments.prototype.saveShit = async function (fragments, sourceId, userId, defe
 
 			if (fragment.newWord.text != existingFragment.word.text) {
 				// console.log('pulling fragment', existingFragment.id, 'from word.fragments', existingFragment.word.fragments);
-				
+
 				// Remove/pull this fragment from the old word.
 				await Word.findByIdAndUpdate(existingFragment.word._id, { $pull: { fragments: fragment.id } });
 
@@ -71,8 +67,7 @@ Fragments.prototype.saveShit = async function (fragments, sourceId, userId, defe
 Fragments.prototype.saveWord = async function (word, userId) {
 	console.log('saving word for fragment:'.green, word);
 
-	// FYI: fragment does not neccesary have to be saved here yet. We'll do that later
-
+	// FYI: word does not neccesary have to be saved here yet. We'll do that later
 	let existingWord = await Word.findById(word._id);
 
 	if (existingWord) {
@@ -109,7 +104,6 @@ Fragments.prototype.getFragmentsBySource = function (source) {
 	var deferred = q.defer();
 
 	Fragment.find({ 'source': source }).populate('word').then(function (fragments) {
-		//console.log('Found fragments by source', source, fragments);
 		deferred.resolve(fragments);
 	});
 
