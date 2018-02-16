@@ -40,18 +40,18 @@ Audio.prototype.downloadFromYouTube = function (url) {
 	if (!fs.existsSync(filepath)) {
 		console.log('Download starting...');
 		ffmpeg()
-			.input(ytdl(url))
-			.noVideo()
-			.audioBitrate(64)
-			.save(filepath)
-			.on('error', err => {
-				console.error(err);
-				deferred.reject(err);
-			})
-			.on('end', function () {
-				console.log("Done downloading", youtubeID, "from YouTube");
-				deferred.resolve(file);
-			});
+		.input(ytdl(url))
+		.noVideo()
+		.audioBitrate(256)
+		.save(filepath)
+		.on('error', err => {
+			console.error(err);
+			deferred.reject(err);
+		})
+		.on('end', function () {
+			console.log("Done downloading", youtubeID, "from YouTube");
+			deferred.resolve(file);
+		});
 	}
 	else {
 		deferred.resolve(file);
