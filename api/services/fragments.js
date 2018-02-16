@@ -27,36 +27,29 @@ Fragments.prototype.saveShit = async function (fragments, sourceId, userId, defe
 	for (var fragment of fragments) {
 		fragment.createdBy = userId;
 		fragment.source = sourceId;
-		// fragment.oldWord = await Word.findOne({text: fragment.word.text});
 		fragment.newWord = await this.saveWord(fragment.word, userId);
 	}
-
-	console.log('All the shit:', fragments);
 
 	// 2. Save the fragments
 	for (var fragment of fragments) {
 		if (fragment.id) {
 			// This fragment already exists
-			
 
 			let existingFragment = await Fragment.findById(fragment.id).populate('word');
-			console.log('fragment already exists:', fragment);
 
-			if (!existingFragment.word._id.equals(fragment.newWord._id)) {
-				console.log('NEED TO TO SOME UPDATE MAGIC HERE'.red);
-
-				console.log('pulling', existingFragment.id, 'from', existingFragment.word.fragments);
-				// Remove relation from old word to fragment
-				await Word.findOneAndUpdate(existingFragment.word._id, { $pull: { fragments: fragment.id } });
-
-				// Update fragment with the new word relation
-				let updatedFragment = await Fragment.findByIdAndUpdate(fragment.id, { start: fragment.start, end: fragment.end, word: fragment.newWord._id }, { new: true }).populate('word');
+			if (fragment.newWord.text != existingFragment.word.text) {
+				// console.log('pulling fragment', existingFragment.id, 'from word.fragments', existingFragment.word.fragments);
 				
-				updatedFragment.word.fragments.push(updatedFragment._id);
-				await updatedFragment.word.save();
-			}
-			else {
-				// Just return the fragment, aka do nothing here
+				// Remove/pull this fragment from the old word.
+				await Word.findByIdAndUpdate(existingFragment.word._id, { $pull: { fragments: fragment.id } });
+
+				// Since the word of the fragment has changed, update the fragment with the new word
+				existingFragment.word = fragment.newWord;
+				await existingFragment.save();
+
+				// Also update the fragment its word with this fragment				
+				existingFragment.word.fragments.push(fragment.id);
+				await existingFragment.word.save();
 			}
 		}
 		else {
