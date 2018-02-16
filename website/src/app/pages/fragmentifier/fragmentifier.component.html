@@ -86,7 +86,7 @@
 							<i class="fa fa-play"></i>
 						</span>
 
-						<input type="text" class="form-control" [(ngModel)]="fragment.word">
+						<input type="text" class="form-control" [(ngModel)]="fragment.word.text">
 
 						<span class="input-group-btn">
 							<button class="btn btn-danger text-danger" type="button" (click)="removeFragment(fragment)" [hidden]="fragment.id" [attr.disabled]="fragment.id">

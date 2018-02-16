@@ -22,10 +22,8 @@ router.post('/download', passport.authenticate('jwt', { session: false }), (req,
 	let url = req.body.url;
 
 	Audio.download(url).then(result => {
-		Audio.saveSource(result.file.id, result.origin).then(source => {
-
+		Audio.saveSource(result.file.id, result.origin, req.user._id).then(source => {
 			Fragments.getFragmentsBySource(source).then(function (fragments) {
-
 				res.json({
 					url: result.file.publicpath,
 					sourceId: source._id,
@@ -38,7 +36,7 @@ router.post('/download', passport.authenticate('jwt', { session: false }), (req,
 
 });
 
-router.post('/tts', (req, res, next) => {
+router.post('/tts', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
 	let text = req.body.text.toLowerCase();
 
