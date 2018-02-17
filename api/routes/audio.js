@@ -36,7 +36,7 @@ router.post('/download', passport.authenticate('jwt', { session: false }), (req,
 
 });
 
-router.post('/tts', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.post('/tts', (req, res, next) => {
 
 	let text = req.body.text.toLowerCase();
 
