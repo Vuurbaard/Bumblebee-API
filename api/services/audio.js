@@ -7,6 +7,8 @@ var Source = require('../models/source');
 
 var Audio = function () {
 	this.extension = ".mp3";
+
+	this.downloadMissingYouTubeFiles();
 };
 
 Audio.prototype.download = function (url) {
@@ -38,20 +40,20 @@ Audio.prototype.downloadFromYouTube = function (url) {
 	var deferred = q.defer();
 
 	if (!fs.existsSync(filepath)) {
-		console.log('Download starting...');
+		console.log('Download of youtube video', youtubeID, 'starting...');
 		ffmpeg()
-		.input(ytdl(url))
-		.noVideo()
-		.audioBitrate(256)
-		.save(filepath)
-		.on('error', err => {
-			console.error(err);
-			deferred.reject(err);
-		})
-		.on('end', function () {
-			console.log("Done downloading", youtubeID, "from YouTube");
-			deferred.resolve(file);
-		});
+			.input(ytdl(url))
+			.noVideo()
+			.audioBitrate(256)
+			.save(filepath)
+			.on('error', err => {
+				console.error(err);
+				deferred.reject(err);
+			})
+			.on('end', function () {
+				console.log("Done downloading", youtubeID, "from YouTube");
+				deferred.resolve(file);
+			});
 	}
 	else {
 		deferred.resolve(file);
@@ -62,7 +64,7 @@ Audio.prototype.downloadFromYouTube = function (url) {
 
 Audio.prototype.saveSource = function (id, origin, userId) {
 	var deferred = q.defer();
-
+	
 	Source.findOne({ 'id': id, 'origin': origin }, (err, source) => {
 		if (err) { deferred.reject(err); }
 		else if (source) { deferred.resolve(source); }
@@ -78,6 +80,16 @@ Audio.prototype.saveSource = function (id, origin, userId) {
 	});
 
 	return deferred.promise;
+}
+
+Audio.prototype.downloadMissingYouTubeFiles = function () {
+	Source.find({}, (err, sources) => {
+		for (var source of sources) {
+			if(source.origin == 'YouTube') {
+				this.downloadFromYouTube('https://www.youtube.com/watch?v=' + source.id);			
+			}
+		}
+	});
 }
 
 module.exports = new Audio();
