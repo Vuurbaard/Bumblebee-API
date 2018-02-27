@@ -3476,8 +3476,12 @@ fieldset[disabled] .form-control {
     padding: 6px 12px !important;
 }
 
-.btn[hidden] {
-    display: none;
+// .btn[hidden] {
+//     display: none;
+// }
+
+*[hidden] {
+    display: none !important;
 }
 
 .input-group-addon {
@@ -3504,4 +3508,8 @@ app-fragmentifier i.fa.fa-play {
 	.selectable {
 		user-select: none !important;
 	}
+}
+
+.table-filter {
+	text-align: right;
 }

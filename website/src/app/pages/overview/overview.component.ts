@@ -1,3 +1,4 @@
+import { SourcesService } from './../../services/sources.service';
 import { Component, OnInit } from '@angular/core';
 import { AudioService } from '../../services/audio.service';
 
@@ -8,12 +9,12 @@ import { AudioService } from '../../services/audio.service';
 })
 export class OverviewComponent implements OnInit {
 
-	constructor(private audioService: AudioService) { }
+	constructor(private sourcesService: SourcesService) { }
 
 	sources: [any];
 
 	ngOnInit() {
-		this.audioService.getSources().subscribe(data => {
+		this.sourcesService.all().subscribe(data => {
 			console.log(data);
 			this.sources = data;
 		});
