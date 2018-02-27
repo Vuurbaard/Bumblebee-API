@@ -1,3 +1,4 @@
+import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
@@ -27,6 +28,11 @@ import { AudioService } from './services/audio.service';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { ProfileComponent } from './pages/users/profile/profile.component';
 import { TtsComponent } from './pages/tts/tts.component';
+import { UsersComponent } from './pages/admin/users/users.component';
+import { SourcesComponent } from './pages/admin/sources/sources.component';
+import { FragmentsComponent } from './pages/admin/fragments/fragments.component';
+import { WordsComponent } from './pages/admin/words/words.component';
+import { SourcesService } from './services/sources.service';
 
 export function jwtOptionsFactory() {
 	return {
@@ -48,7 +54,11 @@ export function jwtOptionsFactory() {
 		DashboardComponent,
 		OrderByPipe,
 		ProfileComponent,
-		TtsComponent
+		TtsComponent,
+		UsersComponent,
+		SourcesComponent,
+		FragmentsComponent,
+		WordsComponent
 	],
 	imports: [
 		BrowserModule,
@@ -65,7 +75,13 @@ export function jwtOptionsFactory() {
 		}),
 		ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
 	],
-	providers: [AuthenticationService, AudioService, AuthGuard],
+	providers: [
+		AuthGuard, 
+		AdminGuard, 
+		AuthenticationService, 
+		AudioService,
+		SourcesService,
+	],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }

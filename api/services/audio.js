@@ -4,6 +4,7 @@ const path = require('path');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 var Source = require('../models/source');
+var os = require('os');
 
 var Audio = function () {
 	this.extension = ".mp3";
@@ -64,7 +65,7 @@ Audio.prototype.downloadFromYouTube = function (url) {
 
 Audio.prototype.saveSource = function (id, origin, userId) {
 	var deferred = q.defer();
-	
+
 	Source.findOne({ 'id': id, 'origin': origin }, (err, source) => {
 		if (err) { deferred.reject(err); }
 		else if (source) { deferred.resolve(source); }
@@ -83,13 +84,15 @@ Audio.prototype.saveSource = function (id, origin, userId) {
 }
 
 Audio.prototype.downloadMissingYouTubeFiles = function () {
-	Source.find({}, (err, sources) => {
-		for (var source of sources) {
-			if(source.origin == 'YouTube') {
-				this.downloadFromYouTube('https://www.youtube.com/watch?v=' + source.id);			
+	if (os.hostname() != "DESKTOP-D1A4R6K") {
+		Source.find({}, (err, sources) => {
+			for (var source of sources) {
+				if (source.origin == 'YouTube') {
+					this.downloadFromYouTube('https://www.youtube.com/watch?v=' + source.id);
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
 module.exports = new Audio();
