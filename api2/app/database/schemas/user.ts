@@ -1,11 +1,10 @@
 import { Document, Schema, Model, model } from "mongoose";
 
 export interface IUser extends Document {
-    name?: string;
-    email?: string;
-    username?: string;
-    password?: string;
-    isAdmin?: boolean;
+    email: string;
+    username: string;
+    password: string;
+    isAdmin: boolean;
 }
 
 export var UserSchema: Schema = new Schema({
