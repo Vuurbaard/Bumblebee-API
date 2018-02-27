@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bodyparser from 'body-parser';
 import passport from 'passport';
+import cors from 'cors';
 
 import * as routes from './routes';
 
@@ -26,6 +27,7 @@ mongoose.connection.on('error', err => {
 app.use(bodyparser.json());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cors({ origin: true }));
 
 require('./database/config')(passport);
 
