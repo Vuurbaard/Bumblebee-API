@@ -34,13 +34,4 @@ export class AudioService {
 
 		return this.http.post(environment.apiUrl + '/audio/tts', { text: text }, { headers: headers }).map(res => res.json());
 	}
-
-	getSources() {
-		let headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('Authorization', this.authenticationService.token);
-
-		return this.http.get(environment.apiUrl + '/sources', { headers: headers }).map(res => res.json());
-	}
-
 }

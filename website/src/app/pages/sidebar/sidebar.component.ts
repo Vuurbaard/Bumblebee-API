@@ -1,4 +1,5 @@
-import { Component, OnInit, Renderer } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -7,15 +8,11 @@ import { Component, OnInit, Renderer } from '@angular/core';
 })
 export class SidebarComponent implements OnInit {
 
-	constructor(public renderer: Renderer) { }
+	isAdmin: boolean = false;
+
+	constructor(public authenticationService: AuthenticationService) { }
 
 	ngOnInit() {
-	}
-
-	toggleSubnav() {
-		//this.renderer.setElementClass(document.body, 'nav-toggle', this.showMenu);
-		// $('.nav-second').on('show.bs.collapse', function () {
-		// 	$('.nav-second.in').collapse('hide');
-		// });
+		this.isAdmin =  this.authenticationService.user && this.authenticationService.user.isAdmin;
 	}
 }
