@@ -4,23 +4,28 @@ import { ErrorHandler } from './errorHandler';
 import passport from 'passport';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import VoiceBox from '../services/voicebox';
 
 const router: Router = Router();
 
-router.get('/', passport.authenticate('jwt', { session: true }), (req: Request, res: Response) => {
-    User.find({}, (err: any, users: [IUser]) => {
-        if (err) {
-            ErrorHandler(err, req, res, "GET all users failed");
-        }
-        else {
-            res.json(users);
-        }
+router.get('/tts/:text', (req: Request, res: Response) => {
+
+    let text: string = req.params.text;
+
+    console.log('voicebox tts:', text);
+
+    VoiceBox.tts(text).then((result) => {
+        console.log('tts result:', result);
+        res.json(result);
+    }).catch(err => {
+        console.log('tts error:', err);
     });
+
 });
 
 router.post('/register', (req: Request, res: Response) => {
 
-    console.log('POST /users/register');
+    console.log('POST /register');
 
     let newUser = new User({
         username: req.body.username,
@@ -47,11 +52,11 @@ router.post('/login', (req: Request, res: Response) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    console.log('POST /users/login');
+    console.log('POST /login');
 
     User.findOne({ username: username }, (err: any, user: IUser) => {
         if (err) {
-            ErrorHandler(err, req, res, "POST /users/login failed.");
+            ErrorHandler(err, req, res, "POST /login failed.");
         }
         else if (!user) {
             res.json({ success: false, msg: "User not found" });
@@ -59,7 +64,7 @@ router.post('/login', (req: Request, res: Response) => {
         else {
             bcrypt.compare(password, user.password, (err: any, success: boolean) => {
                 if (err) {
-                    ErrorHandler(err, req, res, "POST /users/login failed.");
+                    ErrorHandler(err, req, res, "POST /login failed.");
                 }
                 else if (!success) {
                     res.json({ success: false, msg: "Password is incorrect" });
@@ -70,10 +75,12 @@ router.post('/login', (req: Request, res: Response) => {
                     res.json({
                         success: true,
                         token: 'JWT ' + token,
-                        id: user._id,
-                        username: user.username,
-                        email: user.email,
-                        isAdmin: user.isAdmin
+                        user: {
+                            id: user._id,
+                            username: user.username,
+                            email: user.email,
+                            isAdmin: user.isAdmin
+                        }
                     });
                 }
             });
@@ -82,20 +89,4 @@ router.post('/login', (req: Request, res: Response) => {
 
 });
 
-router.get('/:id', passport.authenticate('jwt', { session: true }), (req: Request, res: Response) => {
-
-    let id: number = req.params.id;
-
-    console.log('/users/:id', id);
-
-    User.findById(id, (err: any, user: IUser) => {
-        if (err) {
-            ErrorHandler(err, req, res, "GET user by id " + id + " failed.");
-        }
-        else {
-            res.json(user);
-        }
-    });
-});
-
-export const UsersRoute: Router = router;
+export const HomeRoute: Router = router;
