@@ -1,37 +1,26 @@
-import { environment } from './../../environments/environment';
-import { Http, Headers } from '@angular/http';
+import { Http } from '@angular/http';
 import { AuthenticationService } from './authentication.service';
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 @Injectable()
-export class AudioService {
+export class AudioService extends ApiService {
 
-	constructor(private authenticationService: AuthenticationService, private http: Http) {
-
+	constructor(authenticationService: AuthenticationService, http: Http) {
+		super(authenticationService, http);
 	}
 
 	download(url: string) {
-		let headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('Authorization', this.authenticationService.token);
-
-		return this.http.post(environment.apiUrl + '/audio/download', { url: url }, { headers: headers }).map(res => res.json());
+		return this.post('/audio/download', { 'url': url });
 	}
 
 	saveFragments(sourceId: string, fragments: Array<any>) {
-		let headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('Authorization', this.authenticationService.token);
-
-		return this.http.post(environment.apiUrl + '/fragments', { sourceId: sourceId, fragments: fragments }, { headers: headers }).map(res => res.json());
+		return this.post('/fragments', { sourceId: sourceId, fragments: fragments });
 	}
 
 	tts(text: string) {
 		console.log("tts:", text);
-		let headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		headers.append('Authorization', this.authenticationService.token);
 
-		return this.http.get(environment.apiUrl + '/tts/' + text, { headers: headers }).map(res => res.json());
+		return this.post('/tts', { text: text });
 	}
 }
