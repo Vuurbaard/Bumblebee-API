@@ -8,9 +8,11 @@ import VoiceBox from '../services/voicebox';
 
 const router: Router = Router();
 
-router.get('/tts/:text', (req: Request, res: Response) => {
+router.post('/tts', (req: Request, res: Response) => {
 
-    let text: string = req.params.text;
+    console.log('POST /tts');
+
+    let text: string = req.body.text;
 
     console.log('voicebox tts:', text);
 
