@@ -194,7 +194,7 @@ function createOrUpdateUser(message) {
 			console.log('Created or updated user', username);
 
 			let embed = new Discord.RichEmbed();
-			embed.setDescription("For your convinience I've created an account for you so you can add your own audio to my database.");
+			embed.setDescription("For your convenience I've created an account for you so you can add your own audio to my database.");
 			embed.setAuthor("Bumblebee", "https://www.dropbox.com/s/jl9h68lfk92j3q4/bumblee%20icon.png?dl=1", "https://bumblebee.fm");
 			embed.setTitle("https://bumblebee.fm");
 			embed.setURL("https://bumblebee.fm/login");
