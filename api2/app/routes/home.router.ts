@@ -40,7 +40,7 @@ router.post('/register', (req: Request, res: Response) => {
             if (err) { throw err; }
             newUser.password = hash;
             newUser.save((err: any, user: IUser) => {
-                if (err) { ErrorHandler(err, req, res, "POST of new user failed"); }
+                if (err) { ErrorHandler(err, req, res, "POST of new user failed" + err); }
                 else {
                     res.json({ success: true });
                 }
@@ -80,8 +80,10 @@ router.post('/login', (req: Request, res: Response) => {
                         user: {
                             id: user._id,
                             username: user.username,
+                            name: user.name,
                             email: user.email,
-                            isAdmin: user.isAdmin
+                            isAdmin: user.isAdmin,
+                            avatar: user.avatar
                         }
                     });
                 }
