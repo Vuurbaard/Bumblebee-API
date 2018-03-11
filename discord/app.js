@@ -40,7 +40,7 @@ client.on('message', message => {
 	queue.push(function (queuer) {
 		message.member.voiceChannel.join().then(connection => {
 			var options = {
-				url: 'http://' + api() + '/audio/tts',
+				url: 'http://' + api() + '/tts',
 				body: { "text": message.content },
 				json: true,
 				headers: { 'Authorization': this.authToken }
@@ -136,7 +136,7 @@ function login() {
 	console.log('Ready!');
 
 	var options = {
-		url: 'http://' + api() + '/users/authenticate',
+		url: 'http://' + api() + '/login',
 		body: { "username": "Zunz", "password": "123" },
 		json: true
 	};
