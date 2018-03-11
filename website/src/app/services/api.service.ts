@@ -18,7 +18,11 @@ export class ApiService {
 	}
 
 	get(url) {
+		
 		return this.http.get(environment.apiUrl + url, { headers: this.defaultHeaders() }).map(res => res.json());
 	}
 
+	post(url, data) {
+		return this.http.post(environment.apiUrl + url, data, { headers: this.defaultHeaders() }).map(res => res.json());
+	}
 }

@@ -132,7 +132,6 @@ export class FragmentifierComponent implements OnInit {
 
 			this.fragments.push(fragment);
 		}
-
 	}
 
 	removeFragment(fragment) {

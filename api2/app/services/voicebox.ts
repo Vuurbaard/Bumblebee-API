@@ -20,16 +20,6 @@ class VoiceBox {
         if (!fs.existsSync('dist/audio/fragments')) { fs.mkdirSync('dist/audio/fragments') };
         if (!fs.existsSync('dist/audio/temp')) { fs.mkdirSync('dist/audio/temp') };
 
-        //if (os.hostname() != "DESKTOP-D1A4R6K") {
-            // Source.find({}, (err, sources) => {
-            //     for (var source of sources) {
-            //         if (source.origin == 'YouTube') {
-            //             //this.downloadFromYouTube('https://www.youtube.com/watch?v=' + source.id);
-            //         }
-            //     }
-            // });
-        //}
-
         //this.tts("please let this work");
     }
 
@@ -72,7 +62,7 @@ class VoiceBox {
 
         // FYI: Traces are fragments
         let traces = await this.trace(orderedWords);
-        console.log('traces:'.toString().green);
+        console.log('[VoiceBox]'.bgYellow.black, 'traces:'.toString().green);
         for (let trace of traces) {
             console.log(trace[0].word.text, '->'.green, trace[trace.length - 1].word.text);
         }
@@ -100,7 +90,7 @@ class VoiceBox {
                 wordsFromTrace.push(trace.word.text);
             }
 
-            console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
+            console.log('[VoiceBox]'.bgYellow.black, 'trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
 
             if (wordsFromTrace.length > 0) {
                 // Find the first word
@@ -140,7 +130,7 @@ class VoiceBox {
                     for (var i = 0; i < traces.length; i++) {
                         var fragment = traces[i];
 
-                        console.log('traces:'.red, traces);
+                        // console.log('[VoiceBox]'.bgYellow.black, 'traces:'.red, traces);
 
                         if (!fragments[index]) {
                             fragments[index] = {
@@ -168,7 +158,7 @@ class VoiceBox {
             }
         }
 
-        console.log('fragments:'.red, fragments)
+        // console.log('[VoiceBox]'.bgYellow.black, 'fragments:'.red, fragments)
 
         fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
@@ -187,7 +177,7 @@ class VoiceBox {
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
             let nextWord = words[i + 1];
-            console.log('starting new trace for word'.green, word.text);
+            console.log('[VoiceBox]'.bgYellow.black, 'starting new trace for word'.green, word.text);
 
             for (let fragment of word.fragments) {
                 let fragmentTraces = await this.traceFragments(i, words, fragment);
@@ -217,7 +207,7 @@ class VoiceBox {
             traces.push(fragment);
         }
 
-        console.log('tracing fragment'.yellow, fragment.id);
+        console.log('[VoiceBox]'.bgYellow.black, 'tracing fragment'.yellow, fragment.id);
 
         if (nextWord) {
             for (var nextFragment of nextWord.fragments) {
@@ -231,7 +221,7 @@ class VoiceBox {
                     //console.log('fragmentsInBetween:'.red, fragmentsInBetween);
 
                     if (fragmentsInBetween == 0) {
-                        console.log(fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
+                        console.log('[VoiceBox]'.bgYellow.black, fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
                         traces.push(nextFragment);
                         await this.traceFragments(index + 1, words, nextFragment, traces);
                     }
@@ -268,6 +258,8 @@ class VoiceBox {
                     ffmpeg(filepath)
                         .setStartTime(fragment.start)
                         .setDuration(fragment.end - fragment.start)
+                        .audioBitrate(128)
+                        .audioFilter('loudnorm')
                         .output(outputpath)
                         .on('end', function (err) {
                             if (!err) {
