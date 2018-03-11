@@ -28,8 +28,13 @@
 				</li>
 				<li *ngIf="authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" class=" profil-link">
 					<a [routerLink]="['/profile']">
-						<span class="profile-address">{{authService.user.username}}</span>
-						<img src="https://public.acloud.guru/assets/profile-no-image.png" class="img-circle" alt="">
+
+						<span *ngIf="authService.user.name" class="profile-address">{{authService.user.name}}</span>
+						<span *ngIf="!authService.user.name && authService.user.username" class="profile-address">{{authService.user.username}}</span>
+
+						<img *ngIf="!authService.user.avatar" src="https://public.acloud.guru/assets/profile-no-image.png" class="img-circle" alt="">
+						<img *ngIf="authService.user.avatar" src="{{authService.user.avatar}}" class="img-circle" alt="">
+
 					</a>
 				</li>
 
