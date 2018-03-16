@@ -2,7 +2,11 @@ version: '3'
 services:
  
     api:
-        build: ./api/docker
+        build:
+            context: ./api
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_INSTALL_BEFORE=false
         volumes:
             - ./api:/var/www/html
         depends_on:
@@ -14,7 +18,11 @@ services:
             - 3000:3000
 
     discord:
-        build: ./discord/docker
+        build: 
+            context: ./discord
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_INSTALL_BEFORE=false
         volumes:
             - ./discord:/var/www/html
         environment:
@@ -27,11 +35,14 @@ services:
 
     website:
         build:
-            context: website/docker
-            dockerfile: Dockerfile
+            context: ./website
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_INSTALL_BEFORE=false
         environment:
             - NODE_ENV=development
             - ANGULAR_ENV=dev
+            - NG_OPTIONAL=--watch=true --poll
         volumes:
             - ./website:/var/www/html
         ports:
@@ -39,7 +50,7 @@ services:
         depends_on:
             - api
     mongodb:
-        image: mongo:latest
+        image: mongo:3.4
         container_name: "mongodb"
         environment:
             - MONGO_DATA_DIR=/data/db
@@ -49,5 +60,3 @@ services:
         ports:
             - 27017:27017
         command: mongod --smallfiles --logpath=/dev/null # --quiet
-volumes:
-  db_data:
