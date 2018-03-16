@@ -13,10 +13,8 @@ let authToken = "";
 let queues = [];
 
 client.on('ready', () => {
-
 	// Try to login
 	login();
-
 });
 
 client.on('message', message => {
@@ -165,3 +163,28 @@ function login() {
 		}
 	});
 }
+
+function shutdown(data){
+	console.log("Exit with code:" + data);
+	client.voiceConnections.forEach(function(connection,key){
+		// Disconnect
+		console.log("Disconnecting from: " + connection.channel.name);
+		connection.disconnect();
+	});
+
+	client.destroy();
+	// Don't change this, otherwise nodemon will freak the fuck out :OOOOO
+	process.kill(process.pid, data);
+}
+
+process.on('beforeExit', shutdown.bind());
+
+//do something when app is closing
+process.on('exit', shutdown.bind());
+
+// //catches ctrl+c event
+process.on('SIGINT', shutdown.bind());
+
+// // catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', shutdown.bind());
+process.once('SIGUSR2', shutdown.bind());
