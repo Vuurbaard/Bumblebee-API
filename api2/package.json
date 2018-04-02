@@ -4,8 +4,10 @@
   "description": "Run `npm run tsc` for the typescript compiler to watch for file changes.\r Run `nodemon dist/server.js` for nodemon to (re)start the API on file changes.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc --watch --noImplicitThis false"
+    "watch": "tsc --noImplicitThis true -w -p ./",
+    "debug": "nodemon --legacy-watch --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
+    "docker-debug": "docker-compose up",
+    "start": "node ./dist/server.js"
   },
   "keywords": [],
   "author": "Sander Brokelman",
@@ -39,5 +41,7 @@
     "typescript": "^2.7.2",
     "ytdl-core": "^0.20.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
 }
