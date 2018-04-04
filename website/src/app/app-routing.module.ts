@@ -13,9 +13,11 @@ import { RegisterComponent } from './pages/users/register/register.component';
 import { LoginComponent } from './pages/users/login/login.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
-	{ path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+	// { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+	{ path: '', component: HomeComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'register', component: RegisterComponent },
 	{ path: 'login', component: LoginComponent },

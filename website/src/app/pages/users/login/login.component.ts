@@ -20,11 +20,6 @@ export class LoginComponent implements OnInit {
 		this.route.params.subscribe(params => {
 			this.redirectTo = params['redirect'];
 			console.log('should redirect to', this.redirectTo);
-
-			this.flashMessagesService.show('You have to login first', {
-				cssClass: 'alert-danger',
-				timeout: 5000
-			});
 		});
 	}
 

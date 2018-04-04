@@ -4,7 +4,7 @@
   "description": "Run `npm run tsc` for the typescript compiler to watch for file changes.\r Run `nodemon dist/server.js` for nodemon to (re)start the API on file changes.",
   "main": "index.js",
   "scripts": {
-    "watch": "tsc --noImplicitThis true -w -p ./",
+    "watch": "tsc -w -p ./",
     "debug": "nodemon --legacy-watch --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
     "docker-debug": "docker-compose up",
     "start": "node ./dist/server.js"
