@@ -33,6 +33,7 @@ import { SourcesComponent } from './pages/admin/sources/sources.component';
 import { FragmentsComponent } from './pages/admin/fragments/fragments.component';
 import { WordsComponent } from './pages/admin/words/words.component';
 import { SourcesService } from './services/sources.service';
+import { HomeComponent } from './pages/home/home.component';
 
 export function jwtOptionsFactory() {
 	return {
@@ -58,7 +59,8 @@ export function jwtOptionsFactory() {
 		UsersComponent,
 		SourcesComponent,
 		FragmentsComponent,
-		WordsComponent
+		WordsComponent,
+		HomeComponent
 	],
 	imports: [
 		BrowserModule,
