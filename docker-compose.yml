@@ -7,13 +7,12 @@ services:
             dockerfile: docker/Dockerfile
             args:
                 - NPM_INSTALL_BEFORE=false
-        command: npm run debug
         volumes:
             - ./api2/dist:/app/dist
         depends_on:
-            - mongodb
+           - mongodb
         environment:
-            - MONGO_HOST=localhost
+            - MONGO_HOST=192.168.178.29
             - MONGO_PORT=27017
             - USE_NODEMON=false
         ports:
@@ -36,40 +35,40 @@ services:
     #     ports:
     #         - 3000:3000
 
-    # discord:
-    #     build: 
-    #         context: ./discord
-    #         dockerfile: docker/Dockerfile
-    #         args:
-    #             - NPM_INSTALL_BEFORE=false
-    #     volumes:
-    #         - ./discord:/var/www/html
-    #     environment:
-    #         - NODE_ENV=development
-    #         - API_HOST=api
-    #         - API_PORT=3000
-    #         - USE_NODEMON=false
-    #     container_name: "discord"
-    #     depends_on:
-    #         - api
+    discord:
+        build: 
+            context: ./discord
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_INSTALL_BEFORE=false
+        volumes:
+            - ./discord:/var/www/html
+        environment:
+            - NODE_ENV=development
+            - API_HOST=api
+            - API_PORT=3000
+            - USE_NODEMON=false
+        container_name: "discord"
+        depends_on:
+            - api
 
-    # website:
-    #     build:
-    #         context: ./website
-    #         dockerfile: docker/Dockerfile
-    #         args:
-    #             - NPM_INSTALL_BEFORE=false
-    #     environment:
-    #         - NODE_ENV=development
-    #         - ANGULAR_ENV=dev
-    #         - NG_OPTIONAL=--watch=true --poll
-    #         - USE_NODEMON=false
-    #     volumes:
-    #         - ./website:/var/www/html
-    #     ports:
-    #         - 80:80
-    #     depends_on:
-    #         - api
+    website:
+        build:
+            context: ./website
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_INSTALL_BEFORE=false
+        environment:
+            - NODE_ENV=development
+            - ANGULAR_ENV=dev
+            - NG_OPTIONAL=--watch=true --poll
+            - USE_NODEMON=false
+        volumes:
+            - ./website:/var/www/html
+        ports:
+            - 80:80
+        depends_on:
+            - api
 
     mongodb:
         image: mongo:3.4

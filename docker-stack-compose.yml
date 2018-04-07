@@ -10,7 +10,7 @@ services:
         ports:
             - 3000:3000
         volumes:
-            - "/share/nas/bumblebee/audio/:/var/www/html/audio/"
+            - "/share/nas/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: on-failure
