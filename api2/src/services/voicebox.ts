@@ -29,7 +29,7 @@ class VoiceBox {
 
         let input = text.toLowerCase().split(' ');
 
-        console.log('[VoiceBox]'.bgYellow.black, 'starting new asyncmagic for:'.green, input.toString().yellow);
+        console.log('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
 
         let combinations = new Array();
 
@@ -41,10 +41,10 @@ class VoiceBox {
             }
         }
 
-        console.log('[VoiceBox]'.bgYellow.black, "combinations:".green, combinations.toString().yellow);
+        console.log('[VoiceBox]', "combinations:", combinations.toString());
 
         let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
-        console.log('[VoiceBox]'.bgYellow.black, "found", words.length, "/", input.length, 'words');
+        console.log('[VoiceBox]', "found", words.length, "/", input.length, 'words');
 
         if (words.length == 0) {
             // deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
@@ -62,9 +62,9 @@ class VoiceBox {
 
         // FYI: Traces are fragments
         let traces = await this.trace(orderedWords);
-        console.log('[VoiceBox]'.bgYellow.black, 'traces:'.toString().green);
+        console.log('[VoiceBox]', 'traces:'.toString());
         for (let trace of traces) {
-            console.log(trace[0].word.text, '->'.green, trace[trace.length - 1].word.text);
+            console.log(trace[0].word.text, '->', trace[trace.length - 1].word.text);
         }
 
         // Shuffle the traces to gain some randomness
@@ -90,7 +90,7 @@ class VoiceBox {
                 wordsFromTrace.push(trace.word.text);
             }
 
-            console.log('[VoiceBox]'.bgYellow.black, 'trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
+            console.log('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
 
             if (wordsFromTrace.length > 0) {
                 // Find the first word
@@ -177,7 +177,7 @@ class VoiceBox {
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
             let nextWord = words[i + 1];
-            console.log('[VoiceBox]'.bgYellow.black, 'starting new trace for word'.green, word.text);
+            console.log('[VoiceBox]', 'starting new trace for word', word.text);
 
             for (let fragment of word.fragments) {
                 let fragmentTraces = await this.traceFragments(i, words, fragment);
@@ -207,7 +207,7 @@ class VoiceBox {
             traces.push(fragment);
         }
 
-        console.log('[VoiceBox]'.bgYellow.black, 'tracing fragment'.yellow, fragment.id);
+        console.log('[VoiceBox]', 'tracing fragment', fragment.id);
 
         if (nextWord) {
             for (var nextFragment of nextWord.fragments) {
@@ -221,7 +221,7 @@ class VoiceBox {
                     //console.log('fragmentsInBetween:'.red, fragmentsInBetween);
 
                     if (fragmentsInBetween == 0) {
-                        console.log('[VoiceBox]'.bgYellow.black, fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as'.green, nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
+                        console.log('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
                         traces.push(nextFragment);
                         await this.traceFragments(index + 1, words, nextFragment, traces);
                     }
@@ -309,7 +309,7 @@ class VoiceBox {
                         resolve({ error: 'FFMpeg failed to process file:' });
                     })
                     .on('end', function () {
-                        console.log('Audio created in:'.green, "/audio/temp/" + outputfilename);
+                        console.log('Audio created in:', "/audio/temp/" + outputfilename);
                         resolve({ file: "/audio/temp/" + outputfilename });
                     })
 
