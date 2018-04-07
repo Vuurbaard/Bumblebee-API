@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "api tsc",
+			"options": {
+				"cwd": "./api2"	
+			},
+			"command": "npm",
+			"args": ["run", "watch"],
+			"type": "shell",
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": "$tsc",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+		},
+		{
+			"label": "run api",
+			"dependsOn": "api tsc",
+			"options": {
+				"cwd": "./api2"	
+			},
+			"command": "npm",
+			"args": ["run", "debug"],
+			"type": "shell",
+			"isBackground": true,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			
+		}
+	]
+}
