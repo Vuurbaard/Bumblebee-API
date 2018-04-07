@@ -39,7 +39,10 @@ export class FragmentifierComponent implements OnInit {
 		this.wavesurfer = WaveSurfer.create({
 			container: '#waveform',
 			waveColor: 'white',
-			progressColor: '#f6a821'
+			progressColor: '#f6a821',
+			plugins: [
+				WaveSurfer.regions.create()
+			]
 		});
 
 		this.wavesurfer.on('pause', () => {
@@ -47,11 +50,13 @@ export class FragmentifierComponent implements OnInit {
 				me.playing = false;
 			});
 		});
+
 		this.wavesurfer.on('finish', () => {
 			this.zone.run(() => {
 				me.playing = false;
 			});
 		});
+
 		this.wavesurfer.on('play', () => {
 			this.zone.run(() => {
 				me.playing = true;
@@ -60,7 +65,21 @@ export class FragmentifierComponent implements OnInit {
 
 		this.wavesurfer.on('ready', () => {
 			this.zone.run(() => {
+
+				// this.slider.value = 250;
+				// this.wavesurfer.zoom(this.slider.value);
+				
 				me.loading = false;
+
+				for (var fragment of this.fragments) {
+					this.wavesurfer.addRegion({ 
+						start: fragment.start, 
+						end: fragment.end,
+						drag: false,
+						color: "rgba(246, 168, 33, 0.25)" 
+					});					
+				}
+
 			});
 		});
 
@@ -90,8 +109,12 @@ export class FragmentifierComponent implements OnInit {
 
 				for (var fragment of data.fragments) {
 					fragments.push({ id: fragment._id, word: fragment.word, start: fragment.start, end: fragment.end });
+					this.wavesurfer.addRegion({ start: fragment.start, end: fragment.end, color: "rgba(246, 168, 33, 0.5)" });
 				}
 				this.fragments = fragments;
+
+				// var wat = this.wavesurfer.regions.list;
+				// debugger;
 			}
 		});
 	}
