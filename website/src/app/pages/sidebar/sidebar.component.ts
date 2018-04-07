@@ -15,4 +15,5 @@ export class SidebarComponent implements OnInit {
 	ngOnInit() {
 		this.isAdmin =  this.authenticationService.user && this.authenticationService.user.isAdmin;
 	}
+	
 }

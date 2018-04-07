@@ -11,6 +11,25 @@
 						<i class="stroke stroke-hamburgermenu"></i>
 					</a>
 				</div>
+				<li *ngIf="authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" class=" profil-link">
+					<a [routerLink]="['/profile']">
+						<img *ngIf="!authService.user.avatar" src="https://public.acloud.guru/assets/profile-no-image.png" class="img-circle" alt="">
+						<img *ngIf="authService.user.avatar" src="{{authService.user.avatar}}" class="img-circle" alt="">
+					</a>
+				</li>
+
+				<div class="right">
+					<li *ngIf="authService.isLoggedIn()">
+						<a (click)="logout()">Logout</a>
+					</li>
+					<li *ngIf="!authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+						<a [routerLink]="['/login']">Login</a>
+					</li>
+					<li *ngIf="!authService.isLoggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+						<a [routerLink]="['/register']">Register</a>
+					</li>
+				</div>
+
 			</div>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
