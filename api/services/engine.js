@@ -90,7 +90,7 @@ Engine.prototype.asyncmagic = async function (input) {
 			wordsFromTrace.push(trace.word.text);
 		}
 
-		console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
+//		console.log('trying to remove:'.green, wordsFromTrace, 'from'.green, inputToProcess);
 
 		if (wordsFromTrace.length > 0) {
 			// Find the first word
@@ -130,7 +130,7 @@ Engine.prototype.asyncmagic = async function (input) {
 				for (var i = 0; i < traces.length; i++) {
 					var fragment = traces[i];
 
-					console.log('traces:'.red, traces);
+					//console.log('traces:'.red, traces);
 
 					if (!fragments[index]) {
 						fragments[index] = {
@@ -158,7 +158,7 @@ Engine.prototype.asyncmagic = async function (input) {
 		}
 	}
 
-	console.log('fragments:'.red, fragments)
+	//console.log('fragments:'.red, fragments)
 
 	fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
