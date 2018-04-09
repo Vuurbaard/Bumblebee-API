@@ -1,0 +1,64 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "api: tsc",
+			"type": "typescript",
+			"tsconfig": "api2\\tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": "build"
+		},
+		{
+			"label": "api: nodemon",
+			"type": "npm",
+			"script": "debug",
+			"path": "api2/",
+			"group": "build"
+		},
+		{
+			"label": "api: tsc watch",
+			"options": {
+				"cwd": "./api2"
+			},
+			"command": "npm",
+			"args": [
+				"run",
+				"watch"
+			],
+			"type": "shell",
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": "$tsc-watch",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "website: ng serve",
+			"options": {
+				"cwd": "./website"
+			},
+			"command": "npm",
+			"args": [
+				"run",
+				"start"
+			],
+			"type": "shell",
+			"isBackground": true,
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		}
+	]
+}
