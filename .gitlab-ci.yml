@@ -9,6 +9,7 @@ build website:
   image: docker:dind
   script:
     # install composer and get dependencies
+    - echo $CI_ENVIRONMENT_SLUG
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
     - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true --build-arg DOCKER_SRC=./docker/  -f website/docker/Dockerfile ./website/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
@@ -17,6 +18,7 @@ build api:
   image: docker:dind
   script:
     # install composer and get dependencies
+    - echo $CI_ENVIRONMENT_SLUG
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
     - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f api2/docker/Dockerfile ./api2/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} 
@@ -25,6 +27,7 @@ build discord:
   image: docker:dind
   script:
     # install composer and get dependencies
+    - echo $CI_ENVIRONMENT_SLUG
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
     - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f discord/docker/Dockerfile ./discord/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} 
@@ -39,6 +42,7 @@ push to production:
     SERVICE_NAME: core
   image: docker:latest
   script:
+    - echo $CI_ENVIRONMENT_SLUG
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
     - docker stack deploy --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}-${SERVICE_NAME}
   environment:
