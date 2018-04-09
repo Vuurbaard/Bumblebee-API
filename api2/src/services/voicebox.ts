@@ -299,6 +299,7 @@ class VoiceBox {
             // Concatenate the temp fragment files into one big one
 			let outputfilename = guid.create() + '.mp3';
 			console.log("Sweet testing");
+			console.log(files);
 			console.log(path.join(audioFolder, "/temp/", outputfilename));
             return new Promise((resolve, reject) => {
                 audioconcat(files)
