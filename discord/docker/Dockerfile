@@ -3,7 +3,6 @@ ARG NPM_INSTALL_BEFORE=true
 RUN mkdir -p /var/www/html
 RUN yarn global add ffmpeg-binaries
 RUN npm install -g nodemon
-RUN echo $NPM_INSTALL_AFTER
 
 COPY ./package.json /tmp/package.json
 
