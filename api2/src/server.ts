@@ -28,6 +28,10 @@ mongoose.connection.on('connected', () => {
 
 mongoose.connection.on('error', err => {
     console.log('Database error', err);
+
+	setTimeout(() => {
+		mongoose.connect('mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2');
+	}, 5000);
 });
 
 // Express middlewares
