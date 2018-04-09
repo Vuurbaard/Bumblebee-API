@@ -15,6 +15,7 @@ services:
             - MONGO_HOST=mongodb
             - MONGO_PORT=27017
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=true
         ports:
             - 3000:3000
 
@@ -31,6 +32,7 @@ services:
             - API_HOST=api
             - API_PORT=3000
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=true
         container_name: "discord"
         depends_on:
             - api
@@ -46,6 +48,7 @@ services:
             - ANGULAR_ENV=dev
             - NG_OPTIONAL=--watch=true --poll
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=true
         volumes:
             - ./website:/var/www/html
         ports:

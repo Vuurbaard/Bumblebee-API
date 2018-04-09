@@ -10,7 +10,7 @@ build website:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} --build-arg DOCKER_SRC=./docker/  -f website/docker/Dockerfile ./website/
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true --build-arg DOCKER_SRC=./docker/  -f website/docker/Dockerfile ./website/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
 
 build api:
@@ -18,7 +18,7 @@ build api:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} -f api/docker/Dockerfile ./api/
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f api/docker/Dockerfile ./api/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} 
 
 build discord:
@@ -26,7 +26,7 @@ build discord:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} -f discord/docker/Dockerfile ./discord/
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f discord/docker/Dockerfile ./discord/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG} 
 
 

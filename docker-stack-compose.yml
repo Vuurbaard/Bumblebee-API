@@ -7,10 +7,11 @@ services:
             - MONGO_HOST=192.168.178.29
             - MONGO_PORT=27017
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=false
         ports:
             - 3000:3000
         volumes:
-            - "/share/nas/bumblebee/audio/:/var/www/html/audio/"
+            - "/share/nas/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: on-failure
@@ -29,10 +30,11 @@ services:
             - API_HOST=api
             - API_PORT=3000
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=false
         depends_on:
             - api
         deploy:
-            restart_policy:
+            restart_policy:x
                 condition: on-failure
                 delay: 5s
                 max_attempts: 3
@@ -48,6 +50,7 @@ services:
             - NODE_ENV=development
             - ANGULAR_ENV=prod
             - USE_NODEMON=false
+            - NPM_INSTALL_AFTER=false
         ports:
             - 8280:80
         depends_on:
