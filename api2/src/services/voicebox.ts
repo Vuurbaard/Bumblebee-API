@@ -15,10 +15,10 @@ class VoiceBox {
 
     public constructor() {
 
-        if (!fs.existsSync('dist/audio')) { fs.mkdirSync('dist/audio') };
-        if (!fs.existsSync('dist/audio/youtube')) { fs.mkdirSync('dist/audio/youtube') };
-        if (!fs.existsSync('dist/audio/fragments')) { fs.mkdirSync('dist/audio/fragments') };
-        if (!fs.existsSync('dist/audio/temp')) { fs.mkdirSync('dist/audio/temp') };
+        if (!fs.existsSync('audio')) { fs.mkdirSync('audio') };
+        if (!fs.existsSync('audio/youtube')) { fs.mkdirSync('audio/youtube') };
+        if (!fs.existsSync('audio/fragments')) { fs.mkdirSync('audio/fragments') };
+        if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') };
 
         //this.tts("please let this work");
     }
@@ -245,15 +245,17 @@ class VoiceBox {
     private async fileMagic(fragments: Array<any>) {
         // Generate temp files from fragments
         let tempFiles = new Array();
-        let promises = new Array();
+		let promises = new Array();
+		
+		let audioFolder = path.join(__dirname, '../audio/');
 
         for (var fragment of fragments) {
 
             (function (fragment) {
                 var promise = new Promise(function (resolve, reject) {
 
-                    let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
-                    let outputpath = __dirname + '/../audio/fragments/' + fragment.id + '-' + fragment.endFragment.id + '.mp3';
+                    let filepath = path.join(audioFolder, '/youtube/', fragment.source.id.toString() + '.mp3');
+                    let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment.id + '.mp3');
 
                     ffmpeg(filepath)
                         .setStartTime(fragment.start)
@@ -291,7 +293,7 @@ class VoiceBox {
             let files = new Array();
             tempFiles.forEach(function (fragment) {
                 
-                files.push(__dirname + "/../audio/fragments/" + fragment.file);
+                files.push(path.join(audioFolder, "/fragments/", fragment.file));
             });
 
             // Concatenate the temp fragment files into one big one
@@ -299,7 +301,7 @@ class VoiceBox {
 
             return new Promise((resolve, reject) => {
                 audioconcat(files)
-                    .concat(__dirname + "/../audio/temp/" + outputfilename)
+                    .concat(path.join(audioFolder, "/temp/", outputfilename))
                     .on('start', function (command: any) {
                         console.log('ffmpeg process started:', command)
                     })
@@ -309,7 +311,7 @@ class VoiceBox {
                         resolve({ error: 'FFMpeg failed to process file(s): ' + err });
                     })
                     .on('end', function () {
-                        console.log('Audio created in:', "/../audio/temp/" + outputfilename);
+                        console.log('Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
                         resolve({ file: "/audio/temp/" + outputfilename });
                     })
 
