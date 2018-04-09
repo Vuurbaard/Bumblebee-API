@@ -34,7 +34,7 @@ services:
         depends_on:
             - api
         deploy:
-            restart_policy:x
+            restart_policy:
                 condition: on-failure
                 delay: 5s
                 max_attempts: 3
