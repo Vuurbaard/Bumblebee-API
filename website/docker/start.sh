@@ -1,7 +1,12 @@
 #!/bin/bash
 export ANGULAR_ENV=${ANGULAR_ENV:=dev}
-echo "Running NPM install..." 
-npm install
+
+NPM_INSTALL=${NPM_INSTALL_AFTER:=true}
+
+if [ $NPM_INSTALL = "true" ]; then
+    echo "Running NPM Install"
+    npm install
+fi
 echo "Starting build" 
 mkdir -p /var/log/ng/ && touch /var/log/ng/build.log
 mkdir -p /var/www/html/dist/
