@@ -1,4 +1,4 @@
 export const environment = {
 	production: true,
-	apiUrl: "http://api.bumblebee.fm"
+	apiUrl: "https://api.bumblebee.fm"
 };
