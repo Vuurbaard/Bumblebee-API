@@ -252,8 +252,8 @@ class VoiceBox {
             (function (fragment) {
                 var promise = new Promise(function (resolve, reject) {
 
-                    let filepath = __dirname + '/../audio/youtube/' + fragment.source.id.toString() + '.mp3';
-                    let outputpath = __dirname + '/../audio/fragments/' + fragment.id + '-' + fragment.endFragment.id + '.mp3';
+                    let filepath = __dirname + '/audio/youtube/' + fragment.source.id.toString() + '.mp3';
+                    let outputpath = __dirname + '/audio/fragments/' + fragment.id + '-' + fragment.endFragment.id + '.mp3';
 
                     ffmpeg(filepath)
                         .setStartTime(fragment.start)
@@ -291,7 +291,7 @@ class VoiceBox {
             let files = new Array();
             tempFiles.forEach(function (fragment) {
                 
-                files.push(__dirname + "/../audio/fragments/" + fragment.file);
+                files.push(__dirname + "/audio/fragments/" + fragment.file);
             });
 
             // Concatenate the temp fragment files into one big one
@@ -299,7 +299,7 @@ class VoiceBox {
 
             return new Promise((resolve, reject) => {
                 audioconcat(files)
-                    .concat(__dirname + "/../audio/temp/" + outputfilename)
+                    .concat(__dirname + "/audio/temp/" + outputfilename)
                     .on('start', function (command: any) {
                         console.log('ffmpeg process started:', command)
                     })
