@@ -306,7 +306,7 @@ class VoiceBox {
                     .on('error', function (err: any, stdout: any, stderr: any) {
                         console.error('Error:', err)
                         console.error('ffmpeg stderr:', stderr)
-                        resolve({ error: 'FFMpeg failed to process file:' });
+                        resolve({ error: 'FFMpeg failed to process files: ' + files });
                     })
                     .on('end', function () {
                         console.log('Audio created in:', "/audio/temp/" + outputfilename);
