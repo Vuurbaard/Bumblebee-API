@@ -1,5 +1,6 @@
 FROM node:latest
 ARG NPM_INSTALL_BEFORE=true
+
 RUN apt-get update -qq && apt-get install apache2 -qq -y && rm -r /var/lib/apt/lists/*
 # Enable rewrite module
 RUN a2enmod rewrite && a2enmod headers
@@ -8,8 +9,6 @@ RUN a2enmod rewrite && a2enmod headers
 RUN yarn global add node-gyp
 RUN yarn global add @angular/cli
 
-RUN echo $NPM_INSTALL_BEFORE
-RUN asdasd
 COPY ${DOCKER_SRC}package.json /tmp/package.json
 RUN if [ $NPM_INSTALL_BEFORE = "true" ]; then \
     ls /tmp && \

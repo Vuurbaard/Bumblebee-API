@@ -15,7 +15,7 @@ services:
             - MONGO_HOST=192.168.178.248
             - MONGO_PORT=27017
             - USE_NODEMON=true
-            - NPM_INSTALL_AFTER=true
+            - NPM_INSTALL_AFTER=false
 
         ports:
             - 3000:3000
