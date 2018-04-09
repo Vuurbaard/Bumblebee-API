@@ -3,21 +3,39 @@ services:
  
     api:
         build:
-            context: ./api
+            context: ./api2
             dockerfile: docker/Dockerfile
             args:
                 - NPM_INSTALL_BEFORE=false
         volumes:
-            - ./api:/var/www/html
+            - ./api2:/var/www/html
         depends_on:
-            - mongodb
+           - mongodb
         environment:
-            - MONGO_HOST=mongodb
+            - MONGO_HOST=192.168.178.248
             - MONGO_PORT=27017
-            - USE_NODEMON=false
+            - USE_NODEMON=true
             - NPM_INSTALL_AFTER=true
+
         ports:
             - 3000:3000
+    
+    # api:
+    #     build:
+    #         context: ./api
+    #         dockerfile: docker/Dockerfile
+    #         args:
+    #             - NPM_INSTALL_BEFORE=false
+    #     volumes:
+    #         - ./api:/var/www/html
+    #     depends_on:
+    #         - mongodb
+    #     environment:
+    #         - MONGO_HOST=localhost
+    #         - MONGO_PORT=27017
+    #         - USE_NODEMON=false
+    #     ports:
+    #         - 3000:3000
 
     discord:
         build: 
@@ -55,6 +73,7 @@ services:
             - 80:80
         depends_on:
             - api
+
     mongodb:
         image: mongo:3.4
         container_name: "mongodb"
@@ -62,7 +81,11 @@ services:
             - MONGO_DATA_DIR=/data/db
             - MONGO_LOG_DIR=/dev/null
         volumes:
-            - ./data/db:/data/db
+            - db_data:/data/db
         ports:
             - 27017:27017
         command: mongod --smallfiles --logpath=/dev/null # --quiet
+        
+
+volumes:
+  db_data:

@@ -18,7 +18,7 @@ build api:
   script:
     # install composer and get dependencies
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
-    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f api/docker/Dockerfile ./api/
+    - docker build -t ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f api2/docker/Dockerfile ./api2/
     - docker push ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG} 
 
 build discord:

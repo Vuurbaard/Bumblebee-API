@@ -8,6 +8,8 @@ RUN a2enmod rewrite && a2enmod headers
 RUN yarn global add node-gyp
 RUN yarn global add @angular/cli
 
+RUN echo $NPM_INSTALL_BEFORE
+RUN asdasd
 COPY ${DOCKER_SRC}package.json /tmp/package.json
 RUN if [ $NPM_INSTALL_BEFORE = "true" ]; then \
     ls /tmp && \
