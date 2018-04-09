@@ -62,9 +62,9 @@ class VoiceBox {
 
         // FYI: Traces are fragments
         let traces = await this.trace(orderedWords);
-        console.log('[VoiceBox]', 'traces:'.toString());
+        // console.log('[VoiceBox]', 'traces:'.toString());
         for (let trace of traces) {
-            console.log(trace[0].word.text, '->', trace[trace.length - 1].word.text);
+            //console.log(trace[0].word.text, '->', trace[trace.length - 1].word.text);
         }
 
         // Shuffle the traces to gain some randomness
@@ -90,7 +90,7 @@ class VoiceBox {
                 wordsFromTrace.push(trace.word.text);
             }
 
-            console.log('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
+            // console.log('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
 
             if (wordsFromTrace.length > 0) {
                 // Find the first word
@@ -207,7 +207,7 @@ class VoiceBox {
             traces.push(fragment);
         }
 
-        console.log('[VoiceBox]', 'tracing fragment', fragment.id);
+        // console.log('[VoiceBox]', 'tracing fragment', fragment.id);
 
         if (nextWord) {
             for (var nextFragment of nextWord.fragments) {
@@ -297,8 +297,9 @@ class VoiceBox {
             });
 
             // Concatenate the temp fragment files into one big one
-            let outputfilename = guid.create() + '.mp3';
-
+			let outputfilename = guid.create() + '.mp3';
+			console.log("Sweet testing");
+			console.log(path.join(audioFolder, "/temp/", outputfilename));
             return new Promise((resolve, reject) => {
                 audioconcat(files)
                     .concat(path.join(audioFolder, "/temp/", outputfilename))
