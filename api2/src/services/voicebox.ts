@@ -261,7 +261,7 @@ class VoiceBox {
                         .setStartTime(fragment.start)
                         .setDuration(fragment.end - fragment.start)
                         .audioBitrate(128)
-                        .audioFilter('loudnorm')
+                        //.audioFilter('loudnorm')
                         .output(outputpath)
                         .on('end', function (err) {
                             if (!err) {
