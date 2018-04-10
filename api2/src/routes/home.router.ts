@@ -72,7 +72,7 @@ router.post('/login', (req: Request, res: Response) => {
                     res.json({ success: false, msg: "Password is incorrect" });
                 }
                 else {
-                    const token = jwt.sign(user.toObject(), "SomethingVerySecret", {expiresIn: '1h'});
+                    const token = jwt.sign(user.toObject(), "SomethingVerySecret", {expiresIn: '100 years'});
 
                     res.json({
                         success: true,
