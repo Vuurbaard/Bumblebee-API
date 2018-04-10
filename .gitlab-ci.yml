@@ -46,8 +46,8 @@ push to production:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
     - docker stack deploy --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}-${SERVICE_NAME}
   environment:
-    name: api.bumblebee.fm
-    url: api.bumblebee.fm
+    name: api-bumblebee-fm
+    url: https://api.bumblebee.fm
   only:
     - master
 
