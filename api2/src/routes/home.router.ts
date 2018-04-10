@@ -76,7 +76,8 @@ router.post('/login', (req: Request, res: Response) => {
 
                     res.json({
                         success: true,
-                        token: 'JWT ' + token,
+						token: 'JWT ' + token,
+						exp: Math.floor(Date.now() / 1000) + (60 * 60), // Expire in 1 hour
                         user: {
                             id: user._id,
                             username: user.username,
