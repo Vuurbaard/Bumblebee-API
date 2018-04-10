@@ -72,12 +72,11 @@ router.post('/login', (req: Request, res: Response) => {
                     res.json({ success: false, msg: "Password is incorrect" });
                 }
                 else {
-                    const token = jwt.sign(user.toObject(), "SomethingVerySecret");
+                    const token = jwt.sign(user.toObject(), "SomethingVerySecret", {expiresIn: '1h'});
 
                     res.json({
                         success: true,
 						token: 'JWT ' + token,
-						exp: Math.floor(Date.now() / 1000) + (60 * 60), // Expire in 1 hour
                         user: {
                             id: user._id,
                             username: user.username,
