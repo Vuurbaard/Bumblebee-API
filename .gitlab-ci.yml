@@ -47,7 +47,7 @@ push to production:
     - docker stack deploy --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}-${SERVICE_NAME}
   environment:
     name: api.bumblebee.fm
-    url: https://bumblebee.fm
+    url: api.bumblebee.fm
   only:
     - master
 
