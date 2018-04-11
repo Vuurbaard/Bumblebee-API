@@ -95,7 +95,14 @@ class YouTubeService implements ISourceHandler {
      * @returns Identifier based on YouTube url
      */
     private identifier(url : string ){
-        return url.replace('https://www.youtube.com/watch?v=', '');
+        let regex = /v=([A-z0-9_-]*)/g;
+        let matches = regex.exec(url);
+    
+        if(matches != null && matches['index'] > 0){
+            return matches[1];
+        }
+
+        return null;
     }
 
     private source(id : string){
