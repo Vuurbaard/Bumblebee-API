@@ -5,11 +5,11 @@ import ffmpeg from 'fluent-ffmpeg';
 import ytdl from 'ytdl-core';
 import { ISource, Source } from '../database/schemas/source';
 import AudioService from './audio';
-import { ISourceHandler } from './ISourceHandler';
+import { ISourceProvider } from './ISourceProvider';
 
 
 
-class YouTubeService implements ISourceHandler {
+class YouTubeService implements ISourceProvider {
 
     private extension = ".mp3";
 

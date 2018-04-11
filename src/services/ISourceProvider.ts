@@ -1,5 +1,5 @@
 import { ISource } from '../database/schemas/source';
-export interface  ISourceHandler {
+export interface  ISourceProvider {
 
 
     basepath() : string;
