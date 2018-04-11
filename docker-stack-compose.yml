@@ -2,7 +2,7 @@ version: '3'
 services:
  
     api:
-        image: ${CI_REGISTRY}/vuurbaard/bumblebee:api-${CI_COMMIT_REF_SLUG}
+        image: ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG}
         environment:
             - MONGO_HOST=192.168.178.29
             - MONGO_PORT=27017
@@ -22,48 +22,3 @@ services:
             update_config:
                 parallelism: 2
                 delay: 10s
-        
-    discord:
-        image: ${CI_REGISTRY}/vuurbaard/bumblebee:discord-${CI_COMMIT_REF_SLUG}
-        environment:
-            - NODE_ENV=development
-            - API_HOST=api
-            - API_PORT=3000
-            - USE_NODEMON=false
-            - NPM_INSTALL_AFTER=false
-        depends_on:
-            - api
-        deploy:
-            restart_policy:
-                condition: on-failure
-                delay: 5s
-                max_attempts: 3
-                window: 120s
-            replicas: 1
-            update_config:
-                parallelism: 2
-                delay: 10s
-
-    website:
-        image: ${CI_REGISTRY}/vuurbaard/bumblebee:website-${CI_COMMIT_REF_SLUG}
-        environment:
-            - NODE_ENV=development
-            - ANGULAR_ENV=prod
-            - USE_NODEMON=false
-            - NPM_INSTALL_AFTER=false
-        ports:
-            - 8280:80
-        depends_on:
-            - api
-        deploy:
-            restart_policy:
-                condition: on-failure
-                delay: 5s
-                max_attempts: 3
-                window: 120s
-            replicas: 1
-            update_config:
-                parallelism: 2
-                delay: 10s
-volumes:
-  db_data:
