@@ -17,6 +17,8 @@ services:
             - NPM_INSTALL_AFTER=false
         ports:
             - 3000:3000
+        networks:
+          - bumblebee-net
             
     mongodb:
         image: mongo:3.4
@@ -29,6 +31,11 @@ services:
         ports:
             - 27017:27017
         command: mongod --smallfiles --logpath=/dev/null # --quiet
-        
+        networks:
+          - bumblebee-net
+    
+networks:
+    bumblebee-net:
+        driver: bridge
 volumes:
   db_mongodb:
