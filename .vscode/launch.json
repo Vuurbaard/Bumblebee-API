@@ -50,7 +50,7 @@
 				"debug"
 			],
 			"restart": true,
-			"cwd": "${workspaceFolder}/api2",
+			"cwd": "${workspaceFolder}",
 			"port": 5858,
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen",

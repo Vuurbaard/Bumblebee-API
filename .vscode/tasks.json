@@ -4,7 +4,7 @@
 		{
 			"label": "api: tsc",
 			"type": "typescript",
-			"tsconfig": "api2\\tsconfig.json",
+			"tsconfig": "tsconfig.json",
 			"option": "watch",
 			"problemMatcher": [
 				"$tsc-watch"
@@ -15,13 +15,13 @@
 			"label": "api: nodemon",
 			"type": "npm",
 			"script": "debug",
-			"path": "api2/",
+			"path": "./",
 			"group": "build"
 		},
 		{
 			"label": "api: tsc watch",
 			"options": {
-				"cwd": "./api2"
+				"cwd": "./"
 			},
 			"command": "npm",
 			"args": [
