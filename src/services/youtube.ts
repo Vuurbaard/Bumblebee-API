@@ -102,7 +102,7 @@ class YouTubeService implements ISourceHandler {
             return matches[1];
         }
 
-        return null;
+        return '';
     }
 
     private source(id : string){
