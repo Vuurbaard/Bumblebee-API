@@ -23,11 +23,10 @@ class AudioService {
 
     private service(url: string) : ISourceHandler|null{
         let rc = null;
-        console.log(url);
+        
         if(url.indexOf('youtube.com') != -1){
             rc = YouTubeService;
         }
-
 
         return rc;
     }
