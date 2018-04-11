@@ -53,12 +53,17 @@ class JobService {
                 console.log("Parsing item " + this.sourceQueue.length + " left");
             }
             let source = this.sourceQueue.pop() as ISource;
+
+            // TODO Make it switch based on what service is there
             let yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
             let creator = source.createdBy ? source.createdBy.toString() : '';
+            
             YouTubeService.download(yturl, creator).then(() => {
                 vm.parseItem();
             }, err => {
                 console.log("Something failed, lets try again!");
+                // TODO: Remove Source from database + fragments? (It's not redownloadable, meaning it's harder to reproduce or recreate the youtube source thing.)
+
                 vm.parseItem();
             })
         }else{
