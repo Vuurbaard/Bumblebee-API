@@ -109,6 +109,13 @@ class YouTubeService implements ISourceProvider {
         return Source.findOne({'id': id, 'origin' : 'YouTube'});
     }
 
+    public canHandle( url : string ) : boolean {
+        return (url.indexOf('youtube.com') != -1 && this.identifier(url) != '');
+    }
+
+    public sourceIdentifier() : string {
+        return "YouTube";
+    }
 
 }
 
