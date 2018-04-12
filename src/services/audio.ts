@@ -24,8 +24,13 @@ class AudioService {
     private service(url: string) : ISourceProvider|null{
         let rc = null;
 
-        if(url.indexOf('youtube.com') != -1){
-            rc = YouTubeService;
+
+        for(let i=0;i<this.handlers.length;i++){
+            let handler : ISourceProvider = this.handlers[i];
+            if(handler.canHandle(url)){
+                rc = handler;
+                break;
+            };
         }
 
         return rc;
@@ -33,15 +38,19 @@ class AudioService {
 
     public sourceUrl(source: ISource){
         let service = null;
-        switch(source.origin.toString()){
-            case "YouTube":
-                service = YouTubeService;
-            break;
+
+        for(let i=0;i<this.handlers.length;i++){
+            let handler : ISourceProvider = this.handlers[i];
+            if(source.origin.toString() == handler.sourceIdentifier()){
+                service = handler;
+                break;
+            };
         }
 
         if(service != null){
-            return YouTubeService.sourceUrl(source); 
+            return service.sourceUrl(source); 
         }
+
         return "";
     }
 
