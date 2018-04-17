@@ -3,87 +3,71 @@ import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ytdl from 'ytdl-core';
-import { Source } from '../database/schemas/source';
+
+import YouTubeService from './youtube';
+import { Source, ISource } from '../database/schemas/source';
+import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
 
-    extension: string = ".mp3";
+	extension: string = ".mp3";
+	handlers: Array<ISourceProvider> = [];
 
-    public constructor() {
+	public constructor() {
+		this.handlers.push(YouTubeService);
+	}
 
-    }
+    /**
+     * Returns the service based on the given url
+     */
+	private service(url: string): ISourceProvider | null {
+		let rc = null;
 
-    public download(url: string, userId: string) {
-        let deferred = q.defer();
+		for (let i = 0; i < this.handlers.length; i++) {
+			let handler: ISourceProvider = this.handlers[i];
+			if (handler.canHandle(url)) {
+				rc = handler;
+				break;
+			};
+		}
 
-        if (url.indexOf('youtube.com') != -1) {
-            this.downloadFromYouTube(url).then((file: any) => {
+		return rc;
+	}
 
-                console.log('done downloading audio:', file);
+	public sourceUrl(source: ISource) {
+		let service = null;
 
-                // TODO: Move this to private function?
-                Source.findOne({ 'id': file.id, 'origin': 'YouTube' }, (err, source) => {
-                    if (err) { deferred.reject(err); }
-                    else if (source) { 
-                        deferred.resolve({ url: file.publicpath, sourceId: source._id }); 
-                    }
-                    else { // Insert
+		for (let i = 0; i < this.handlers.length; i++) {
+			let handler: ISourceProvider = this.handlers[i];
+			if (source.origin.toString() == handler.sourceIdentifier()) {
+				service = handler;
+				break;
+			};
+		}
 
-                        console.log('Inserting new source', file.id, file.origin);
-                        let newSource = new Source({ id: file.id, origin: 'YouTube', createdBy: userId });
-                        newSource.save((err, source) => {
-                            if (err) { deferred.reject(err); }
-                            else if (source) {
-                                deferred.resolve({ url: file.publicpath, sourceId: source._id });
-                            }
-                        });
-                    }
-                });
+		if (service != null) {
+			return service.sourceUrl(source);
+		}
 
+		return "";
+	}
 
-            }).catch(deferred.reject);
-        }
+	public download(url: string, userId: string) {
+		let deferred = q.defer();
 
-        return deferred.promise;
-    }
+		let service: ISourceProvider | null = this.service(url);
 
-    public downloadFromYouTube(url: string) {
-        let deferred = q.defer();
+		if (service != null) {
+			service.download(url, userId).then(source => {
+				deferred.resolve(source);
 
-        let youtubeID = url.replace('https://www.youtube.com/watch?v=', '');
-        let filename = youtubeID + this.extension;
-        let filepath = path.resolve(__dirname, '../audio/youtube/' + filename);
-        let publicfilepath = '/audio/youtube/' + filename;
+			}, err => {
+				deferred.reject(err);
+			});
+		}
 
-        var file = {
-            id: youtubeID,
-            filename: filename,
-            path: filepath,
-            publicpath: publicfilepath
-        }
-
-        if (!fs.existsSync(filepath)) {
-            console.log('Download of youtube video', youtubeID, 'starting...');
-            ffmpeg()
-                .input(ytdl(url))
-                .noVideo()
-                .audioBitrate(256)
-                .save(filepath)
-                .on('error', err => {
-                    console.error(err);
-                    deferred.reject(err);
-                })
-                .on('end', function () {
-                    console.log("Done downloading", youtubeID, "from YouTube");
-                    deferred.resolve(file);
-                });
-        }
-        else {
-            deferred.resolve(file);
-        }
-
-        return deferred.promise;
-    }
+		return deferred.promise;
+	}
 }
 
 export default new AudioService();
