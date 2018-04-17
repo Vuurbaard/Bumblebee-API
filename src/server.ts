@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 import * as routes from './routes';
+import JobService from './services/jobs';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ mongoose.connection.on('error', err => {
 		mongoose.connect('mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2');
 	}, 5000);
 });
+
 
 // Express middlewares
 app.use(bodyparser.json());
@@ -64,3 +66,9 @@ app.use('/fragments', routes.FragmentsRoute);
 app.get('/', (req, res) => {
     res.send('Invalid endpoint');
 })
+
+
+
+// Run some code to check if all youtube videos are still downloaded
+JobService.handleMissingYoutubeFiles()
+

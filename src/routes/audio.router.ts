@@ -3,6 +3,7 @@ import { ErrorHandler } from './errorHandler';
 import passport from 'passport';
 import AudioService from '../services/audio';
 import { Fragment } from '../database/schemas/fragment';
+import { ISource } from '../database/schemas/source';
 
 const router: Router = Router();
 
@@ -13,15 +14,15 @@ router.post('/download', passport.authenticate('jwt', { session: true }), (req: 
 
     console.log('wanting to download:', url);
 
-    AudioService.download(url, userId).then((file: any) => {
+    AudioService.download(url, userId).then((source: any ) => {
 
-        console.log('done downloading audio file:', file)
+        console.log('done downloading audio file:', source)
 
-        Fragment.find({ 'source': file.sourceId }).populate('word').then(fragments => {
+        Fragment.find({ 'source': source._id }).populate('word').then(fragments => {
 
             var response = {
-                url: file.url,
-                sourceId: file.sourceId,
+                url: AudioService.sourceUrl(source),
+                sourceId: source._id,
                 fragments: fragments
             }
 
