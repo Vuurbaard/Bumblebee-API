@@ -24,7 +24,6 @@
     "@types/passport": "^0.4.3",
     "@types/passport-jwt": "^3.0.1",
     "@types/q": "^1.0.7",
-    "audioconcat": "^0.1.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "colors": "^1.2.1",

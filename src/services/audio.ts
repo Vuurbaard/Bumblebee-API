@@ -10,64 +10,66 @@ import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
 
-	extension: string = ".mp3";
-	handlers: Array<ISourceProvider> = [];
+    extension: string = ".mp3";
 
-	public constructor() {
-		this.handlers.push(YouTubeService);
-	}
+    handlers: Array<ISourceProvider> = [];
 
+    public constructor() {
+        this.handlers.push(YouTubeService);
+    }
     /**
      * Returns the service based on the given url
      */
-	private service(url: string): ISourceProvider | null {
-		let rc = null;
 
-		for (let i = 0; i < this.handlers.length; i++) {
-			let handler: ISourceProvider = this.handlers[i];
-			if (handler.canHandle(url)) {
-				rc = handler;
-				break;
-			};
-		}
+    private service(url: string) : ISourceProvider|null{
+        let rc = null;
 
-		return rc;
-	}
 
-	public sourceUrl(source: ISource) {
-		let service = null;
+        for(let i=0;i<this.handlers.length;i++){
+            let handler : ISourceProvider = this.handlers[i];
+            if(handler.canHandle(url)){
+                rc = handler;
+                break;
+            };
+        }
 
-		for (let i = 0; i < this.handlers.length; i++) {
-			let handler: ISourceProvider = this.handlers[i];
-			if (source.origin.toString() == handler.sourceIdentifier()) {
-				service = handler;
-				break;
-			};
-		}
+        return rc;
+    }
 
-		if (service != null) {
-			return service.sourceUrl(source);
-		}
+    public sourceUrl(source: ISource){
+        let service = null;
 
-		return "";
-	}
+        for(let i=0;i<this.handlers.length;i++){
+            let handler : ISourceProvider = this.handlers[i];
+            if(source.origin.toString() == handler.sourceIdentifier()){
+                service = handler;
+                break;
+            };
+        }
 
-	public download(url: string, userId: string) {
-		let deferred = q.defer();
+        if(service != null){
+            return service.sourceUrl(source); 
+        }
 
-		let service: ISourceProvider | null = this.service(url);
+        return "";
+    }
 
-		if (service != null) {
-			service.download(url, userId).then(source => {
-				deferred.resolve(source);
+    public download(url: string, userId: string) {
+        let deferred = q.defer();
 
-			}, err => {
-				deferred.reject(err);
-			});
-		}
+        let service : ISourceProvider | null = this.service(url);
 
-		return deferred.promise;
-	}
+        if(service != null){
+            service.download(url,userId).then( source => {
+                deferred.resolve(source);
+
+            }, err => {
+                deferred.reject(err);
+            });
+        }
+
+        return deferred.promise;
+    }
 }
 
 export default new AudioService();
