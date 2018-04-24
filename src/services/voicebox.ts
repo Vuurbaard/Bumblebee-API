@@ -9,7 +9,6 @@ import { Source } from '../database/schemas/source';
 
 // ...
 require('colors');
-let audioconcat = require('audioconcat');
 
 class VoiceBox {
 

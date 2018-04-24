@@ -6,19 +6,19 @@ export interface IUser extends Document {
     name: string;
     username: string;
     password: string;
-    isAdmin: boolean;
-    avatar: string;
+	avatar: string;
+	roles: string[]
 }
 
 export var UserSchema: Schema = new Schema({
     name: { type: String },
     externalId: { type: String },
     email: { type: String },
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    isAdmin: { type: Boolean, default: false },
     avatar: { type: String },
-    createdAt: { type: Date }
+	createdAt: { type: Date },
+	roles: { type: [String], default: [] },
 });
 
 UserSchema.pre("save", (next) => {
@@ -29,9 +29,5 @@ UserSchema.pre("save", (next) => {
     }
     next();
 });
-
-// UserSchema.methods.fullName = function (): string {
-//     return (this.firstName.trim() + " " + this.lastName.trim());
-// };
 
 export const User: Model<IUser> = model<IUser>("User", UserSchema);
