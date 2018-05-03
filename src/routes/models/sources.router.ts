@@ -5,7 +5,7 @@ import passport from 'passport';
 
 const router: Router = Router();
 
-router.get('/', passport.authenticate('jwt', { session: true }), (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
 
     Source.find({}).populate('fragments').populate({path: 'fragments', populate: { path: 'word'}}).then(sources => {
         res.json(sources);
