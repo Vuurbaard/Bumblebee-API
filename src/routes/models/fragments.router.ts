@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { ErrorHandler } from '../errorHandler';
+// import { ErrorHandler } from '../errorHandler';
 import { IFragment, Fragment } from '../../database/schemas/fragment';
 import passport from 'passport';
 import WordService from '../../services/word';
@@ -10,7 +10,7 @@ const router: Router = Router();
 router.get('/', passport.authenticate('jwt', { session: true }), (req: Request, res: Response) => {
     Fragment.find({}, (err: any, users: [IFragment]) => {
         if (err) {
-            ErrorHandler(err, req, res, "GET all fragments failed");
+            // ErrorHandler(err, req, res, "GET all fragments failed");
         }
         else {
             res.json(users);
@@ -40,7 +40,7 @@ router.get('/:id', passport.authenticate('jwt', { session: true }), (req: Reques
 
     Fragment.findById(id, (err: any, user: IFragment) => {
         if (err) {
-            ErrorHandler(err, req, res, "GET fragment by id " + id + " failed.");
+            // ErrorHandler(err, req, res, "GET fragment by id " + id + " failed.");
         }
         else {
             res.json(user);

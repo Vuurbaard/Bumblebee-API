@@ -4,8 +4,8 @@
   "description": "Run `npm run tsc` for the typescript compiler to watch for file changes.\r Run `nodemon dist/server.js` for nodemon to (re)start the API on file changes.",
   "main": "dist/server.js",
   "scripts": {
-    "watch": "tsc -w -p ./",
-    "debug": "nodemon --legacy-watch --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
+    "watch": "tsc --watch",
+    "debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
     "docker-debug": "docker-compose up",
     "start": "node ./dist/server.js"
   },
@@ -36,10 +36,10 @@
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",
     "q": "^1.5.1",
-    "typescript": "^2.7.2",
     "ytdl-core": "^0.20.2"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "typescript": "^2.8.3"
   }
 }
