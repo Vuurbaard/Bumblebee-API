@@ -7,7 +7,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 
-import * as routes from './routes/v1/routes';
+import * as v1 from './routes/v1/routes';
 import JobService from './services/jobs';
 
 dotenv.config();
@@ -45,14 +45,12 @@ app.use(cors({ origin: true }));
 require('./database/config')(passport);
 
 // Routes
-app.use(routes.v1);
+app.use(v1.routes);
 
 app.get('*', (req, res) => {
     res.send('Invalid endpoint');
 })
 
 
-
 // Run some code to check if all youtube videos are still downloaded
 // JobService.handleMissingYoutubeFiles()
-
