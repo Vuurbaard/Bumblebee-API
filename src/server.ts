@@ -45,7 +45,7 @@ app.use(cors({ origin: true }));
 require('./database/config')(passport);
 
 // Routes
-app.use(v1.routes);
+app.use('/', v1.routes);
 
 app.get('*', (req, res) => {
     res.send('Invalid endpoint');
