@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { User, IUser } from '../../database/schemas';
-import { ErrorHandler } from '../errorHandler';
+// import { ErrorHandler } from '../errorHandler';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
@@ -28,7 +28,9 @@ router.post('/register', (req: Request, res: Response) => {
 
 					newUser.password = hash;
 					newUser.save((err: any, user: IUser) => {
-						if (err) { ErrorHandler(err, req, res, "POST of new user failed " + err); }
+						if (err) { 
+							// ErrorHandler(err, req, res, "POST of new user failed " + err); 
+						}
 						else {
 							res.json({ success: true });
 						}
@@ -50,7 +52,7 @@ router.post('/login', (req: Request, res: Response) => {
 
 	User.findOne({ username: username }, (err: any, user: IUser) => {
 		if (err) {
-			ErrorHandler(err, req, res, "POST /login failed.");
+			// ErrorHandler(err, req, res, "POST /login failed.");
 		}
 		else if (!user) {
 			res.json({ success: false, msg: "User not found" });
@@ -58,7 +60,7 @@ router.post('/login', (req: Request, res: Response) => {
 		else {
 			bcrypt.compare(password, user.password, (err: any, success: boolean) => {
 				if (err) {
-					ErrorHandler(err, req, res, "POST /login failed.");
+					// ErrorHandler(err, req, res, "POST /login failed.");
 				}
 				else if (!success) {
 					res.json({ success: false, msg: "Password is incorrect" });
@@ -88,7 +90,7 @@ router.post('/login', (req: Request, res: Response) => {
 router.get('/', passport.authenticate('jwt', { session: true }), (req: Request, res: Response) => {
 	User.find({}, (err: any, users: [IUser]) => {
 		if (err) {
-			ErrorHandler(err, req, res, "GET all users failed");
+			// ErrorHandler(err, req, res, "GET all users failed");
 		}
 		else {
 			res.json(users);
@@ -108,7 +110,7 @@ router.get('/:id', passport.authenticate('jwt', { session: true }), (req: Reques
 		if (user.roles.indexOf('admin') > -1) {
 			User.findById(id, (err: any, user: IUser) => {
 				if (err) {
-					ErrorHandler(err, req, res, "GET user by id " + id + " failed.");
+					// ErrorHandler(err, req, res, "GET user by id " + id + " failed.");
 				}
 				else {
 					res.json(user);
@@ -128,7 +130,7 @@ router.get('/:id', passport.authenticate('jwt', { session: true }), (req: Reques
 			});
 		}
 	}).catch(err => {
-		ErrorHandler(err, req, res, "GET user by id " + id + " failed.");
+		//ErrorHandler(err, req, res, "GET user by id " + id + " failed.");
 	});
 
 });
@@ -157,7 +159,7 @@ router.post('/:id', passport.authenticate('jwt', { session: true }), (req: Reque
 					avatar: user!.avatar,
 				});
 			}).catch(err => {
-				ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
+				//ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
 			});
 		}
 		else {
@@ -175,12 +177,12 @@ router.post('/:id', passport.authenticate('jwt', { session: true }), (req: Reque
 					avatar: user!.avatar,
 				});
 			}).catch(err => {
-				ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
+				// ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
 			});
 		}
 
 	}).catch(err => {
-		ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
+		// ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
 	});
 
 });
@@ -224,7 +226,9 @@ router.post('/:id/changepassword', passport.authenticate('jwt', { session: true 
 				bcrypt.hash(newPassword, salt, (err, hash) => {
 					user.password = hash;
 					user.save((err: any, user: IUser) => {
-						if (err) { ErrorHandler(err, req, res, "Password change for user " + id + " failed: "  + err); }
+						if (err) { 
+							//ErrorHandler(err, req, res, "Password change for user " + id + " failed: "  + err); 
+						}
 						else {
 							res.json({ error: null, success: true });
 						}
@@ -235,7 +239,7 @@ router.post('/:id/changepassword', passport.authenticate('jwt', { session: true 
 		});
 
 	}).catch(err => {
-		ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
+		// ErrorHandler(err, req, res, "POST user by id " + id + " failed.");
 	});
 
 });

@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "watch": "tsc --watch",
-    "debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
+	"debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
     "docker-debug": "docker-compose up",
     "start": "node ./dist/server.js"
   },
