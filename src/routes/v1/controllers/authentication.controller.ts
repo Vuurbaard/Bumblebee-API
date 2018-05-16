@@ -3,6 +3,7 @@ import { Controller } from './controller';
 import { User, IUser } from '../../../database/schemas/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import userService from '../../../services/user.service';
 
 export class AuthenticationController {
 
@@ -20,65 +21,31 @@ export class AuthenticationController {
 					if (err) { res.sendStatus(500); }
 					if (!success) { res.sendStatus(401); }
 					else {
-						const token = jwt.sign(user.toObject(), "SomethingVerySecret", { expiresIn: '100 years' });
+
+						user = user.toObject(); // Convert from mongoose object to 'normal' object
+						delete user.password; // We don't want the encrypted password to be returned
 
 						res.json({
-							success: true,
-							token: 'JWT ' + token,
-							user: {
-								id: user._id,
-								username: user.username,
-								name: user.name,
-								email: user.email,
-								roles: user.roles,
-								avatar: user.avatar
-							}
+							token: 'JWT ' + jwt.sign(user, "SomethingVerySecret", { expiresIn: '100 years' }),
+							user: user
 						});
 					}
 				});
 			}
 		});
-
-		// res.json({ 'POST': '/v1/login' });
 	}
 
-	public register(req: Request, res: Response) {
-
-		let newUser = new User({
-			externalId: req.body.externalId,
-			email: req.body.email,
-			username: req.body.username,
-			password: req.body.password,
-			avatar: req.body.avatar,
-			name: req.body.name
-		});
-
-		User.findOne({ username: newUser.username }, (err: any, user: IUser) => {
-			if (err) { res.sendStatus(500); }
-			if (user) { res.status(400).json({ success: false, message: "Username already taken" }) }
-
-			if (!user) {
-				bcrypt.genSalt(10, (err, salt) => {
-					if (err) { res.sendStatus(500); }
-
-					bcrypt.hash(newUser.password, salt, (err, hash) => {
-						if (err) { res.sendStatus(500); }
-
-						else {
-							newUser.password = hash;
-							newUser.save((err: any, user: IUser) => {
-								if (err) { res.sendStatus(500); }
-								else {
-									res.json({ success: true });
-								}
-							});
-						}
-					});
-				});
+	public async register(req: Request, res: Response) {
+		try {
+			let user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
+			res.status(201).json({ user: user });
+		}
+		catch (err) {
+			if (err.message == 'Username is required.' || err.message == 'Password is required.' || err.message == 'Username already taken.') {
+				res.status(400).json({ message: err.message });
+				return;
 			}
-		});
-
-		// res.json({ 'POST': '/v1/register' });
+			res.status(500).json({ message: "Something went wrong creating the new user." });
+		}
 	}
-
 }
