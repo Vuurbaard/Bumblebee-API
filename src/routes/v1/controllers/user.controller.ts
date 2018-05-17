@@ -6,24 +6,44 @@ export class UserController implements Controller {
 
 	constructor() { }
 
-	public getAll(req: Request, res: Response) {
-
-		if (req.user!.roles.indexOf('admin') > -1) {
-			userService.all()
-				.then(users => { res.json(users); })
-				.catch(err => { res.status(500).json({ "message": "Something went wrong getting all the users." }); });
+	public async getAll(req: Request, res: Response) {
+		try {
+			res.json(await userService.all());
 		}
-		else {
-			res.json([req.user]); // Only allowed to get yourself.
+		catch (err) {
+			res.status(500).json({ "message": "Something went wrong getting all the users." });
 		}
 	}
 
-	public getByID(req: Request, res: Response) {
-		res.json({ 'GET': '/v1/user/' + req.params.id });
+	public async getByID(req: Request, res: Response) {
+		try {
+			res.json(await userService.getByID(req.params.id));
+		}
+		catch (err) {
+			res.status(500).json({ "message": "Something went wrong getting a user by id." });
+		}
 	}
 
-	public updateByID(req: Request, res: Response) {
-		res.json({ 'PATCH': '/v1/user/' + req.params.id });
+	public async updateByID(req: Request, res: Response) {
+		try {
+			if (req.user!.roles.indexOf('admin') > -1) {
+				await userService.updateByID(req.params.id, req.body);
+			}
+			else {
+				if (req.user!._id != req.params.id) { throw new Error('Not allowed to update another user.'); }
+				if (req.body.username) { throw new Error('Not allowed to update your own username.'); }
+				if (req.body.password) { throw new Error('Not allowed to update your own password.'); }
+				if (req.body.roles) { throw new Error('Not allowed to update your own roles.'); }
+
+				await userService.updateByID(req.params.id, req.body);
+			}
+
+			res.sendStatus(204);
+		}
+		catch (err) {
+			console.error(err);
+			res.status(500).json({ "message": "Something went wrong updating a user by id." });
+		}
 	}
 
 	public async create(req: Request, res: Response) {
@@ -41,19 +61,23 @@ export class UserController implements Controller {
 	}
 
 	public deleteByID(req: Request, res: Response) {
+		// TODO
 		res.json({ 'DELETE': '/v1/user/' + req.params.id });
 	}
 
 	// Custom non-standard routes
 	public self(req: Request, res: Response) {
+		// TODO
 		res.json({ 'GET': '/v1/user/self' });
 	}
 
 	public updateSelf(req: Request, res: Response) {
+		// TODO
 		res.json({ 'GET': '/v1/user/self' });
 	}
 
 	public getAllSourcesByUserID(req: Request, res: Response) {
+		// TODO
 		res.json({ 'GET': '/v1/user/self' });
 	}
 }
