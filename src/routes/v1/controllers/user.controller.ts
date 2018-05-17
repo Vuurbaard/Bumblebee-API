@@ -11,6 +11,7 @@ export class UserController implements Controller {
 			res.json(await userService.all());
 		}
 		catch (err) {
+			console.error(err);
 			res.status(500).json({ "message": "Something went wrong getting all the users." });
 		}
 	}
@@ -20,6 +21,7 @@ export class UserController implements Controller {
 			res.json(await userService.getByID(req.params.id));
 		}
 		catch (err) {
+			console.error(err);
 			res.status(500).json({ "message": "Something went wrong getting a user by id." });
 		}
 	}
@@ -52,6 +54,7 @@ export class UserController implements Controller {
 			res.status(201).json({ user: user });
 		}
 		catch (err) {
+			console.error(err);
 			if (err.message == 'Username is required.' || err.message == 'Password is required.' || err.message == 'Username already taken.') {
 				res.status(400).json({ message: err.message });
 				return;
