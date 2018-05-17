@@ -32,7 +32,7 @@ export class UserController implements Controller {
 				await userService.updateByID(req.params.id, req.body);
 			}
 			else {
-				if (req.user!._id != req.params.id) { throw new Error('Not allowed to update another user.'); }
+				if (req.user!._id.toString() != req.params.id) { throw new Error('Not allowed to update another user.'); }
 				if (req.body.username) { throw new Error('Not allowed to update your own username.'); }
 				if (req.body.password) { throw new Error('Not allowed to update your own password.'); }
 				if (req.body.roles) { throw new Error('Not allowed to update your own roles.'); }
@@ -44,6 +44,16 @@ export class UserController implements Controller {
 		}
 		catch (err) {
 			console.error(err);
+
+			if (err.message == 'Not allowed to update another user.' || 
+				err.message == 'Not allowed to update your own username.' || 
+				err.message == 'Not allowed to update your own password.' || 
+				err.message == 'Not allowed to update your own roles.') 
+			{
+				res.status(400).json({ message: err.message });
+				return;
+			}
+
 			res.status(500).json({ "message": "Something went wrong updating a user by id." });
 		}
 	}
