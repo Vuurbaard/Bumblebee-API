@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "watch": "tsc --watch",
-	"debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
+    "debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 --nolazy ./dist/server.js",
     "docker-debug": "docker-compose up",
     "start": "node ./dist/server.js"
   },
@@ -16,7 +16,7 @@
     "@types/bcryptjs": "^2.4.1",
     "@types/cors": "^2.8.3",
     "@types/dotenv": "^4.0.2",
-    "@types/es6-shim": "^0.31.35",
+    "@types/es6-shim": "^0.31.37",
     "@types/express": "^4.11.1",
     "@types/fluent-ffmpeg": "^2.1.6",
     "@types/guid": "^1.0.0",
@@ -39,7 +39,6 @@
     "ytdl-core": "^0.20.2"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0",
     "typescript": "^2.8.3"
   }
 }

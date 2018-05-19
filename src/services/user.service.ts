@@ -5,8 +5,8 @@ class UserService {
 
 	constructor() { }
 
-	async all() {
-		return User.find({}, { password: 0, roles: 0 });
+	async all(query?: any) {
+		return User.find(query || {}, { password: 0, roles: 0 });
 	}
 
 	async getByID(id: string) {
@@ -45,6 +45,10 @@ class UserService {
 
 	async updateByID(id: string, fields: any) { // username?: string, password?: string, email?: string, name?: string, externalId?: string, avatar?: string
 		return await User.findByIdAndUpdate(id, fields);
+	}
+
+	async deleteByID(id: string) {
+		return await User.findByIdAndRemove(id);
 	}
 }
 

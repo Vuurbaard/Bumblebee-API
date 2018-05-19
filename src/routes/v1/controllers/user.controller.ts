@@ -8,7 +8,14 @@ export class UserController implements Controller {
 
 	public async getAll(req: Request, res: Response) {
 		try {
-			res.json(await userService.all());
+			if (req.user!.roles.indexOf('admin') > -1) {
+				res.json(await userService.all(req.query));
+			}
+			else {
+				delete req.query.roles; // Don't want people to query what role someone has
+				delete req.query.password; // Or on hashed password, not sure why you would do that but hey let's block it anyway
+				res.json(await userService.all(req.query));
+			}
 		}
 		catch (err) {
 			console.error(err);
@@ -32,6 +39,7 @@ export class UserController implements Controller {
 				await userService.updateByID(req.params.id, req.body);
 			}
 			else {
+
 				if (req.user!._id.toString() != req.params.id) { throw new Error('Not allowed to update another user.'); }
 				if (req.body.username) { throw new Error('Not allowed to update your own username.'); }
 				if (req.body.password) { throw new Error('Not allowed to update your own password.'); }
@@ -45,16 +53,15 @@ export class UserController implements Controller {
 		catch (err) {
 			console.error(err);
 
-			if (err.message == 'Not allowed to update another user.' || 
-				err.message == 'Not allowed to update your own username.' || 
-				err.message == 'Not allowed to update your own password.' || 
-				err.message == 'Not allowed to update your own roles.') 
-			{
+			if (err.message == 'Not allowed to update another user.' ||
+				err.message == 'Not allowed to update your own username.' ||
+				err.message == 'Not allowed to update your own password.' ||
+				err.message == 'Not allowed to update your own roles.') {
 				res.status(400).json({ message: err.message });
 				return;
 			}
 
-			res.status(500).json({ "message": "Something went wrong updating a user by id." });
+			res.status(500).json({ "message": "Something went wrong updating the user." });
 		}
 	}
 
@@ -73,22 +80,23 @@ export class UserController implements Controller {
 		}
 	}
 
-	public deleteByID(req: Request, res: Response) {
-		// TODO
-		res.json({ 'DELETE': '/v1/user/' + req.params.id });
+	public async deleteByID(req: Request, res: Response) {
+		try {
+			if (req.user!.roles.indexOf('admin') > -1) {
+				await userService.deleteByID(req.params.id);
+			}
+			else {
+				res.status(403).json({ message: "You are not allowed to delete the user"});
+				return;
+			}
+		}
+		catch (err) {
+			console.error(err);
+			res.status(500).json({ message: "Something went wrong deleting the user." });
+		}
 	}
 
 	// Custom non-standard routes
-	public self(req: Request, res: Response) {
-		// TODO
-		res.json({ 'GET': '/v1/user/self' });
-	}
-
-	public updateSelf(req: Request, res: Response) {
-		// TODO
-		res.json({ 'GET': '/v1/user/self' });
-	}
-
 	public getAllSourcesByUserID(req: Request, res: Response) {
 		// TODO
 		res.json({ 'GET': '/v1/user/self' });
