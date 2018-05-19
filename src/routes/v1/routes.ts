@@ -18,8 +18,6 @@ router.get(version + '/user/:id', passport.authenticate('jwt', { session: true }
 router.patch(version + '/user/:id', passport.authenticate('jwt', { session: true }), userController.updateByID);
 router.post(version + '/user', passport.authenticate('jwt', { session: true }), userController.create);
 router.delete(version + '/user/:id', passport.authenticate('jwt', { session: true }), userController.deleteByID);
-router.get(version + '/user/self', passport.authenticate('jwt', { session: true }), userController.self);
-router.patch(version + '/user/self', passport.authenticate('jwt', { session: true }), userController.updateSelf);
 router.get(version + '/user/:id/sources', passport.authenticate('jwt', { session: true }), userController.getAllSourcesByUserID);
 
 export const routes: Router = router;
