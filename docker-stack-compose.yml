@@ -14,7 +14,7 @@ services:
             - "/share/nas/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
-                condition: on-failure
+                condition: any
                 delay: 5s
                 max_attempts: 3
                 window: 120s
