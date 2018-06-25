@@ -4,14 +4,13 @@ import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ytdl from 'ytdl-core';
 
-import YouTubeService from './youtube';
-import { Source, ISource } from '../database/schemas/source';
+import YouTubeService from './youtube.service';
+import { Source, ISource } from '../../database/schemas/source';
 import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
 
     extension: string = ".mp3";
-
     handlers: Array<ISourceProvider> = [];
 
     public constructor() {
@@ -54,8 +53,8 @@ class AudioService {
         return "";
     }
 
-    public download(url: string, userId: string) {
-        let deferred = q.defer();
+    public download(url: string, userId: string) : Promise<ISource> {
+        let deferred = q.defer<ISource>();
 
         let service : ISourceProvider | null = this.service(url);
 

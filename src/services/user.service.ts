@@ -10,7 +10,8 @@ class UserService {
 	}
 
 	async getByID(id: string) {
-		return User.findById(id, { password: 0, roles: 0 });
+		let user = await User.findById(id, { password: 0, roles: 0 });
+		return user ? user : {}
 	}
 
 	async create(username: string, password: string, email?: string, name?: string, externalId?: string, avatar?: string) {

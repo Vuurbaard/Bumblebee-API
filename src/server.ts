@@ -4,11 +4,8 @@ import dotenv from 'dotenv';
 import bodyparser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
 
 import * as v1 from './routes/v1/routes';
-import JobService from './services/jobs';
 
 dotenv.config();
 
@@ -43,6 +40,10 @@ app.use(passport.session());
 app.use(cors({ origin: true }));
 
 require('./database/config')(passport);
+require('./database/schemas/user');
+require('./database/schemas/fragment');
+require('./database/schemas/source');
+require('./database/schemas/word');
 
 // Routes
 app.use('/', v1.routes);

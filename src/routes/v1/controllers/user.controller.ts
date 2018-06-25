@@ -18,7 +18,7 @@ export class UserController implements Controller {
 			}
 		}
 		catch (err) {
-			console.error(err);
+			console.error(err.message);
 			res.status(500).json({ "message": "Something went wrong getting all the users." });
 		}
 	}
@@ -28,7 +28,7 @@ export class UserController implements Controller {
 			res.json(await userService.getByID(req.params.id));
 		}
 		catch (err) {
-			console.error(err);
+			console.error(err.message);
 			res.status(500).json({ "message": "Something went wrong getting a user by id." });
 		}
 	}
@@ -51,7 +51,7 @@ export class UserController implements Controller {
 			res.sendStatus(204);
 		}
 		catch (err) {
-			console.error(err);
+			console.error(err.message);
 
 			if (err.message == 'Not allowed to update another user.' ||
 				err.message == 'Not allowed to update your own username.' ||
@@ -71,7 +71,7 @@ export class UserController implements Controller {
 			res.status(201).json({ user: user });
 		}
 		catch (err) {
-			console.error(err);
+			console.error(err.message);
 			if (err.message == 'Username is required.' || err.message == 'Password is required.' || err.message == 'Username already taken.') {
 				res.status(400).json({ message: err.message });
 				return;
@@ -86,12 +86,12 @@ export class UserController implements Controller {
 				await userService.deleteByID(req.params.id);
 			}
 			else {
-				res.status(403).json({ message: "You are not allowed to delete the user"});
+				res.status(403).json({ message: "You are not allowed to delete a user"});
 				return;
 			}
 		}
 		catch (err) {
-			console.error(err);
+			console.error(err.message);
 			res.status(500).json({ message: "Something went wrong deleting the user." });
 		}
 	}
