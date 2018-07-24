@@ -10,65 +10,67 @@ import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
 
-    extension: string = ".mp3";
-    handlers: Array<ISourceProvider> = [];
+	extension: string = ".mp3";
+	handlers: Array<ISourceProvider> = [];
 
-    public constructor() {
-        this.handlers.push(YouTubeService);
-    }
+	public constructor() {
+		this.handlers.push(YouTubeService);
+	}
     /**
      * Returns the service based on the given url
      */
 
-    private service(url: string) : ISourceProvider|null{
-        let rc = null;
+	private service(url: string): ISourceProvider | null {
+		let rc = null;
 
 
-        for(let i=0;i<this.handlers.length;i++){
-            let handler : ISourceProvider = this.handlers[i];
-            if(handler.canHandle(url)){
-                rc = handler;
-                break;
-            };
-        }
+		for (let i = 0; i < this.handlers.length; i++) {
+			let handler: ISourceProvider = this.handlers[i];
+			if (handler.canHandle(url)) {
+				rc = handler;
+				break;
+			};
+		}
 
-        return rc;
-    }
+		return rc;
+	}
 
-    public sourceUrl(source: ISource){
-        let service = null;
+	public sourceUrl(source: ISource) {
+		let service = null;
 
-        for(let i=0;i<this.handlers.length;i++){
-            let handler : ISourceProvider = this.handlers[i];
-            if(source.origin.toString() == handler.sourceIdentifier()){
-                service = handler;
-                break;
-            };
-        }
+		for (let i = 0; i < this.handlers.length; i++) {
+			let handler: ISourceProvider = this.handlers[i];
+			if (source.origin.toString() == handler.sourceIdentifier()) {
+				service = handler;
+				break;
+			};
+		}
 
-        if(service != null){
-            return service.sourceUrl(source); 
-        }
+		if (service != null) {
+			return service.sourceUrl(source);
+		}
 
-        return "";
-    }
+		return "";
+	}
 
-    public download(url: string, userId: string) : Promise<ISource> {
-        let deferred = q.defer<ISource>();
+	public download(url: string, userId: string): Promise<ISource> {
+		let deferred = q.defer<ISource>();
 
-        let service : ISourceProvider | null = this.service(url);
+		if (!url || !userId) { deferred.reject(); }
 
-        if(service != null){
-            service.download(url,userId).then( source => {
-                deferred.resolve(source);
+		let service: ISourceProvider | null = this.service(url);
 
-            }, err => {
-                deferred.reject(err);
-            });
-        }
+		if (service != null) {
+			service.download(url, userId).then(source => {
+				deferred.resolve(source);
 
-        return deferred.promise;
-    }
+			}, err => {
+				deferred.reject(err);
+			});
+		}
+
+		return deferred.promise;
+	}
 }
 
 export default new AudioService();

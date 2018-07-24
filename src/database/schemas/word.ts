@@ -11,12 +11,17 @@ export interface IWord extends Document {
 
 export var WordSchema: Schema = new Schema({
 	text: { type: String, required: true, lowercase: true, trim: true, unique: true },
-	fragments: [{ type: Schema.Types.ObjectId, ref: 'Fragment' }],
+	//fragments: [{ type: Schema.Types.ObjectId, ref: 'Fragment' }],
 	createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 	createdAt: { type: Date }
 });
 
-WordSchema.index({ text: 'text' });
+WordSchema.virtual('fragments', {
+	ref: 'Fragment', // The model to use
+	localField: '_id', // `localField`
+	foreignField: 'word', // is equal to `foreignField`
+	justOne: false
+});
 
 WordSchema.pre("save", (next) => {
 	let now = new Date();
@@ -26,6 +31,9 @@ WordSchema.pre("save", (next) => {
 	}
 	next();
 });
+
+WordSchema.index({ text: 1 });
+WordSchema.index({ fragments: 1 });
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());

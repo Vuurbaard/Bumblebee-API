@@ -7,7 +7,7 @@ class FragmentService {
 	public constructor() { }
 
 	public async all(query?: any) {
-		return Fragment.find(query || {});
+		return Fragment.find(query || {}).populate('word');
 	}
 
 	public async getByID(id: string) {
@@ -16,6 +16,10 @@ class FragmentService {
 	}
 
 	public async create(user: IUser, fields: any) {
+
+		if(fields.id) {
+			return this.getByID(fields.id);
+		}
 
 		fields.createdBy = user;
 		let newFragment = new Fragment(fields);
