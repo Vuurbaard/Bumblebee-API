@@ -29,8 +29,8 @@ export class FragmentController implements Controller {
 
 	async create(req: Request, res: Response) {
 		try {
-			await fragmentService.create(req.user as IUser, req.body.text);
-			res.sendStatus(201);
+			let fragment = await fragmentService.create(req.user as IUser, req.body);
+			res.status(201).json(fragment);
 		}
 		catch(err) {
 			console.error(err.message);

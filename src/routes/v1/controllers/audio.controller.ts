@@ -11,14 +11,14 @@ export class AudioController {
 		let url: string = req.body.url;
 		let userId = req.user!._id;
 
-		console.log('wanting to download:', url);
+		console.log('Wanting to download:', url);
 
 		try {
 			let source = await audioService.download(url, userId);
-			console.log('done downloading audio file:', source);
+			console.log('Done downloading audio file:', source);
 
 			let fragments = await fragmentService.all({ 'source': source._id });
-			
+
 			res.json({
 				url: audioService.sourceUrl(source),
 				sourceId: source._id,
@@ -26,7 +26,7 @@ export class AudioController {
 			});
 		}
 		catch (err) {
-			debugger;
+			console.error(err);
 			res.status(500).json({ "message": "Something went wrong downloading the audio." });
 		}
 	}

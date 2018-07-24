@@ -7,11 +7,11 @@ class WordService {
 	public constructor() { }
 
 	public async all(query?: any) {
-		return Word.find(query || {});
+		return Word.find(query || {}).populate('fragments');
 	}
 
 	public async getByID(id: string) {
-		let word = await Word.findById(id);
+		let word = await Word.findById(id).populate('fragments');
 		return word ? word : {}
 	}
 
