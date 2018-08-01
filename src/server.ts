@@ -70,5 +70,5 @@ app.get('/', (req, res) => {
 
 
 // Run some code to check if all youtube videos are still downloaded
-JobService.handleMissingYoutubeFiles()
+//JobService.handleMissingYoutubeFiles()
 
