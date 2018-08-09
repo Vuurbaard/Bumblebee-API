@@ -8,6 +8,7 @@ import { WordController } from './controllers/word.controller';
 import { FragmentController } from './controllers/fragment.controller';
 import { AudioController } from './controllers/audio.controller';
 import path from 'path';
+import { VoiceBoxController } from './controllers/voicebox.controller';
 
 
 const router: Router = Router();
@@ -17,8 +18,9 @@ const sourceController = new SourceController();
 const wordController = new WordController();
 const fragmentController = new FragmentController();
 const audioController = new AudioController();
+const voiceboxController = new VoiceBoxController();
 
-const version : string = "/v1";
+const version: string = "/v1";
 
 // Authentication and the like
 router.post(version + '/login', authenticationController.login);
@@ -33,29 +35,33 @@ router.delete(version + '/user/:id', passport.authenticate('jwt', { session: tru
 router.get(version + '/user/:id/sources', passport.authenticate('jwt', { session: true }), userController.getAllSourcesByUserID);
 
 // Sources
-router.get(version + '/source', passport.authenticate('jwt', {session: true}), sourceController.getAll);
-router.get(version + '/source/:id', passport.authenticate('jwt', {session: true}), sourceController.getByID);
-router.patch(version + '/source/:id', passport.authenticate('jwt', {session: true}), sourceController.updateByID);
-router.post(version + '/source/', passport.authenticate('jwt', {session: true}), sourceController.create);
-router.delete(version + '/source/:id', passport.authenticate('jwt', {session: true}), sourceController.deleteByID);
+router.get(version + '/source', passport.authenticate('jwt', { session: true }), sourceController.getAll);
+router.get(version + '/source/:id', passport.authenticate('jwt', { session: true }), sourceController.getByID);
+router.patch(version + '/source/:id', passport.authenticate('jwt', { session: true }), sourceController.updateByID);
+router.post(version + '/source/', passport.authenticate('jwt', { session: true }), sourceController.create);
+router.delete(version + '/source/:id', passport.authenticate('jwt', { session: true }), sourceController.deleteByID);
 
 // Word
-router.get(version + '/word', passport.authenticate('jwt', {session: true}), wordController.getAll);
-router.get(version + '/word/:id', passport.authenticate('jwt', {session: true}), wordController.getByID);
-router.patch(version + '/word/:id', passport.authenticate('jwt', {session: true}), wordController.updateByID);
-router.post(version + '/word/', passport.authenticate('jwt', {session: true}), wordController.create);
-router.delete(version + '/word/:id', passport.authenticate('jwt', {session: true}), wordController.deleteByID);
+router.get(version + '/word', passport.authenticate('jwt', { session: true }), wordController.getAll);
+router.get(version + '/word/:id', passport.authenticate('jwt', { session: true }), wordController.getByID);
+router.patch(version + '/word/:id', passport.authenticate('jwt', { session: true }), wordController.updateByID);
+router.post(version + '/word/', passport.authenticate('jwt', { session: true }), wordController.create);
+router.delete(version + '/word/:id', passport.authenticate('jwt', { session: true }), wordController.deleteByID);
 
 // Fragment
-router.get(version + '/fragment', passport.authenticate('jwt', {session: true}), fragmentController.getAll);
-router.get(version + '/fragment/:id', passport.authenticate('jwt', {session: true}), fragmentController.getByID);
-router.patch(version + '/fragment/:id', passport.authenticate('jwt', {session: true}), fragmentController.updateByID);
-router.post(version + '/fragment/', passport.authenticate('jwt', {session: true}), fragmentController.create);
-router.delete(version + '/fragment/:id', passport.authenticate('jwt', {session: true}), fragmentController.deleteByID);
+router.get(version + '/fragment', passport.authenticate('jwt', { session: true }), fragmentController.getAll);
+router.get(version + '/fragment/:id', passport.authenticate('jwt', { session: true }), fragmentController.getByID);
+router.patch(version + '/fragment/:id', passport.authenticate('jwt', { session: true }), fragmentController.updateByID);
+router.post(version + '/fragment/', passport.authenticate('jwt', { session: true }), fragmentController.create);
+router.delete(version + '/fragment/:id', passport.authenticate('jwt', { session: true }), fragmentController.deleteByID);
 
 // Audio
-router.post(version + '/audio/download', passport.authenticate('jwt', {session: true}), audioController.download)
+router.post(version + '/audio/download', passport.authenticate('jwt', { session: true }), audioController.download)
 router.use(version + '/audio/youtube', express.static(path.join(__dirname, '../../audio/youtube')));
+router.use(version + '/audio/temp', express.static(path.join(__dirname, '../../audio/temp')));
+
+// Text to speech
+router.post(version + '/tts', passport.authenticate('jwt', { session: true }), voiceboxController.tts)
 
 
 export const routes: Router = router;

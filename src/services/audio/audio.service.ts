@@ -1,28 +1,19 @@
 import q from 'q';
-import path from 'path';
-import fs from 'fs';
-import ffmpeg from 'fluent-ffmpeg';
-import ytdl from 'ytdl-core';
-
 import YouTubeService from './youtube.service';
-import { Source, ISource } from '../../database/schemas/source';
+import { ISource } from '../../database/schemas/source';
 import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
 
-	extension: string = ".mp3";
 	handlers: Array<ISourceProvider> = [];
 
 	public constructor() {
 		this.handlers.push(YouTubeService);
 	}
-    /**
-     * Returns the service based on the given url
-     */
-
+	
+    // Returns the service based on the given url
 	private service(url: string): ISourceProvider | null {
 		let rc = null;
-
 
 		for (let i = 0; i < this.handlers.length; i++) {
 			let handler: ISourceProvider = this.handlers[i];
@@ -63,7 +54,6 @@ class AudioService {
 		if (service != null) {
 			service.download(url, userId).then(source => {
 				deferred.resolve(source);
-
 			}, err => {
 				deferred.reject(err);
 			});

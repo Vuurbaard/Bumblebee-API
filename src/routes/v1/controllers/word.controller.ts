@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { Controller } from './controller';
+import { RESTController } from './rest.controller';
 import wordService from '../../../services/word.service';
 import { IUser } from '../../../database/schemas';
 
-export class WordController implements Controller {
+export class WordController implements RESTController {
 
 	constructor() { }
 
