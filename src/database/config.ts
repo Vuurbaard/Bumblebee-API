@@ -1,7 +1,7 @@
 //import { ExtractJwt} from "passport-jwt";
 import passport, { PassportStatic } from 'passport';
 import * as passportjwt from "passport-jwt";
-import { User } from '../database/schemas';
+import { User } from './schemas';
 
 module.exports = function (passport: PassportStatic) {
 

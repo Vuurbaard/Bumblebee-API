@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { Controller } from './controller';
+import { RESTController } from './rest.controller';
 import sourceService from '../../../services/source.service';
 
-export class SourceController implements Controller {
+export class SourceController implements RESTController {
 
 	constructor() { }
 

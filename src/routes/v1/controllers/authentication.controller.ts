@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Controller } from './controller';
+import { RESTController } from './rest.controller';
 import { User, IUser } from '../../../database/schemas/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';

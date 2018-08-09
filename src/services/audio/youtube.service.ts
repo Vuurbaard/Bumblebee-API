@@ -7,8 +7,6 @@ import { ISource, Source } from '../../database/schemas/source';
 import AudioService from './audio.service';
 import { ISourceProvider } from './ISourceProvider';
 
-
-
 class YouTubeService implements ISourceProvider {
 
 	private extension = ".mp3";
@@ -21,18 +19,18 @@ class YouTubeService implements ISourceProvider {
 	};
 
 	public sourceUrl(source: ISource) {
-		return '/v1' + this.basepath() + source.id.toString() + this.extension;;
+		return '/v1' + this.basepath() + source.id.toString() + this.extension;
 	}
 
 	public download(url: string, userId?: string): Promise<ISource> {
 		let vm = this;
 		userId = userId ? userId : '';
 
+		let id = this.identifier(url);
+		let filename = id + this.extension;
+		let filepath = path.resolve(__dirname, '../..' + this.basepath() + filename);
+		
 		return new Promise((resolve, reject) => {
-			
-			let id = this.identifier(url);
-			let filename = id + this.extension;
-			let filepath = path.resolve(__dirname, '../..' + this.basepath() + filename);
 
 			if (!fs.existsSync(filepath)) {
 				console.log('Download of youtube video', id, 'starting...');
@@ -69,8 +67,14 @@ class YouTubeService implements ISourceProvider {
 					if (src) {
 						resolve(src);
 					}
-					else { // Insert
-						reject();
+					else { 
+						let newSource = new Source({ id: id, origin: 'YouTube', createdBy: userId });
+						newSource.save((err, src) => {
+							if (err) { reject(err); }
+							else if (src) {
+								resolve(src);
+							}
+						});
 					}
 				});
 			}

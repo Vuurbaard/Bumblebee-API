@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { Controller } from './controller';
+import { RESTController } from './rest.controller';
 import fragmentService from '../../../services/fragment.service';
 import { IUser } from '../../../database/schemas';
 
-export class FragmentController implements Controller {
+export class FragmentController implements RESTController {
 
 	constructor() { }
 
