@@ -161,7 +161,7 @@ class VoiceBox {
 		let fragmentsToReturn = inputToProcess as Array<any>;
 		fragmentsToReturn = fragmentsToReturn.map(fragment => {
 			if(typeof fragment == "string") {
-				fragment = { word: { text: fragment, found: false }}
+				fragment = { text: fragment, found: false }
 			}
 
 			return fragment;
