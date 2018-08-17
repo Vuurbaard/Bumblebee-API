@@ -5,21 +5,16 @@ import { Word, IWord } from '../database/schemas/word';
 import { IFragment, Fragment } from '../database/schemas/fragment';
 import fs from 'fs';
 import path from 'path';
-import { Source } from '../database/schemas/source';
 
-// ...
 require('colors');
 
 class VoiceBox {
 
 	public constructor() {
-
 		if (!fs.existsSync('audio')) { fs.mkdirSync('audio') };
 		if (!fs.existsSync('audio/youtube')) { fs.mkdirSync('audio/youtube') };
 		if (!fs.existsSync('audio/fragments')) { fs.mkdirSync('audio/fragments') };
 		if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') };
-
-		//this.tts("please let this work");
 	}
 
 	public async tts(text: string) {
@@ -138,6 +133,7 @@ class VoiceBox {
 								end: fragment.end,
 								id: fragment.id,
 								source: fragment.source,
+								word: fragment.word,
 								endFragment: fragment
 							}
 						}
@@ -161,9 +157,25 @@ class VoiceBox {
 
 		fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
+		// Replace left over words that could not be parsed into a more consistent object format
+		let fragmentsToReturn = inputToProcess as Array<any>;
+		fragmentsToReturn = fragmentsToReturn.map(fragment => {
+			if(typeof fragment == "string") {
+				fragment = { word: { text: fragment, found: false }}
+			}
+
+			return fragment;
+		});
+
 		this.fileMagic(fragments).then((data: any) => {
 			//console.log(data);
-			data.wordsNotFound = inputToProcess.filter(val => { return (typeof (val) == "string") });
+			// data.words = {
+			// 	unused: inputToProcess.filter(val => { return (typeof (val) == "string") }),
+			// 	used: [["word1", "word2"], ["word3", "word4"]]
+			// }
+			// data.wordsNotFound = inputToProcess.filter(val => { return (typeof (val) == "string") });
+			data.fragments = fragmentsToReturn;
+
 			deferred.resolve(data);
 		});
 
@@ -175,7 +187,7 @@ class VoiceBox {
 
 		for (let i = 0; i < words.length; i++) {
 			let word = words[i];
-			let nextWord = words[i + 1];
+
 			console.log('[VoiceBox]', 'starting new trace for word', word.text);
 
 			for (let fragment of word.fragments) {
@@ -199,7 +211,6 @@ class VoiceBox {
 		// fragment = the current fragment we need to start a trace for
 		// traces = array containing all the fragments we've traced
 
-		var word = words[index];
 		var nextWord = words[index + 1];
 		if (!traces) {
 			traces = new Array();
@@ -290,20 +301,17 @@ class VoiceBox {
 
 			// Audioconcat needs a non relative path. 
 			let files = new Array();
-			tempFiles.forEach(function (fragment) {
-
+			tempFiles.forEach(fragment => {
 				files.push(path.join(audioFolder, "/fragments/", fragment.file));
 			});
 
 			// Concatenate the temp fragment files into one big one
 			let outputfilename = guid.create() + '.mp3';
-			console.log("Sweet testing");
-			console.log(files);
-			console.log(tempFiles);
-			console.log(path.join(audioFolder, "/temp/", outputfilename));
+			// console.log(files);
+			// console.log(tempFiles);
+			// console.log(path.join(audioFolder, "/temp/", outputfilename));
 
 			return new Promise((resolve, reject) => {
-
 				ffmpeg()
 					.input('concat:' + files.join('|'))
 					.outputOptions('-c:v copy')
@@ -315,7 +323,7 @@ class VoiceBox {
 					})
 					.on('end', function () {
 						console.log('Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
-						resolve({ file: "/audio/temp/" + outputfilename });
+						resolve({ file: "/v1/audio/temp/" + outputfilename });
 					})
 			});
 		});
