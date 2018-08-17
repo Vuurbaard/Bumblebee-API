@@ -40,10 +40,11 @@ class VoiceBox {
 		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 		console.log('[VoiceBox]', "found", words.length, "/", input.length, 'words');
 
+		// We have not found anything to do so let's just exit the function
 		if (words.length == 0) {
-			// deferred.reject({ status: 422, message: 'Could not find any matching words in the database' });
-			console.log('words not found:', combinations)
-			deferred.resolve({ wordsNotFound: input });
+			console.log('[VoiceBox]', 'words not found:', input);
+			let notFound = input.map(word => { return { text: word, found: false } });
+			deferred.resolve({ fragments: notFound });
 			return deferred.promise;
 		}
 
@@ -160,7 +161,7 @@ class VoiceBox {
 		// Replace left over words that could not be parsed into a more consistent object format
 		let fragmentsToReturn = inputToProcess as Array<any>;
 		fragmentsToReturn = fragmentsToReturn.map(fragment => {
-			if(typeof fragment == "string") {
+			if (typeof fragment == "string") {
 				fragment = { text: fragment, found: false }
 			}
 
@@ -168,14 +169,7 @@ class VoiceBox {
 		});
 
 		this.fileMagic(fragments).then((data: any) => {
-			//console.log(data);
-			// data.words = {
-			// 	unused: inputToProcess.filter(val => { return (typeof (val) == "string") }),
-			// 	used: [["word1", "word2"], ["word3", "word4"]]
-			// }
-			// data.wordsNotFound = inputToProcess.filter(val => { return (typeof (val) == "string") });
 			data.fragments = fragmentsToReturn;
-
 			deferred.resolve(data);
 		});
 
