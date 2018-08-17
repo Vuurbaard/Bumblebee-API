@@ -4,11 +4,8 @@ import dotenv from 'dotenv';
 import bodyparser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
 
-import * as routes from './routes';
-import JobService from './services/jobs';
+import * as v1 from './routes/v1/routes';
 
 dotenv.config();
 
@@ -43,32 +40,18 @@ app.use(passport.session());
 app.use(cors({ origin: true }));
 
 require('./database/config')(passport);
+require('./database/schemas/user');
+require('./database/schemas/fragment');
+require('./database/schemas/source');
+require('./database/schemas/word');
 
 // Routes
-app.use('/', routes.HomeRoute);
+app.use('/', v1.routes);
 
-app.use('/audio', routes.AudioRoute);
-app.use('/audio/youtube', express.static(path.join(__dirname, 'audio/youtube')));
-app.use('/audio/temp', express.static(path.join(__dirname, 'audio/temp')));
-app.delete('/audio/temp/:file', (req, res, next) => {
-	let file = req.params.file;
-	let filepath = path.join(__dirname, 'audio/temp', file)
-	fs.unlink(filepath, (err) => {});
-	next();
-});
-
-app.use('/users', routes.UsersRoute);
-app.use('/sources', routes.SourcesRoute);
-app.use('/words', routes.WordsRoute);
-app.use('/fragments', routes.FragmentsRoute);
-
-
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
     res.send('Invalid endpoint');
 })
 
 
-
 // Run some code to check if all youtube videos are still downloaded
-JobService.handleMissingYoutubeFiles()
-
+// JobService.handleMissingYoutubeFiles()
