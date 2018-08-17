@@ -1,12 +1,14 @@
-image: ubuntu:latest
+image: docker:stable
 
 stages:
  - build
  - test
  - deploy
 
+services:
+- docker:dind
+
 build:
-  image: docker:dind
   script:
     # install composer and get dependencies
     - echo $CI_ENVIRONMENT_SLUG
@@ -17,7 +19,7 @@ build:
 
 # Push the image to Docker Swarm as service and run a rolling deploy
 push to production:
-  image: docker:dind
+  image: docker:stable
   stage: deploy
   variables:
     DOCKER_HOST: tcp://192.168.178.30:2375

@@ -1,6 +1,6 @@
 FROM node:latest
 ARG NPM_INSTALL_BEFORE=true
-RUN yarn global add ffmpeg-binaries
+RUN yarn global add ffmpeg-binaries@3.2.2-3
 RUN mkdir -p /var/www/html
 RUN npm install -g nodemon typescript
 
