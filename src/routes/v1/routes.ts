@@ -61,7 +61,7 @@ router.use(version + '/audio/youtube', express.static(path.join(__dirname, '../.
 router.use(version + '/audio/temp', express.static(path.join(__dirname, '../../audio/temp')));
 
 // Text to speech
-router.post(version + '/tts', passport.authenticate('jwt', { session: true }), voiceboxController.tts)
+router.post(version + '/tts', voiceboxController.tts)
 
 
 export const routes: Router = router;
