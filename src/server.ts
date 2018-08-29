@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import bodyparser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
+import JobService from './services/audio/jobs'
+
 
 import * as v1 from './routes/v1/routes';
 
@@ -35,6 +37,7 @@ mongoose.connection.on('error', err => {
 
 // Express middlewares
 app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({ origin: true }));
@@ -54,5 +57,5 @@ app.get('*', (req, res) => {
 
 
 // Run some code to check if all youtube videos are still downloaded
-//JobService.handleMissingYoutubeFiles()
+// JobService.handleMissingYoutubeFiles()
 

@@ -317,7 +317,7 @@ class VoiceBox {
 					})
 					.on('end', function () {
 						console.log('Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
-						resolve({ file: "/v1/audio/temp/" + outputfilename });
+						resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
 					})
 			});
 		});
