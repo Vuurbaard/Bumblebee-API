@@ -22,6 +22,8 @@ class VoiceBox {
 		let deferred = q.defer();
 
 		let input = text.toLowerCase().split(' ');
+		input = input.filter(word => word != ' ');
+		input = input.filter(word => word != '');
 
 		console.log('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
 
@@ -38,7 +40,7 @@ class VoiceBox {
 		console.log('[VoiceBox]', "combinations:", combinations.toString());
 
 		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
-		console.log('[VoiceBox]', "found", words.length, "/", input.length, 'words');
+		console.log('[VoiceBox]', "found", words.length, 'words in database.');
 
 		// We have not found anything to do so let's just exit the function
 		if (words.length == 0) {
@@ -274,7 +276,7 @@ class VoiceBox {
 							}
 						})
 						.on('error', function (err) {
-							console.log('ffmpeg error:', err);
+							console.log('[VoiceBox]', 'ffmpeg error:', err);
 							resolve();
 						}).run();
 				});
@@ -311,12 +313,12 @@ class VoiceBox {
 					.outputOptions('-c:v copy')
 					.save(path.join(audioFolder, "/temp/", outputfilename))
 					.on('error', function (err: any, stdout: any, stderr: any) {
-						console.error('Error:', err)
-						console.error('ffmpeg stderr:', stderr)
+						console.error('[VoiceBox]', 'Error:', err)
+						console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
 						resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 					})
 					.on('end', function () {
-						console.log('Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
+						console.log('[VoiceBox]', 'Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
 						resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
 					})
 			});
