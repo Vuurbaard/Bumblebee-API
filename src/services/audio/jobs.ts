@@ -1,8 +1,3 @@
-import q from 'q';
-import path from 'path';
-import fs from 'fs';
-import ffmpeg from 'fluent-ffmpeg';
-import ytdl from 'ytdl-core';
 import { Source, ISource } from '../../database/schemas/source';
 import AudioService from './audio.service';
 import YouTubeService from './youtube.service';
