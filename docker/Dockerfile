@@ -1,6 +1,8 @@
 FROM node:latest
 ARG NPM_INSTALL_BEFORE=true
 RUN mkdir -p /var/www/html
+# Remove after 3 september
+RUN npm config set strict-ssl false
 RUN npm install -g ffmpeg-binaries@3.2.2-3 nodemon typescript
 
 
