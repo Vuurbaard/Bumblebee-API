@@ -10,12 +10,9 @@ services:
 
 build:
   script:
-    # install composer and get dependencies
-    - echo $CI_ENVIRONMENT_SLUG
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f docker/Dockerfile ./
     - docker push ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG}
-
 
 # Push the image to Docker Swarm as service and run a rolling deploy
 push to production:
@@ -25,8 +22,7 @@ push to production:
     DOCKER_HOST: tcp://192.168.178.30:2375
   image: docker:latest
   script:
-    - echo $CI_ENVIRONMENT_SLUG
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.mijnproject.nu
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $CI_REGISTRY
     - docker stack deploy --prune --resolve-image=always --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}
   environment:
     name: api-bumblebee-fm

@@ -4,7 +4,6 @@ RUN yarn global add ffmpeg-binaries@3.2.2-3
 RUN mkdir -p /var/www/html
 RUN npm install -g nodemon typescript
 
-
 COPY ./package.json /tmp/package.json
 
 WORKDIR /var/www/html
