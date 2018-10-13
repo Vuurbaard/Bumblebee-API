@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { RESTController } from './rest.controller';
-import { User, IUser } from '../../../database/schemas/user';
+import { User, IUser } from '../../../database/schemas';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userService from '../../../services/user.service';

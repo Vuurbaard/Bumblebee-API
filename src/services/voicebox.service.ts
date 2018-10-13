@@ -1,8 +1,7 @@
 import q from 'q';
 import ffmpeg from 'fluent-ffmpeg';
 import guid from 'guid';
-import { Word, IWord } from '../database/schemas/word';
-import { IFragment, Fragment } from '../database/schemas/fragment';
+import { Word, IWord, IFragment, Fragment } from '../database/schemas';
 import fs from 'fs';
 import path from 'path';
 

@@ -1,4 +1,4 @@
-import { Source, ISource } from '../../database/schemas/source';
+import { Source, ISource } from '../../database/schemas';
 import AudioService from './audio.service';
 import YouTubeService from './youtube.service';
 

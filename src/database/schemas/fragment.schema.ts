@@ -1,7 +1,5 @@
 import { Document, Schema, Model, model } from "mongoose";
-import { IUser } from ".";
-import { ISource } from "./source";
-import { IWord } from "./word";
+import { ISource, IWord, IUser } from ".";
 
 export interface IFragment extends Document {
 	start: string;
@@ -24,10 +22,8 @@ export var FragmentSchema: Schema = new Schema({
 });
 
 FragmentSchema.pre("save", (next) => {
-	let now = new Date();
-
 	if (!this.createdAt) {
-		this.createdAt = now;
+		this.createdAt = new Date();
 	}
 	next();
 });

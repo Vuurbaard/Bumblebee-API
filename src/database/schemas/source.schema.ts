@@ -1,6 +1,5 @@
 import { Document, Schema, Model, model } from "mongoose";
-import { IUser } from ".";
-import { IFragment } from "./fragment";
+import { IFragment, IUser } from ".";
 
 export interface ISource extends Document {
 	id: string;
@@ -28,10 +27,8 @@ SourceSchema.set('toObject', { virtuals: true });
 SourceSchema.set('toJSON', { virtuals: true });
 
 SourceSchema.pre("save", (next) => {
-	let now = new Date();
-
 	if (!this.createdAt) {
-		this.createdAt = now;
+		this.createdAt = new Date();
 	}
 	next();
 });

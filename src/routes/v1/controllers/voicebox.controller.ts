@@ -3,7 +3,6 @@ import voiceboxService from '../../../services/voicebox.service';
 
 var request = require('request');
 import fs from 'fs';
-import path from 'path';
 
 export class VoiceBoxController {
 

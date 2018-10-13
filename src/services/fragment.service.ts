@@ -1,6 +1,5 @@
-import { IFragment, Fragment } from '../database/schemas/fragment';
+import { Fragment } from '../database/schemas/fragment.schema';
 import { IUser } from '../database/schemas';
-
 
 class FragmentService {
 

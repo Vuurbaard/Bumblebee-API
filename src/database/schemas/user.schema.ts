@@ -20,10 +20,8 @@ export var UserSchema: Schema = new Schema({
 });
 
 UserSchema.pre("save", (next) => {
-    let now = new Date();
-
     if (!this.createdAt) {
-        this.createdAt = now;
+        this.createdAt = new Date();
     }
     next();
 });

@@ -1,4 +1,4 @@
-import { ISource } from '../../database/schemas/source';
+import { ISource } from '../../database/schemas';
 
 export interface ISourceProvider {
 	basepath(): string;

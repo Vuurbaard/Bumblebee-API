@@ -1,6 +1,4 @@
-import { IWord, Word } from '../database/schemas/word';
-import { IUser } from '../database/schemas';
-
+import { Word, IUser } from '../database/schemas';
 
 class WordService {
 

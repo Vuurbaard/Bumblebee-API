@@ -1,6 +1,6 @@
 import q from 'q';
 import YouTubeService from './youtube.service';
-import { ISource } from '../../database/schemas/source';
+import { ISource } from '../../database/schemas';
 import { ISourceProvider } from './ISourceProvider';
 
 class AudioService {
@@ -57,6 +57,9 @@ class AudioService {
 			}, err => {
 				deferred.reject(err);
 			});
+		}
+		else {
+			deferred.reject('No audio service found for url: ' + url);
 		}
 
 		return deferred.promise;
