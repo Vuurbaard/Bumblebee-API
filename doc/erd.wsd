@@ -54,6 +54,14 @@ Table(Fragment, "Fragment") {
 	not_null(createdAt) Date
 }
 
+Table(App, "App") {
+	primary_key(_id) ObjectId
+	not_null(name) String
+	not_null(accessKey) String
+	not_null(createdBy) User
+	not_null(createdAt) Date
+}
+
 User "1" -- "*" ExternalUser
 User "1" -- "*" Source
 User "1" -- "*" Fragment

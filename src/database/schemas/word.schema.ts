@@ -1,6 +1,5 @@
 import { Document, Schema, Model, model } from "mongoose";
-import { IUser } from ".";
-import { IFragment } from "./fragment";
+import { IFragment, IUser } from ".";
 
 export interface IWord extends Document {
 	text: string;
@@ -24,10 +23,8 @@ WordSchema.virtual('fragments', {
 });
 
 WordSchema.pre("save", (next) => {
-	let now = new Date();
-
 	if (!this.createdAt) {
-		this.createdAt = now;
+		this.createdAt = new Date();
 	}
 	next();
 });

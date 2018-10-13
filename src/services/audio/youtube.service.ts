@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ytdl from 'ytdl-core';
-import { ISource, Source } from '../../database/schemas/source';
+import { ISource, Source } from '../../database/schemas';
 import AudioService from './audio.service';
 import { ISourceProvider } from './ISourceProvider';
 

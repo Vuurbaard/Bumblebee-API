@@ -1,4 +1,4 @@
-import { Source } from "../database/schemas/source";
+import { Source } from "../database/schemas";
 
 class SourceService {
 

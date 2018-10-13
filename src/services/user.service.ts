@@ -1,5 +1,5 @@
-import { User, IUser } from "../database/schemas";
 import authenticationService from "./authentication.service";
+import { User, IUser } from "../database/schemas";
 
 class UserService {
 

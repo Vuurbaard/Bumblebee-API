@@ -45,10 +45,9 @@ export class UserController implements RESTController {
 				if (req.body.password) { throw new Error('Not allowed to update your own password.'); }
 				if (req.body.roles) { throw new Error('Not allowed to update your own roles.'); }
 
-				await userService.updateByID(req.params.id, req.body);
+				let user = await userService.updateByID(req.params.id, req.body);
+				res.status(204).json(user);
 			}
-
-			res.sendStatus(204);
 		}
 		catch (err) {
 			console.error(err.message);
