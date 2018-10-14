@@ -49,11 +49,6 @@ app.use(cors({ origin: true }));
 
 require('./database/config')(passport);
 require('./database/schemas');
-// require('./database/schemas/user.schema');
-// require('./database/schemas/fragment.schema');
-// require('./database/schemas/source.schema');
-// require('./database/schemas/word.schema');
-// require('./database/schemas/app.schema');
 
 // Routes
 app.use('/', v1.routes);

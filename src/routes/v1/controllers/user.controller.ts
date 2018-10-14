@@ -36,7 +36,8 @@ export class UserController implements RESTController {
 	public async updateByID(req: Request, res: Response) {
 		try {
 			if (req.user!.roles.indexOf('admin') > -1) {
-				await userService.updateByID(req.params.id, req.body);
+				let user = await userService.updateByID(req.params.id, req.body);
+				res.status(200).json(user);
 			}
 			else {
 
@@ -46,7 +47,7 @@ export class UserController implements RESTController {
 				if (req.body.roles) { throw new Error('Not allowed to update your own roles.'); }
 
 				let user = await userService.updateByID(req.params.id, req.body);
-				res.status(204).json(user);
+				res.status(200).json(user);
 			}
 		}
 		catch (err) {

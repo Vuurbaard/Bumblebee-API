@@ -45,7 +45,7 @@ class UserService {
 	}
 
 	async updateByID(id: string, fields: any) { // username?: string, password?: string, email?: string, name?: string, externalId?: string, avatar?: string
-		return await User.findByIdAndUpdate(id, fields);
+		return await User.findByIdAndUpdate(id, fields, { new: true });
 	}
 
 	async deleteByID(id: string) {
