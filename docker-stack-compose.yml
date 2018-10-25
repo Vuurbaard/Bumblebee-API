@@ -2,7 +2,7 @@ version: '3'
 services:
  
     api:
-        image: ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG}
+        image: ${CI_REGISTRY_IMAGE}
         environment:
             - MONGO_HOST=192.168.178.29
             - MONGO_PORT=27017
