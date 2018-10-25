@@ -1,6 +1,17 @@
-FROM node:latest
+FROM node:10
+
 ARG NPM_INSTALL_BEFORE=true
-RUN yarn global add ffmpeg-binaries@3.2.2-3
+
+# Install FFMPEG
+RUN sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list
+RUN echo "deb http://http.debian.net/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update && apt-get install -y \
+    ffmpeg locales && \
+	locale-gen C.UTF-8 && /usr/sbin/update-locale LANG=C.UTF-8 && \
+	apt-get clean
+
+ENV LC_ALL C.UTF-8
+
 RUN mkdir -p /var/www/html
 RUN npm install -g nodemon typescript
 
