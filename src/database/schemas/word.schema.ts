@@ -22,9 +22,9 @@ WordSchema.virtual('fragments', {
 	justOne: false
 });
 
-WordSchema.pre("save", (next) => {
-	if (!this.createdAt) {
-		this.createdAt = new Date();
+WordSchema.pre("save", function (next) {
+	if (!this.get('createdAt')) {
+		this.set('createdAt', new Date());
 	}
 	next();
 });

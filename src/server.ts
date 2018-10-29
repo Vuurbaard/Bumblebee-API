@@ -59,7 +59,7 @@ app.get('*', (req, res) => {
 
 
 // Run some code to check if all youtube videos are still downloaded
-//JobService.handleMissingYoutubeFiles()
+// JobService.handleMissingYoutubeFiles()
 
 function exportFragments() {
 	Fragment.find({}).populate('word', '-_id -__v -links').populate('source', '-_id -__v -origin -fragments').select('-_id -__v -active -createdAt -createdBy').then(fragments => {
