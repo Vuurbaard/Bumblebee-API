@@ -11,8 +11,8 @@ services:
 build:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG} --build-arg NPM_INSTALL_BEFORE=true -f docker/Dockerfile ./
-    - docker push ${CI_REGISTRY}/bumblebee/api:build-${CI_COMMIT_REF_SLUG}
+    - docker build -t ${CI_REGISTRY_IMAGE} --build-arg NPM_INSTALL_BEFORE=true -f docker/Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}
 
 # Push the image to Docker Swarm as service and run a rolling deploy
 push to production:
