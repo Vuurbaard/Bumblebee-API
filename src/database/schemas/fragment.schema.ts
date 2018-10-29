@@ -12,18 +12,19 @@ export interface IFragment extends Document {
 }
 
 export var FragmentSchema: Schema = new Schema({
-    start: { type: Number, required: true },
+	start: { type: Number, required: true },
 	end: { type: Number, required: true },
-	source: { type: Schema.Types.ObjectId, ref: 'Source'},
-	word: { type: Schema.Types.ObjectId, ref: 'Word'},
+	source: { type: Schema.Types.ObjectId, ref: 'Source' },
+	word: { type: Schema.Types.ObjectId, ref: 'Word' },
 	active: { type: Boolean, default: false },
 	createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 	createdAt: { type: Date }
 });
 
-FragmentSchema.pre("save", (next) => {
-	if (!this.createdAt) {
-		this.createdAt = new Date();
+FragmentSchema.pre("save", function (next) {
+
+	if (!this.get('createdAt')) {
+		this.set('createdAt', new Date());
 	}
 	next();
 });

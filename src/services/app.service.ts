@@ -9,6 +9,10 @@ class AppService {
 		return App.find(query || {});
 	}
 
+	async getOne(query?: any) {
+		return App.findOne(query || {});
+	}
+
 	async getByID(id: string) {
 		let app = await App.findById(id);
 		return app ? app : {}
@@ -31,8 +35,14 @@ class AppService {
 		});
 	}
 
-	async updateByID(id: string, fields: any) {
-		return await App.findByIdAndUpdate(id, fields);
+	async updateByID(id: string, name: string) {
+		if (!name) { throw new Error('Name is required.'); }
+
+		// Throw error if the app already exists by name
+		let exists = await App.findOne({ name: name });
+		if (exists) { throw new Error('Name already taken.'); }
+
+		return await App.findByIdAndUpdate(id, { name: name }, { new: true });
 	}
 
 	async deleteByID(id: string) {

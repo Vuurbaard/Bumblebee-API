@@ -4,7 +4,7 @@ import { IFragment, IUser } from ".";
 export interface ISource extends Document {
 	id: string;
 	origin: string;
-	fragments: [IFragment]; 
+	fragments: [IFragment];
 	createdAt: Date;
 	createdBy: IUser;
 }
@@ -26,9 +26,9 @@ SourceSchema.virtual('fragments', {
 SourceSchema.set('toObject', { virtuals: true });
 SourceSchema.set('toJSON', { virtuals: true });
 
-SourceSchema.pre("save", (next) => {
-	if (!this.createdAt) {
-		this.createdAt = new Date();
+SourceSchema.pre("save", function (next) {
+	if (!this.get('createdAt')) {
+		this.set('createdAt', new Date());
 	}
 	next();
 });
