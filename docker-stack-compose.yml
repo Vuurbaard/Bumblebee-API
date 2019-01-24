@@ -11,7 +11,7 @@ services:
         ports:
             - 3000:3000
         volumes:
-            - "/share/nas/bumblebee/audio/:/var/www/html/dist/audio/"
+            - "/Volumes/docker/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: any
