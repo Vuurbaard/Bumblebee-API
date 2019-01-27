@@ -4,14 +4,14 @@ services:
     api:
         image: ${CI_REGISTRY_IMAGE}
         environment:
-            - MONGO_HOST=192.168.178.29
+            - MONGO_HOST=192.168.178.48
             - MONGO_PORT=27017
             - USE_NODEMON=false
             - NPM_INSTALL_AFTER=false
         ports:
             - 3000:3000
         volumes:
-            - "/share/nas/bumblebee/audio/:/var/www/html/dist/audio/"
+            - "/Users/ivodebruijn/Docker/storage/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: any
