@@ -1,6 +1,7 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { IUser } from ".";
 import guid from 'guid';
+import bcrypt from 'bcryptjs';
 
 export interface IApp extends Document {
 	name: string;
@@ -24,6 +25,7 @@ AppSchema.pre('save', function (next) {
 	}
 	if (!this.get('token')) {
 		this.set('token', guid.create());
+		//this.set('token', );
 	}
 
 	next();

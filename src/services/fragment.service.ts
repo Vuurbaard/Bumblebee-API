@@ -29,6 +29,10 @@ class FragmentService {
 	public async update(user: IUser, id: string, fields: any) {
 		return await Fragment.findByIdAndUpdate(id, fields);
 	}
+
+	public async delete(user: IUser, id: string) {
+		return await Fragment.findByIdAndDelete(id);
+	}
 }
 
 export default new FragmentService();
