@@ -13,7 +13,7 @@ export class FragmentController implements RESTController {
 		}
 		catch(err) {
 			console.error(err.message);
-			res.status(500).json({ "message": "Something went wrong getting all the words." });
+			res.status(500).json({ "message": "Something went wrong getting all the fragments." });
 		}
 	}
 
@@ -23,7 +23,7 @@ export class FragmentController implements RESTController {
 		}
 		catch(err) {
 			console.error(err.message);
-			res.status(500).json({ "message": "Something went wrong getting the word by id." });
+			res.status(500).json({ "message": "Something went wrong getting the fragment by id." });
 		}
 	}
 
@@ -34,7 +34,7 @@ export class FragmentController implements RESTController {
 		}
 		catch(err) {
 			console.error(err.message);
-			res.status(500).json({ "message": "Something went wrong creating the word." });
+			res.status(500).json({ "message": "Something went wrong creating the fragment." });
 		}
 	}
 
@@ -45,11 +45,19 @@ export class FragmentController implements RESTController {
 		}
 		catch(err) {
 			console.error(err.message);
-			res.status(500).json({ "message": "Something went wrong updating the word." });
+			res.status(500).json({ "message": "Something went wrong updating the fragment." });
 		}
 	}
 
 	async deleteByID(req: Request, res: Response) {
-		res.sendStatus(501);
+		try {
+			await fragmentService.delete(req.user, req.params.id);
+			res.status(200).json();
+		}
+		catch(err) {
+			console.error(err.message);
+			res.status(500).json({ "message": "Something went wrong removing the fragment." });
+		}
+		// res.sendStatus(501);
 	}
 }
