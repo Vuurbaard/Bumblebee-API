@@ -11,7 +11,7 @@ services:
         ports:
             - 3000:3000
         volumes:
-            - "/Users/ivodebruijn/Docker/storage/bumblebee/audio/:/var/www/html/dist/audio/"
+            - "/mnt/docker/bumblebee/audio/:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: any
