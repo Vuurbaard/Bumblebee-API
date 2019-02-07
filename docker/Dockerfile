@@ -21,6 +21,4 @@ RUN if [ $NPM_INSTALL_BEFORE = "true" ]; then \
     mkdir -p /var/www/html && cp -a /tmp/node_modules /var/www/html ; \
     fi
 
-COPY "docker/start.sh" /var/www/start.sh
-RUN chmod +x /var/www/start.sh
-CMD bash /var/www/start.sh 
+CMD node /var/www/html/dist/server.js 
