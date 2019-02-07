@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 npm install
 
 USE_NODEMON=${USE_NODEMON:=true}
