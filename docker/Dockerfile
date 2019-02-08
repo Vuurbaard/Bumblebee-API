@@ -14,11 +14,8 @@ COPY ./package.json /tmp/package.json
 
 WORKDIR /var/www/html
 COPY ./ /var/www/html
-RUN if [ $NPM_INSTALL_BEFORE = "true" ]; then \
-    ls /tmp && \
-    cd /tmp && \
-    npm install && \
-    mkdir -p /var/www/html && cp -a /tmp/node_modules /var/www/html ; \
-    fi
 
-CMD node /var/www/html/dist/server.js 
+RUN npm install
+RUN tsc
+
+CMD node /var/www/html/dist/server.js
