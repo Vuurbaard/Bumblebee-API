@@ -8,7 +8,7 @@ RUN apk add ffmpeg
 ENV LC_ALL C.UTF-8
 
 RUN mkdir -p /var/www/html
-RUN npm install -g nodemon typescript
+RUN npm install -g typescript
 
 COPY ./package.json /tmp/package.json
 
