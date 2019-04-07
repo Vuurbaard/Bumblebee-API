@@ -12,6 +12,10 @@ class YouTubeService implements ISourceProvider {
 	private extension = ".mp3";
 
 	public constructor() {
+		console.log("Init directories if they don't exist");
+		let filepath = path.resolve(__dirname, '../..' + this.basepath());
+
+		fs.mkdirSync(filepath, { recursive : true });
 	}
 
 	public basepath(): string {
