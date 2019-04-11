@@ -6,13 +6,14 @@ import ytdl from 'ytdl-core';
 import { ISource, Source } from '../../database/schemas';
 import AudioService from './audio.service';
 import { ISourceProvider } from './ISourceProvider';
+import LogService from '../log.service';
 
 class YouTubeService implements ISourceProvider {
 
 	private extension = ".mp3";
 
 	public constructor() {
-		console.log("Init directories if they don't exist");
+		LogService.info("Initialize directories for YouTube Service");
 		let filepath = path.resolve(__dirname, '../..' + this.basepath());
 
 		fs.mkdirSync(filepath, { recursive : true });
@@ -37,7 +38,7 @@ class YouTubeService implements ISourceProvider {
 		return new Promise((resolve, reject) => {
 
 			if (!fs.existsSync(filepath)) {
-				console.log('Download of youtube video', id, 'starting...');
+				LogService.info('Download of youtube video', id, 'starting...');
 				ffmpeg()
 					.input(ytdl(url))
 					.noVideo()
@@ -48,8 +49,7 @@ class YouTubeService implements ISourceProvider {
 						reject(err);
 					})
 					.on('end', function () {
-						console.log("Done downloading", id, "from YouTube");
-						//resolve(file);
+						LogService.info('Finished downloading ', id, ' from youtube');
 						vm.source(id).then((src: ISource | null) => {
 							if (src) {
 								resolve(src);
