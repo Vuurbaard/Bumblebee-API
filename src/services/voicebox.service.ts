@@ -5,6 +5,8 @@ import { Word, IWord, IFragment, Fragment } from '../database/schemas';
 import fs from 'fs';
 import path from 'path';
 
+import LogService from './log.service';
+
 require('colors');
 
 class VoiceBox {
@@ -24,7 +26,7 @@ class VoiceBox {
 		input = input.filter(word => word != ' ');
 		input = input.filter(word => word != '');
 
-		console.log('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
+		LogService.info('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
 
 		let combinations = new Array();
 
@@ -36,14 +38,14 @@ class VoiceBox {
 			}
 		}
 
-		console.log('[VoiceBox]', "combinations:", combinations.toString());
+		LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
 		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
-		console.log('[VoiceBox]', "found", words.length, 'words in database.');
+		LogService.info('[VoiceBox]', "found", words.length, 'words in database.');
 
 		// We have not found anything to do so let's just exit the function
 		if (words.length == 0) {
-			console.log('[VoiceBox]', 'words not found:', input);
+			LogService.info('[VoiceBox]', 'words not found:', input);
 			let notFound = input.map(word => { return { text: word, found: false } });
 			deferred.resolve({ fragments: notFound });
 			return deferred.promise;
@@ -58,9 +60,9 @@ class VoiceBox {
 
 		// FYI: Traces are fragments
 		let traces = await this.trace(orderedWords);
-		// console.log('[VoiceBox]', 'traces:'.toString());
+		// LogService.info('[VoiceBox]', 'traces:'.toString());
 		for (let trace of traces) {
-			//console.log(trace[0].word.text, '->', trace[trace.length - 1].word.text);
+			//LogService.info(trace[0].word.text, '->', trace[trace.length - 1].word.text);
 		}
 
 		// Shuffle the traces to gain some randomness
@@ -86,7 +88,7 @@ class VoiceBox {
 				wordsFromTrace.push(trace.word.text);
 			}
 
-			// console.log('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
+			// LogService.info('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
 
 			if (wordsFromTrace.length > 0) {
 				// Find the first word
@@ -126,7 +128,7 @@ class VoiceBox {
 					for (var i = 0; i < traces.length; i++) {
 						var fragment = traces[i];
 
-						// console.log('[VoiceBox]'.bgYellow.black, 'traces:'.red, traces);
+						// LogService.info('[VoiceBox]'.bgYellow.black, 'traces:'.red, traces);
 
 						if (!fragments[index]) {
 							fragments[index] = {
@@ -155,7 +157,7 @@ class VoiceBox {
 			}
 		}
 
-		// console.log('[VoiceBox]'.bgYellow.black, 'fragments:'.red, fragments)
+		// LogService.info('[VoiceBox]'.bgYellow.black, 'fragments:'.red, fragments)
 
 		fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
@@ -183,11 +185,11 @@ class VoiceBox {
 		for (let i = 0; i < words.length; i++) {
 			let word = words[i];
 
-			console.log('[VoiceBox]', 'starting new trace for word', word.text);
+			LogService.info('[VoiceBox]', 'starting new trace for word', word.text);
 
 			for (let fragment of word.fragments) {
 				let fragmentTraces = await this.traceFragments(i, words, fragment);
-				//console.log('fragmentTraces:', fragmentTraces);
+				//LogService.info('fragmentTraces:', fragmentTraces);
 				traces.push(fragmentTraces);
 			}
 		}
@@ -212,7 +214,7 @@ class VoiceBox {
 			traces.push(fragment);
 		}
 
-		// console.log('[VoiceBox]', 'tracing fragment', fragment.id);
+		// LogService.info('[VoiceBox]', 'tracing fragment', fragment.id);
 
 		if (nextWord) {
 			for (var nextFragment of nextWord.fragments) {
@@ -223,10 +225,10 @@ class VoiceBox {
 						source: fragment.source
 					});
 
-					//console.log('fragmentsInBetween:'.red, fragmentsInBetween);
+					//LogService.info('fragmentsInBetween:'.red, fragmentsInBetween);
 
 					if (fragmentsInBetween == 0) {
-						console.log('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
+						LogService.info('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
 						traces.push(nextFragment);
 						await this.traceFragments(index + 1, words, nextFragment, traces);
 					}
@@ -275,7 +277,7 @@ class VoiceBox {
 							}
 						})
 						.on('error', function (err) {
-							console.log('[VoiceBox]', 'ffmpeg error:', err);
+							LogService.info('[VoiceBox]', 'ffmpeg error:', err);
 							resolve();
 						}).run();
 				});
@@ -302,9 +304,9 @@ class VoiceBox {
 
 			// Concatenate the temp fragment files into one big one
 			let outputfilename = guid.create() + '.mp3';
-			// console.log(files);
-			// console.log(tempFiles);
-			// console.log(path.join(audioFolder, "/temp/", outputfilename));
+			// LogService.info(files);
+			// LogService.info(tempFiles);
+			// LogService.info(path.join(audioFolder, "/temp/", outputfilename));
 
 			return new Promise((resolve, reject) => {
 				ffmpeg()
@@ -317,7 +319,7 @@ class VoiceBox {
 						resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 					})
 					.on('end', function () {
-						console.log('[VoiceBox]', 'Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
+						LogService.info('[VoiceBox]', 'Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
 						resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
 					})
 			});

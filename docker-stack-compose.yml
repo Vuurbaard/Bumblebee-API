@@ -8,6 +8,7 @@ services:
             - MONGO_PORT=27017
             - USE_NODEMON=false
             - NPM_INSTALL_AFTER=false
+            - LOG_LEVEL=info
         ports:
             - 3000:3000
         volumes:

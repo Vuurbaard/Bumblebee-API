@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import voiceboxService from '../../../services/voicebox.service';
+import LogService from '../../../services/log.service';
 
 var request = require('request');
 import fs from 'fs';
@@ -23,9 +24,10 @@ export class VoiceBoxController {
 				};
 				request.post({ url: "https://slack.com/api/files.upload?token=xoxp-373381421525-374134851238-425422950628-403c1a73f2e98418f74e1264e5e361b4&title=" + req.body.text, formData: formData }, function optionalCallback(err: any, httpResponse: any, body: any) {
 					if (err) {
-						return console.error('upload failed:', err);
+						return LogService.fatal(err.message);
 					}
-					console.log('Upload successful! Server responded with:', body);
+					
+					LogService.info('Upload successful! Server responded with:', body);
 				});
 			}
 			else {
@@ -35,7 +37,7 @@ export class VoiceBoxController {
 			}
 		}
 		catch (err) {
-			console.error(err.message);
+			LogService.fatal(err.message);
 			res.status(500).json({ "message": "Something went wrong with converting text to speech." });
 		}
 	}

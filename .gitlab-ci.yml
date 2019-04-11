@@ -8,11 +8,20 @@ stages:
 services:
 - docker:dind
 
+build-test:
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t ${CI_REGISTRY_IMAGE} --build-arg NPM_INSTALL_BEFORE=true -f docker/Dockerfile ./
+  except:
+    - master
+
 build:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t ${CI_REGISTRY_IMAGE} --build-arg NPM_INSTALL_BEFORE=true -f docker/Dockerfile ./
     - docker push ${CI_REGISTRY_IMAGE}
+  only:
+    - master
 
 # Push the image to Docker Swarm as service and run a rolling deploy
 push to production:
