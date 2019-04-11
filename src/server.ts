@@ -7,6 +7,10 @@ import cors from 'cors';
 import JobService from './services/audio/jobs'
 import fs from 'fs';
 
+import log4js from 'log4js';
+var logger = log4js.getLogger();
+logger.level = 'debug';
+
 import * as v1 from './routes/v1/routes';
 import { Fragment } from './database/schemas/fragment.schema';
 
@@ -19,11 +23,11 @@ const port: any = process.env.PORT || 3000;
 mongoose.connect('mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2');
 
 mongoose.connection.on('connected', () => {
-	console.log('Connected to database');
+	logger.info( 'Connection to MongoDB established' );
 
 	// Start API
 	app.listen(port, () => {
-		console.log(`Listening at http://localhost:${port}/`);
+		logger.info( `Listening at http://localhost:${port}/` );
 	});
 
 
@@ -32,7 +36,7 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', err => {
-	console.log('Database error', err);
+	logger.fatal('Failed to connect to the database', err)
 
 	setTimeout(() => {
 		mongoose.connect('mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2');

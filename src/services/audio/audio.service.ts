@@ -14,7 +14,6 @@ class AudioService {
     // Returns the service based on the given url
 	private service(url: string): ISourceProvider | null {
 		let rc = null;
-
 		for (let i = 0; i < this.handlers.length; i++) {
 			let handler: ISourceProvider = this.handlers[i];
 			if (handler.canHandle(url)) {
@@ -44,7 +43,7 @@ class AudioService {
 		return "";
 	}
 
-	public download(url: string, userId: string): Promise<ISource> {
+	public download(url: string, userId: string): q.Promise<ISource> {
 		let deferred = q.defer<ISource>();
 
 		if (!url || !userId) { deferred.reject(); }
