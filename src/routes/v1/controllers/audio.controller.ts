@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import audioService from '../../../services/audio/audio.service';
 import fragmentService from '../../../services/fragment.service';
+import LogService from '../../../services/log.service';
 
 export class AudioController {
 
@@ -11,11 +12,11 @@ export class AudioController {
 		let url: string = req.body.url;
 		let userId = req.user!._id;
 
-		console.log('Wanting to download:', url);
+		LogService.info('Received request to download: ', url);
 
 		try {
 			let source = await audioService.download(url, userId);
-			console.log('Done downloading audio file:', source);
+			LogService.info('Finished downloading audio file: ', source);
 
 			let fragments = await fragmentService.all({ 'source': source._id });
 
@@ -26,7 +27,7 @@ export class AudioController {
 			});
 		}
 		catch (err) {
-			console.error(err);
+			LogService.fatal('Failed to download audio file.', err);
 			res.status(500).json({ "message": "Something went wrong downloading the audio." });
 		}
 	}
