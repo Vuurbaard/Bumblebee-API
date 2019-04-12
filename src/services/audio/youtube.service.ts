@@ -27,6 +27,16 @@ class YouTubeService implements ISourceProvider {
 		return '/v1' + this.basepath() + source.id.toString() + this.extension;
 	}
 
+	public info(url : string){
+		return new Promise((resolve, reject) => {
+			ytdl.getInfo(url, (err,info) => { 
+				if(err) { return reject(err) }
+				return resolve(info);
+			});	
+		})
+		
+	}
+
 	public download(url: string, userId?: string): Promise<ISource> {
 		let vm = this;
 		userId = userId ? userId : '';
@@ -55,13 +65,16 @@ class YouTubeService implements ISourceProvider {
 								resolve(src);
 							}
 							else { // Insert
-								let newSource = new Source({ id: id, origin: 'YouTube', createdBy: userId });
-								newSource.save((err, src) => {
-									if (err) { reject(err); }
-									else if (src) {
-										resolve(src);
-									}
-								});
+								LogService.info('Retrieving info about ', id, ' from youtube');
+								vm.info(url).then((info : any) => {
+									let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
+									newSource.save((err, src) => {
+										if (err) { reject(err); }
+										else if (src) {
+											resolve(src);
+										}
+									});
+								})
 							}
 						});
 					});
@@ -72,13 +85,16 @@ class YouTubeService implements ISourceProvider {
 						resolve(src);
 					}
 					else { 
-						let newSource = new Source({ id: id, origin: 'YouTube', createdBy: userId });
-						newSource.save((err, src) => {
-							if (err) { reject(err); }
-							else if (src) {
-								resolve(src);
-							}
-						});
+						LogService.info('Retrieving info about ', id, ' from youtube');
+						vm.info(url).then((info : any) => {
+							let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
+							newSource.save((err, src) => {
+								if (err) { reject(err); }
+								else if (src) {
+									resolve(src);
+								}
+							});
+						})
 					}
 				});
 			}
