@@ -27,6 +27,16 @@ class YouTubeService implements ISourceProvider {
 		return '/v1' + this.basepath() + source.id.toString() + this.extension;
 	}
 
+	public info(url : string){
+		return new Promise((resolve, reject) => {
+			ytdl.getInfo(url, (err,info) => { 
+				if(err) { return reject(err) }
+				return resolve(info);
+			});	
+		})
+		
+	}
+
 	public download(url: string, userId?: string): Promise<ISource> {
 		let vm = this;
 		userId = userId ? userId : '';

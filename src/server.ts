@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import bodyparser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
-import JobService from './services/audio/jobs'
+import JobService from './services/audio/job.service'
 import fs from 'fs';
 
 import log4js from 'log4js';
@@ -63,7 +63,8 @@ app.get('*', (req, res) => {
 
 
 // Run some code to check if all youtube videos are still downloaded
-// JobService.handleMissingYoutubeFiles()
+JobService.handleMissingYoutubeFiles()
+
 
 function exportFragments() {
 	Fragment.find({}).populate('word', '-_id -__v -links').populate('source', '-_id -__v -origin -fragments').select('-_id -__v -active -createdAt -createdBy').then(fragments => {
