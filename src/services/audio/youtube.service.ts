@@ -65,13 +65,16 @@ class YouTubeService implements ISourceProvider {
 								resolve(src);
 							}
 							else { // Insert
-								let newSource = new Source({ id: id, origin: 'YouTube', createdBy: userId });
-								newSource.save((err, src) => {
-									if (err) { reject(err); }
-									else if (src) {
-										resolve(src);
-									}
-								});
+								LogService.info('Retrieving info about ', id, ' from youtube');
+								vm.info(url).then((info : any) => {
+									let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
+									newSource.save((err, src) => {
+										if (err) { reject(err); }
+										else if (src) {
+											resolve(src);
+										}
+									});
+								})
 							}
 						});
 					});
@@ -82,13 +85,16 @@ class YouTubeService implements ISourceProvider {
 						resolve(src);
 					}
 					else { 
-						let newSource = new Source({ id: id, origin: 'YouTube', createdBy: userId });
-						newSource.save((err, src) => {
-							if (err) { reject(err); }
-							else if (src) {
-								resolve(src);
-							}
-						});
+						LogService.info('Retrieving info about ', id, ' from youtube');
+						vm.info(url).then((info : any) => {
+							let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
+							newSource.save((err, src) => {
+								if (err) { reject(err); }
+								else if (src) {
+									resolve(src);
+								}
+							});
+						})
 					}
 				});
 			}
