@@ -3,17 +3,21 @@ import { IFragment, IUser } from ".";
 
 export interface ISource extends Document {
 	id: string;
+	name: string;
 	origin: string;
 	fragments: [IFragment];
 	createdAt: Date;
 	createdBy: IUser;
+	deletedAt: Date;
 }
 
 export var SourceSchema: Schema = new Schema({
 	id: { type: String, required: true, unique: true },
+	name: { type: String, required: false, unique: false },
 	origin: { type: String, required: true },
 	createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-	createdAt: { type: Date }
+	createdAt: { type: Date },
+	deletedAt: { type: Date }
 });
 
 SourceSchema.virtual('fragments', {
@@ -32,6 +36,11 @@ SourceSchema.pre("save", function (next) {
 	}
 	next();
 });
+
+SourceSchema.pre('find', function( next ){
+	this.where('deletedAt').equals(null);
+	next();
+})
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());
