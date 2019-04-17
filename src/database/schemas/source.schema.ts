@@ -20,6 +20,7 @@ export var SourceSchema: Schema = new Schema({
 	deletedAt: { type: Date }
 });
 
+
 SourceSchema.virtual('fragments', {
 	ref: 'Fragment', // The model to use
 	localField: '_id', // Find people where `localField`
@@ -37,10 +38,10 @@ SourceSchema.pre("save", function (next) {
 	next();
 });
 
-SourceSchema.pre('find', function( next ){
-	this.where({ 'deletedAt' : null });
-	next();
-})
+// SourceSchema.pre('find', function( next ){
+// 	this.where( { 'deletedAt' : null } );
+// 	next();
+// })
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());

@@ -16,9 +16,6 @@ class JobService {
 		
 		// Crons are { cron, func }
 		//this.crons.push([ "* * * * *" , this.updateYoutubeSourceInformation ]);
-
-
-
 		// All crontasks defined
 		// Start runner
 	}
@@ -29,9 +26,9 @@ class JobService {
 
 	public async handleMissingYoutubeFiles() {
 		LogService.info("Handling missing YouTube files");
-
 		// Retrieve all sources
-		Source.find({ origin: 'YouTube' }).then((sources: ISource[]) => {
+		Source.all({ origin: 'YouTube', $or : [ { 'deletedAt' : null }, { 'deletedAt' : { $exists : true } }  ]}).then((sources: ISource[]) => {
+
 			this.sourceQueue = sources;
 			// 5 runners
 			this.parseItem();
@@ -73,6 +70,12 @@ class JobService {
 				// TODO: Remove Source from database + fragments? (It's not redownloadable, meaning it's harder to reproduce or recreate the youtube source thing.)
 				source.deletedAt = new Date();
 				source.save().then(() => {
+					// source.fragments.forEach((fragment) => {
+					// 	fragment.deletedAt = new Date();
+					// 	fragment.save(() => {
+					// 		LogService.info("Deleted fragment for " + fragment.id);
+					// 	});
+					// })
 					LogService.warn("YouTube video ", yturl , " flagged as removed");
 					vm.parseItem();
 				})

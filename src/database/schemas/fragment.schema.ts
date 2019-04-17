@@ -8,7 +8,8 @@ export interface IFragment extends Document {
 	source: ISource;
 	word: IWord;
 	createdAt: Date;
-	createdBy: IUser
+	createdBy: IUser;
+	deletedAt: Date;
 }
 
 export var FragmentSchema: Schema = new Schema({
@@ -18,7 +19,8 @@ export var FragmentSchema: Schema = new Schema({
 	word: { type: Schema.Types.ObjectId, ref: 'Word' },
 	active: { type: Boolean, default: false },
 	createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-	createdAt: { type: Date }
+	createdAt: { type: Date },
+	deletedAt: { type: Date }
 });
 
 FragmentSchema.pre("save", function (next) {
@@ -28,6 +30,11 @@ FragmentSchema.pre("save", function (next) {
 	}
 	next();
 });
+
+// FragmentSchema.pre('find', function( next ){
+// 	this.where({ 'deletedAt' : null });
+// 	next();
+// })
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());
