@@ -38,7 +38,7 @@ SourceSchema.pre("save", function (next) {
 });
 
 SourceSchema.pre('find', function( next ){
-	this.where('deletedAt').equals(null);
+	this.where({ 'deletedAt' : null });
 	next();
 })
 
