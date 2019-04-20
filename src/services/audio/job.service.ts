@@ -27,7 +27,7 @@ class JobService {
 	public async handleMissingYoutubeFiles() {
 		LogService.info("Handling missing YouTube files");
 		// Retrieve all sources
-		Source.all({ origin: 'YouTube', $or : [ { 'deletedAt' : null }, { 'deletedAt' : { $exists : true } }  ]}).then((sources: ISource[]) => {
+		Source.find({ origin: 'YouTube', $or : [ { 'deletedAt' : null }, { 'deletedAt' : { $exists : true } }  ]}).then((sources: ISource[]) => {
 
 			this.sourceQueue = sources;
 			// 5 runners
