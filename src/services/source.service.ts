@@ -5,7 +5,7 @@ class SourceService {
 	constructor() { }
 
 	async all(query?: any) {
-		return Source.find(query || {}).populate({ path: 'fragments', select: '_id', options : { sort : { 'start' : 1}} , populate: { path: 'word', select: 'text' } });
+		return Source.find(query || {}).populate({ path: 'fragments', select: '_id', options : { sort : { 'start' : 1 }} , populate: { path: 'word', select: 'text' } });
 	}
 
 	async getByID(id: string) {

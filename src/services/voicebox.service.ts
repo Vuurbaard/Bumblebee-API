@@ -218,7 +218,7 @@ class VoiceBox {
 
 		if (nextWord) {
 			for (var nextFragment of nextWord.fragments) {
-				if (nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
+				if (nextFragment.source != null && nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
 
 					var fragmentsInBetween = await Fragment.count({
 						start: { $gt: fragment.start, $lt: nextFragment.start },
