@@ -4,6 +4,7 @@ import guid from 'guid';
 import { Word, IWord, IFragment, Fragment } from '../database/schemas';
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
 
 import LogService from './log.service';
 
@@ -18,9 +19,14 @@ class VoiceBox {
 		if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') };
 	}
 
+
 	public async tts(text: string) {
 
+		let __trace = {} as any;
+
 		let deferred = q.defer();
+
+		__trace.preperation = process.hrtime();
 
 		let input = text.toLowerCase().split(' ');
 		input = input.filter(word => word != ' ');
@@ -30,18 +36,23 @@ class VoiceBox {
 
 		let combinations = new Array();
 
-		for (var start = 0; start < input.length; start++) {
-			var phrase = "";
-			for (var i = start; i < input.length; i++) {
+		for (let start = 0; start < input.length; start++) {
+			let phrase = "";
+			for (let i = start; i < input.length; i++) {
 				phrase = phrase + input[i] + " ";
 				combinations.push(phrase.substring(0, phrase.length - 1));
 			}
 		}
 
+		__trace.preperation = process.hrtime(__trace.preperation);
+
+		__trace.word_find_query = process.hrtime();
 		LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
 		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 		LogService.info('[VoiceBox]', "found", words.length, 'words in database.');
+
+		__trace.word_find_query = process.hrtime(__trace.word_find_query);
 
 		// We have not found anything to do so let's just exit the function
 		if (words.length == 0) {
@@ -51,6 +62,7 @@ class VoiceBox {
 			return deferred.promise;
 		}
 
+		__trace.order_words = process.hrtime();
 		// Database results are not ordered, let's order them
 		let orderedWords = new Array<IWord>();
 		for (let word of combinations) {
@@ -58,13 +70,16 @@ class VoiceBox {
 			if (w) { orderedWords.push(w); }
 		}
 
+		__trace.order_words = process.hrtime(__trace.order_words);
+
 		// FYI: Traces are fragments
 		let traces = await this.trace(orderedWords);
 		// LogService.info('[VoiceBox]', 'traces:'.toString());
-		for (let trace of traces) {
+		//for (let trace of traces) {
 			//LogService.info(trace[0].word.text, '->', trace[trace.length - 1].word.text);
-		}
+		//}
 
+		__trace.order_words = process.hrtime();
 		// Shuffle the traces to gain some randomness
 		this.shuffle(traces);
 
@@ -73,11 +88,14 @@ class VoiceBox {
 			return b.length - a.length;
 		});
 
+		__trace.order_words = process.hrtime(__trace.order_words);
+
 		let randomTraces = traces;
 
 		let inputToProcess = input;
 		let fragments = new Array<any>();
 
+		__trace.trace_words = process.hrtime();
 		for (let traces of randomTraces) {
 
 			if (inputToProcess.length == 0) { break; }
@@ -157,6 +175,8 @@ class VoiceBox {
 			}
 		}
 
+		__trace.trace_words = process.hrtime(__trace.trace_words);
+
 		// LogService.info('[VoiceBox]'.bgYellow.black, 'fragments:'.red, fragments)
 
 		fragments = fragments.filter(val => { return !(typeof (val) == "string") });
@@ -171,10 +191,18 @@ class VoiceBox {
 			return fragment;
 		});
 
+		__trace.file_magic = process.hrtime();
 		this.fileMagic(fragments).then((data: any) => {
 			data.fragments = fragmentsToReturn;
 			deferred.resolve(data);
 		});
+		__trace.file_magic = process.hrtime(__trace.file_magic);
+
+		for(let key in __trace){
+			let item = __trace[key];
+		
+			console.log('Execution time for%s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
+		}
 
 		return deferred.promise;
 	}
@@ -268,7 +296,11 @@ class VoiceBox {
 						.setStartTime(fragment.start)
 						.setDuration(fragment.end - fragment.start)
 						.audioBitrate(128)
-						//.audioFilter('loudnorm')
+						.audioFilter([{
+							filter: 'dynaudnorm',
+							options: 'f=100:p=0.71:m=20.0'
+						}
+						])
 						.output(outputpath)
 						.on('end', function (err) {
 							if (!err) {
@@ -294,6 +326,7 @@ class VoiceBox {
 					return 1;
 				return 0;
 			}
+
 			tempFiles.sort(compare);
 
 			// Audioconcat needs a non relative path. 
