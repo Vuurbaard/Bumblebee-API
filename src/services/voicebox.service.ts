@@ -47,7 +47,7 @@ class VoiceBox {
 		__trace.preperation = process.hrtime(__trace.preperation);
 
 		__trace.word_find_query = process.hrtime();
-		LogService.info('[VoiceBox]', "combinations:", combinations.toString());
+		// LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
 		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 		LogService.info('[VoiceBox]', "found", words.length, 'words in database.');
@@ -200,7 +200,7 @@ class VoiceBox {
 			for(let key in __trace){
 				let item = __trace[key];
 			
-				console.log('Execution time for%s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
+				LogService.info('Execution time for %s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
 			}			
 		});
 		
@@ -259,7 +259,7 @@ class VoiceBox {
 					//LogService.info('fragmentsInBetween:'.red, fragmentsInBetween);
 
 					if (fragmentsInBetween == 0) {
-						LogService.info('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
+						//LogService.info('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
 						traces.push(nextFragment);
 						await this.traceFragments(index + 1, words, nextFragment, traces);
 					}
@@ -295,18 +295,15 @@ class VoiceBox {
 					let filepath = path.join(audioFolder, '/youtube/', fragment.source.id.toString() + '.mp3');
 					let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment.id + '.mp3');
 
-					ffmpeg(filepath)
+					if(!fs.existsSync(outputpath)){
+						ffmpeg(filepath)
 						.setStartTime(fragment.start)
 						.setDuration(fragment.end - fragment.start)
 						.audioBitrate(128)
-						.audioFilter([{
-							filter: 'dynaudnorm',
-							options: 'f=100:p=0.71:m=20.0'
-						}
-						])
 						.output(outputpath)
 						.on('end', function (err) {
 							if (!err) {
+								LogService.info("Created cached version for " + fragment.id + '-' + fragment.endFragment.id);
 								tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment.id + '.mp3' });
 								resolve();
 							}
@@ -315,6 +312,12 @@ class VoiceBox {
 							LogService.info('[VoiceBox]', 'ffmpeg error:', err);
 							resolve();
 						}).run();
+					}else{
+						LogService.info("Using cached version for " + fragment.id + '-' + fragment.endFragment.id);
+						tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment.id + '.mp3' });
+						resolve();
+					}
+
 				});
 				promises.push(promise);
 			})(fragment);
@@ -347,6 +350,11 @@ class VoiceBox {
 			return new Promise((resolve, reject) => {
 				ffmpeg()
 					.input('concat:' + files.join('|'))
+					.audioFilter([{
+						filter: 'dynaudnorm',
+						options: 'f=100:p=0.71:m=20.0'
+					}
+					])		
 					.outputOptions('-c:v copy')
 					.save(path.join(audioFolder, "/temp/", outputfilename))
 					.on('error', function (err: any, stdout: any, stderr: any) {
