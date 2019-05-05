@@ -73,7 +73,9 @@ class VoiceBox {
 		__trace.order_words = process.hrtime(__trace.order_words);
 
 		// FYI: Traces are fragments
+		__trace.tracing = process.hrtime();
 		let traces = await this.trace(orderedWords);
+		__trace.tracing = process.hrtime(__trace.tracing);
 		// LogService.info('[VoiceBox]', 'traces:'.toString());
 		//for (let trace of traces) {
 			//LogService.info(trace[0].word.text, '->', trace[trace.length - 1].word.text);
