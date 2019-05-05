@@ -215,17 +215,25 @@ class VoiceBox {
 	private async trace(words: IWord[]) {
 		let traces = new Array();
 
+		let promises = [];
+
 		for (let i = 0; i < words.length; i++) {
 			let word = words[i];
 
 			LogService.info('[VoiceBox]', 'starting new trace for word', word.text);
 
+			
+			//console.log(word.fragments);
 			for (let fragment of word.fragments) {
-				let fragmentTraces = await this.traceFragments(i, words, fragment);
-				//LogService.info('fragmentTraces:', fragmentTraces);
-				traces.push(fragmentTraces);
+				promises.push(this.traceFragments(i, words, fragment));
 			}
 		}
+
+		await Promise.all(promises).then(values => {
+			for(let item of values){
+				traces.push(item);
+			}
+		})
 
 		// We want the ones with the most entries at the top of the array, so let's sort on length.
 		traces.sort(function (a, b) {
@@ -289,6 +297,8 @@ class VoiceBox {
 
 		let audioFolder = path.join(__dirname, '../audio/');
 
+
+		//console.log(fragments);
 		for (var fragment of fragments) {
 
 			(function (fragment) {
