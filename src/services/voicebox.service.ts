@@ -195,14 +195,17 @@ class VoiceBox {
 		this.fileMagic(fragments).then((data: any) => {
 			data.fragments = fragmentsToReturn;
 			deferred.resolve(data);
+		}).then(() => {
+			__trace.file_magic = process.hrtime(__trace.file_magic);
+			for(let key in __trace){
+				let item = __trace[key];
+			
+				console.log('Execution time for%s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
+			}			
 		});
-		__trace.file_magic = process.hrtime(__trace.file_magic);
-
-		for(let key in __trace){
-			let item = __trace[key];
 		
-			console.log('Execution time for%s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
-		}
+
+
 
 		return deferred.promise;
 	}
