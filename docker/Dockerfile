@@ -1,4 +1,4 @@
-FROM node:11 as builder
+FROM node:12 as builder
 WORKDIR /var/www/html
 RUN mkdir -p /var/www/html
 COPY ./ /var/www/html
@@ -8,7 +8,7 @@ RUN npm install
 RUN tsc
 
 
-FROM node:11-alpine
+FROM node:12-alpine
 WORKDIR /var/www/html
 # Install FFMPEG
 RUN apk add ffmpeg
