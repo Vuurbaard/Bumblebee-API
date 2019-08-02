@@ -6,7 +6,8 @@ export interface IUser extends Document {
 	username: string;
 	password: string;
 	avatar: string;
-	roles: string[]
+	roles: string[];
+	externalId: string;
 }
 
 export var UserSchema: Schema = new Schema({
@@ -17,6 +18,7 @@ export var UserSchema: Schema = new Schema({
 	avatar: { type: String },
 	createdAt: { type: Date },
 	roles: { type: [String], default: [] },
+	externalId: { type: String, default: ''}
 });
 
 UserSchema.pre("save", function (next) {

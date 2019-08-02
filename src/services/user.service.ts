@@ -25,7 +25,7 @@ class UserService {
 
 		let newUser = new User({
 			username: username,
-			password: await authenticationService.hashPassword(password),
+			password: await authenticationService.hashPassword(password) as string,
 			email: email,
 			name: name,
 			externalId: externalId,
