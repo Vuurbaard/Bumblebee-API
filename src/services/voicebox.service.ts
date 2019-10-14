@@ -383,6 +383,10 @@ class VoiceBox {
 								resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 							})
 							.on('end', function(){
+								// Remove pre-norm
+								if(fs.existsSync(path.join(audioFolder, "/temp/", preaudionorm))){
+									fs.unlinkSync(path.join(audioFolder, "/temp/", preaudionorm))
+								}
 								LogService.info('[VoiceBox]', 'Audio normalized created in:', path.join(audioFolder, "/temp/", outputfilename));
 								resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
 							});
