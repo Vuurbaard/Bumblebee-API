@@ -355,28 +355,37 @@ class VoiceBox {
 
 			// Concatenate the temp fragment files into one big one
 			let outputfilename = guid.create() + '.mp3';
-			// LogService.info(files);
-			// LogService.info(tempFiles);
-			// LogService.info(path.join(audioFolder, "/temp/", outputfilename));
+			let preaudionorm = guid.create() + '-prenorm.mp3';
 
 			return new Promise((resolve, reject) => {
 				ffmpeg()
 					.input('concat:' + files.join('|'))
-					.audioFilter([{
-						filter: 'dynaudnorm',
-						options: 'f=100:p=0.71:m=20.0'
-					}
-					])		
 					.outputOptions('-c:v copy')
-					.save(path.join(audioFolder, "/temp/", outputfilename))
+					.save(path.join(audioFolder, "/temp/", preaudionorm))
 					.on('error', function (err: any, stdout: any, stderr: any) {
 						console.error('[VoiceBox]', 'Error:', err)
 						console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
 						resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 					})
 					.on('end', function () {
-						LogService.info('[VoiceBox]', 'Audio created in:', path.join(audioFolder, "/temp/", outputfilename));
-						resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
+						LogService.info('[VoiceBox]', 'Audio non-normalized created in:', path.join(audioFolder, "/temp/", preaudionorm));
+						ffmpeg()
+							.input(path.join(audioFolder, "/temp/", preaudionorm))
+							.audioFilter([{
+								filter: 'dynaudnorm',
+								options: 'f=100:p=0.71:m=20.0'
+							}
+							])
+							.save(path.join(audioFolder, "/temp/", outputfilename))
+							.on('error', function (err: any, stdout: any, stderr: any) {
+								console.error('[VoiceBox]', 'Error:', err)
+								console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
+								resolve({ error: 'FFMpeg failed to process file(s): ' + err });
+							})
+							.on('end', function(){
+								LogService.info('[VoiceBox]', 'Audio normalized created in:', path.join(audioFolder, "/temp/", outputfilename));
+								resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
+							});
 					})
 			});
 		});
