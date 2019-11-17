@@ -221,7 +221,7 @@ class VoiceBox {
 		}
 
 		let data = {
-			'file' : '/v1/audio/generate/' + fragmentSet.hash,
+			'file' : '/v1/audio/generate/' + fragmentSet.hash + '.mp3',
 			'fragments' : fragmentsToReturn
 		};
 
