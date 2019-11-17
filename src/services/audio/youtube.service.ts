@@ -19,8 +19,8 @@ class YouTubeService implements ISourceProvider {
 		fs.mkdirSync(filepath, { recursive : true });
 	}
 
-	public basepath(): string {
-		return "/audio/youtube/";
+	public basepath(resolve : boolean = false): string {
+		return resolve ? path.resolve(__dirname, '../..' + this.basepath()) : "/audio/youtube/";
 	};
 
 	public sourceUrl(source: ISource) {
@@ -52,7 +52,7 @@ class YouTubeService implements ISourceProvider {
 				ffmpeg()
 					.input(ytdl(url))
 					.noVideo()
-					.audioBitrate(256)
+					// .audioBitrate(256)
 					.audioFrequency(44100)
 					.save(filepath)
 					.on('error', err => {

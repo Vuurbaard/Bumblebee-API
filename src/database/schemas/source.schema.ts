@@ -1,6 +1,7 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { IFragment, IUser } from ".";
 
+
 export interface ISource extends Document {
 	id: string;
 	name: string;
@@ -32,6 +33,7 @@ SourceSchema.set('toObject', { virtuals: true });
 SourceSchema.set('toJSON', { virtuals: true });
 
 SourceSchema.pre("save", function (next) {
+
 	if (!this.get('createdAt')) {
 		this.set('createdAt', new Date());
 	}
