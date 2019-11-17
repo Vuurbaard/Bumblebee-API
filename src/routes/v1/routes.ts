@@ -69,6 +69,7 @@ router.delete(version + '/app/:id', passport.authenticate('jwt', { session: true
 router.post(version + '/audio/download', passport.authenticate('jwt', { session: true }), audioController.download)
 router.use(version + '/audio/youtube', express.static(path.join(__dirname, '../../audio/youtube')));
 router.use(version + '/audio/temp', express.static(path.join(__dirname, '../../audio/temp')));
+router.use(version + '/audio/generate/:id', voiceboxController.generate);
 
 // Text to speech
 router.post(version + '/tts', voiceboxController.tts)

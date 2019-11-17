@@ -2,6 +2,8 @@ import { Source, ISource } from '../../database/schemas';
 import AudioService from './audio.service';
 import YouTubeService from './youtube.service';
 import LogService from '../log.service';
+import fs from 'fs';
+
 class JobService {
 
 	extension: string = ".mp3";
@@ -26,16 +28,16 @@ class JobService {
 
 	public async handleMissingYoutubeFiles() {
 		LogService.info("Handling missing YouTube files");
+		
 		// Retrieve all sources
 		Source.find({ origin: 'YouTube', $or : [ { 'deletedAt' : null }, { 'deletedAt' : { $exists : true } }  ]}).then((sources: ISource[]) => {
 
 			this.sourceQueue = sources;
+			const threads = 6;
 			// 5 runners
-			this.parseItem();
-			this.parseItem();
-			this.parseItem();
-			this.parseItem();
-			this.parseItem();
+			for(let i = 0; i < threads; i++){
+				this.parseItem();
+			}
 		});
 
 	}
@@ -47,6 +49,7 @@ class JobService {
 			if (this.sourceQueue.length % 10 == 0) {
 				LogService.info("Parsing item " + this.sourceQueue.length + " left");
 			}
+			// Can cause async issues due it not being locked
 			let source = this.sourceQueue.pop() as ISource;
 
 			// Check if we can download the video. Otherwise remove it.
@@ -54,64 +57,53 @@ class JobService {
 			let yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
 			let creator = source.createdBy ? source.createdBy.toString() : '';
 
-			YouTubeService.download(yturl, creator).then(() => {
-				// Get more information about the video
-				YouTubeService.info(yturl).then((info : any) => {
-					source.name = info.title || '';
-					source.save().then(() => {
-						LogService.info("YouTube video ", yturl , " updated");
-						vm.parseItem();
+			// First check if we need to update the video information (e.g. missing name)
+			let promises = [
+				new Promise((res,rej) => {
+					let ytPath = YouTubeService.basepath(true) + '/' + source.id.toString() + '.mp3';
+					fs.exists(ytPath, (exists) => {
+						// Should we do something with it
+						// If it exists, we don't have to. But if it doesn't we should!
+						res(!exists);
 					})
+				}),
+				new Promise((res,rej) => {
+					let shouldProcess = false;
+					res(source.name == '');
 				})
+			];
 
+			Promise.all(promises).then((result) => {
+				// If any item is false we have to do something
+				let doTask = !result.every((val) => {return val == false}) 
 				
-			}, err => {
-				LogService.warn("Failed to download: ", err.message);
-				// TODO: Remove Source from database + fragments? (It's not redownloadable, meaning it's harder to reproduce or recreate the youtube source thing.)
-				source.deletedAt = new Date();
-				source.save().then(() => {
-					// source.fragments.forEach((fragment) => {
-					// 	fragment.deletedAt = new Date();
-					// 	fragment.save(() => {
-					// 		LogService.info("Deleted fragment for " + fragment.id);
-					// 	});
-					// })
-					LogService.warn("YouTube video ", yturl , " flagged as removed");
-					vm.parseItem();
-				})
-			});
+				if(doTask){
+					LogService.debug(`Process task for ${source.id}`);
+					YouTubeService.download(yturl, creator).then(() => {
+						if(source.name == ''){
+							// Get more information about the video
+							YouTubeService.info(yturl).then((info : any) => {
+								source.name = info.title || '';
+								source.save().then(() => {
+									LogService.debug("YouTube video", yturl , "updated");
+									vm.parseItem();
+								})
+							})
+						}else{
+							LogService.debug("YouTube video", yturl , "already has info");
+							vm.parseItem();
+						}
 
-			// // Check with youtube api if video still is available
-			// this.yt_api.searchVideo( source.id.toString() ).then(( video: any ) => {
-			// 	if(video.items.length > 0){
-			// 		let videoData = video.items[0];
-			// 		let name = videoData.snippet.title;
-			// 		// Update name of source
-			// 		source.name = name;
-			// 		source.save().then(() => {
-			// 			let yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
-			// 			let creator = source.createdBy ? source.createdBy.toString() : '';
-			
-			// 			YouTubeService.download(yturl, creator).then(() => {
-			// 				setTimeout(() => {vm.parseItem()}, 1000);
-			// 			}, err => {
-			// 				LogService.warn("Failed to download: ", err.message);
-			// 				// TODO: Remove Source from database + fragments? (It's not redownloadable, meaning it's harder to reproduce or recreate the youtube source thing.)
-			
-			// 				setTimeout(() => {vm.parseItem()}, 1000);
-			// 			});
-			// 		})
-			// 	}else{
-			// 		source.deletedAt = new Date();
-			// 		source.save().then(() => {
-			// 			setTimeout(() => {vm.parseItem()}, 1000);
-			// 		});
-			// 		// Video down :(
-			// 	}
-			// }, ( err : any ) => {
-			// 	console.log("Failed to retrieve video stuff");
-			// 	setTimeout(() => {vm.parseItem()}, 5000);
-			// }) ;
+					}, err => {
+						LogService.debug("Failed to download: ", err.message);
+						vm.parseItem();
+					});
+				}else{
+					LogService.debug(`Skipping task for ${source.id}`);
+					vm.parseItem();
+				}
+
+			})
 		}
 		else {
 			if (!this.finishedQueue) {

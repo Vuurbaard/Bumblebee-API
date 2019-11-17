@@ -6,19 +6,31 @@ import passport from 'passport';
 import cors from 'cors';
 import JobService from './services/audio/job.service'
 import fs from 'fs';
+import path from 'path';
 
-import log4js from 'log4js';
-var logger = log4js.getLogger();
+import log4js, { Logger } from 'log4js';
+
+const logger = log4js.getLogger();
+
 logger.level = 'debug';
+
 
 import * as v1 from './routes/v1/routes';
 import { Fragment } from './database/schemas/fragment.schema';
 
-dotenv.config();
+let dotEnvPath = fs.existsSync(path.resolve(process.cwd(), '..','.env')) ? path.resolve(process.cwd(), '..','.env') : path.resolve(process.cwd(), '.env');
+
+logger.debug(`Using ${dotEnvPath} as path for environment variables`);
+
+dotenv.config({
+	'path' : dotEnvPath
+});
 
 const app = express();
 const port: any = process.env.PORT || 3000;
 
+// Fix deprecation
+mongoose.set('useNewUrlParser', true);
 // Database
 mongoose.connect('mongodb://' + process.env.MONGO_HOST + ':' + process.env.MONGO_PORT + '/bumblebeev2');
 
@@ -29,8 +41,6 @@ mongoose.connection.on('connected', () => {
 	app.listen(port, () => {
 		logger.info( `Listening at http://localhost:${port}/` );
 	});
-
-
 
 	//exportFragments();
 });

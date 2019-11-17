@@ -7,6 +7,10 @@ import path from 'path';
 import process from 'process';
 
 import LogService from './log.service';
+import { FragmentSet } from '../database/schemas/fragmentSet.schema';
+import { FragmentSchema } from '../database/schemas/fragment.schema';
+
+import * as crypto from "crypto";
 
 require('colors');
 
@@ -31,6 +35,8 @@ class VoiceBox {
 		let input = text.toLowerCase().split(' ');
 		input = input.filter(word => word != ' ');
 		input = input.filter(word => word != '');
+
+		let textInput = input.toString();
 
 		LogService.info('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
 
@@ -193,18 +199,48 @@ class VoiceBox {
 			return fragment;
 		});
 
-		__trace.file_magic = process.hrtime();
-		this.fileMagic(fragments).then((data: any) => {
-			data.fragments = fragmentsToReturn;
-			deferred.resolve(data);
-		}).then(() => {
-			__trace.file_magic = process.hrtime(__trace.file_magic);
-			for(let key in __trace){
-				let item = __trace[key];
+		// Generate structure
+		
+
+		// Generate Fragment set based on current stuff ( and generate a hash )
+		
+		let fragmentHash = this.generateHash(fragments);
+		
+		// Find a fragmentSet for this combination
+		let fragmentSet = await FragmentSet.findOne({'hash' : fragmentHash});
+
+
+		if(fragmentSet == null){
+			fragmentSet =  new FragmentSet({
+				'hash' : fragmentHash,
+				'text' : textInput,
+				'fragments' : JSON.parse(JSON.stringify(fragments))
+			});
+		
+			fragmentSet = await fragmentSet.save();
+		}
+
+		let data = {
+			'file' : '/v1/audio/generate/' + fragmentSet.hash,
+			'fragments' : fragments
+		};
+
+		deferred.resolve(data);
+
+
+		// __trace.file_magic = process.hrtime();
+		// this.fileMagic(fragments).then((data: any) => {
+		// 	console.log(data);
+		// 	data.fragments = fragmentsToReturn;
+		// 	deferred.resolve(data);
+		// }).then(() => {
+		// 	__trace.file_magic = process.hrtime(__trace.file_magic);
+		// 	for(let key in __trace){
+		// 		let item = __trace[key];
 			
-				LogService.info('Execution time for %s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
-			}			
-		});
+		// 		LogService.info('Execution time for %s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
+		// 	}			
+		// });
 		
 
 
@@ -241,6 +277,26 @@ class VoiceBox {
 		});
 
 		return traces;
+	}
+
+	private generateHash(fragments : Array<Object>){
+
+		function compare(a: any, b: any) {
+			if (a.order < b.order)
+				return -1;
+			if (a.order > b.order)
+				return 1;
+			return 0;
+		}
+
+		fragments.sort(compare);
+
+		// We only need id's for the hash (we will concat them together)
+		let content = fragments.map(function(item : any) {
+			return item['id'];
+		}).join(':');
+
+		return crypto.createHash('sha1').update(content).digest('hex');
 	}
 
 	private async traceFragments(index: number, words: IWord[], fragment: IFragment, traces?: IFragment[]) {
@@ -290,7 +346,7 @@ class VoiceBox {
 		}
 	}
 
-	private async fileMagic(fragments: Array<any>) {
+	public async fileMagic(fragments: Array<any>) {
 		// Generate temp files from fragments
 		let tempFiles = new Array();
 		let promises = new Array();
@@ -298,43 +354,42 @@ class VoiceBox {
 		let audioFolder = path.join(__dirname, '../audio/');
 
 
-		//console.log(fragments);
-		for (var fragment of fragments) {
-
+		for (let fragment of fragments) {
 			(function (fragment) {
 				var promise = new Promise(function (resolve, reject) {
 
 					let filepath = path.join(audioFolder, '/youtube/', fragment.source.id.toString() + '.mp3');
-					let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment.id + '.mp3');
-
-					if(!fs.existsSync(outputpath)){
-						ffmpeg(filepath)
-						.setStartTime(fragment.start)
-						.setDuration(fragment.end - fragment.start)
-						.audioBitrate(128)
-						.output(outputpath)
-						.on('end', function (err) {
-							if (!err) {
-								LogService.info("Created cached version for " + fragment.id + '-' + fragment.endFragment.id);
-								tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment.id + '.mp3' });
+					let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment._id + '.mp3');
+					fs.exists(outputpath, (exists) => {
+						if(!exists){
+							ffmpeg(filepath)
+							.setStartTime(fragment.start)
+							.setDuration(fragment.end - fragment.start)
+							.audioBitrate(128)
+							.output(outputpath)
+							.on('end', function (err) {
+								if (!err) {
+									LogService.info('[VoiceBox]',"Created cached version for " + fragment.id + '-' + fragment.endFragment._id);
+									tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
+									resolve();
+								}
+							})
+							.on('error', function (err) {
+								LogService.info('[VoiceBox]', 'ffmpeg error:', err);
 								resolve();
-							}
-						})
-						.on('error', function (err) {
-							LogService.info('[VoiceBox]', 'ffmpeg error:', err);
+							}).run();
+						}else{
+							LogService.info('[VoiceBox]',"Using cached version for " + fragment.id + '-' + fragment.endFragment._id);
+							tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
 							resolve();
-						}).run();
-					}else{
-						LogService.info("Using cached version for " + fragment.id + '-' + fragment.endFragment.id);
-						tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment.id + '.mp3' });
-						resolve();
-					}
-
+						}
+					});
 				});
 				promises.push(promise);
 			})(fragment);
 		}
 
+		let obj = this; 
 		return Promise.all(promises).then(function () {
 
 			function compare(a: any, b: any) {
@@ -346,6 +401,7 @@ class VoiceBox {
 			}
 
 			tempFiles.sort(compare);
+			console.log(tempFiles);
 
 			// Audioconcat needs a non relative path. 
 			let files = new Array();
@@ -353,30 +409,39 @@ class VoiceBox {
 				files.push(path.join(audioFolder, "/fragments/", fragment.file));
 			});
 
+			let fileName = obj.generateHash(fragments);
+
 			// Concatenate the temp fragment files into one big one
-			let outputfilename = guid.create() + '.mp3';
-			let preaudionorm = guid.create() + '-prenorm.mp3';
+			let outputfilename = fileName + '.mp3';
+			let preaudionorm = fileName + '-prenorm.mp3';
+
+			let prenormPath = path.join(audioFolder, "/temp/", preaudionorm);
+			let outputPath = path.join(audioFolder, "/temp/", outputfilename);
+
 
 			return new Promise((resolve, reject) => {
-				ffmpeg()
+
+				// Check if we have have a cached file. Otherwise rerun all steps
+				if(!fs.existsSync(outputPath)){
+					ffmpeg()
 					.input('concat:' + files.join('|'))
 					.outputOptions('-c:v copy')
-					.save(path.join(audioFolder, "/temp/", preaudionorm))
+					.save(prenormPath)
 					.on('error', function (err: any, stdout: any, stderr: any) {
 						console.error('[VoiceBox]', 'Error:', err)
 						console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
 						resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 					})
 					.on('end', function () {
-						LogService.info('[VoiceBox]', 'Audio non-normalized created in:', path.join(audioFolder, "/temp/", preaudionorm));
+						LogService.info('[VoiceBox]', 'Audio non-normalized created in:', prenormPath);
 						ffmpeg()
-							.input(path.join(audioFolder, "/temp/", preaudionorm))
+							.input(prenormPath)
 							.audioFilter([{
 								filter: 'dynaudnorm',
 								options: 'f=100:p=0.71:m=20.0'
 							}
 							])
-							.save(path.join(audioFolder, "/temp/", outputfilename))
+							.save(outputPath)
 							.on('error', function (err: any, stdout: any, stderr: any) {
 								console.error('[VoiceBox]', 'Error:', err)
 								console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
@@ -384,13 +449,17 @@ class VoiceBox {
 							})
 							.on('end', function(){
 								// Remove pre-norm
-								if(fs.existsSync(path.join(audioFolder, "/temp/", preaudionorm))){
-									fs.unlinkSync(path.join(audioFolder, "/temp/", preaudionorm))
+								if(fs.existsSync(prenormPath)){
+									fs.unlinkSync(prenormPath)
 								}
-								LogService.info('[VoiceBox]', 'Audio normalized created in:', path.join(audioFolder, "/temp/", outputfilename));
-								resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: path.join(audioFolder, "/temp/", outputfilename) });
+								LogService.info('[VoiceBox]', 'Audio normalized created in:', outputPath);
+								resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: outputPath });
 							});
 					})
+				}else{
+					LogService.info('[VoiceBox]', 'Using cached fragmentset');
+					resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: outputPath })
+				}
 			});
 		});
 	}
