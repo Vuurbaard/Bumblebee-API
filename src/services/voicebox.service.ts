@@ -222,7 +222,7 @@ class VoiceBox {
 
 		let data = {
 			'file' : '/v1/audio/generate/' + fragmentSet.hash,
-			'fragments' : fragments
+			'fragments' : fragmentsToReturn
 		};
 
 		deferred.resolve(data);
@@ -401,7 +401,6 @@ class VoiceBox {
 			}
 
 			tempFiles.sort(compare);
-			console.log(tempFiles);
 
 			// Audioconcat needs a non relative path. 
 			let files = new Array();
