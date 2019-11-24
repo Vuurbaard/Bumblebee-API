@@ -31,7 +31,6 @@ class VoiceBox {
 		let deferred = q.defer();
 
 		__trace.preperation = process.hrtime();
-
 		let input = text.toLowerCase().split(' ');
 		input = input.filter(word => word != ' ');
 		input = input.filter(word => word != '');
@@ -186,8 +185,8 @@ class VoiceBox {
 		__trace.trace_words = process.hrtime(__trace.trace_words);
 
 		// LogService.info('[VoiceBox]'.bgYellow.black, 'fragments:'.red, fragments)
-
-		fragments = fragments.filter(val => { return !(typeof (val) == "string") });
+		
+		// fragments = fragments.filter(val => { return !(typeof (val) == "string") });
 
 		// Replace left over words that could not be parsed into a more consistent object format
 		let fragmentsToReturn = inputToProcess as Array<any>;
@@ -201,11 +200,10 @@ class VoiceBox {
 
 		// Generate structure
 		
-
 		// Generate Fragment set based on current stuff ( and generate a hash )
-		
 		let fragmentHash = this.generateHash(fragments);
-		
+
+
 		// Find a fragmentSet for this combination
 		let fragmentSet = await FragmentSet.findOne({'hash' : fragmentHash});
 
@@ -280,7 +278,6 @@ class VoiceBox {
 	}
 
 	private generateHash(fragments : Array<Object>){
-
 		function compare(a: any, b: any) {
 			if (a.order < b.order)
 				return -1;
@@ -293,7 +290,7 @@ class VoiceBox {
 
 		// We only need id's for the hash (we will concat them together)
 		let content = fragments.map(function(item : any) {
-			return item['id'];
+			return item['id'] + item['start'] + item['end'];
 		}).join(':');
 
 		return crypto.createHash('sha1').update(content).digest('hex');
@@ -391,7 +388,6 @@ class VoiceBox {
 
 		let obj = this; 
 		return Promise.all(promises).then(function () {
-
 			function compare(a: any, b: any) {
 				if (a.order < b.order)
 					return -1;

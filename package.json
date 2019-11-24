@@ -33,13 +33,13 @@
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
     "guid": "0.0.12",
-    "log4js": "^6.0.0",
-    "mongoose": "^5.7.11",
+    "log4js": "^6.1.0",
+    "mongoose": "^5.7.12",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",
     "q": "^1.5.1",
     "request": "^2.88.0",
-    "ytdl-core": "^1.0.0"
+    "ytdl-core": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "^3.7.2"
