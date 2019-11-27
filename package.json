@@ -20,7 +20,7 @@
     "@types/fluent-ffmpeg": "^2.1.11",
     "@types/guid": "^1.0.0",
     "@types/mongoose": "^5.5.32",
-    "@types/node": "^11.15.2",
+    "@types/node": "^11.15.3",
     "@types/passport": "^0.4.7",
     "@types/passport-jwt": "^3.0.3",
     "@types/q": "^1.5.2",
@@ -39,7 +39,7 @@
     "passport-jwt": "^3.0.1",
     "q": "^1.5.1",
     "request": "^2.88.0",
-    "ytdl-core": "^1.0.1"
+    "ytdl-core": "^1.0.2"
   },
   "devDependencies": {
     "typescript": "^3.7.2"

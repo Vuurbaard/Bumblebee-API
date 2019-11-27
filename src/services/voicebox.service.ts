@@ -209,6 +209,9 @@ class VoiceBox {
 
 
 		if(fragmentSet == null){
+			fragments = fragments.filter((el) => {
+				return el != null;
+			});
 			fragmentSet =  new FragmentSet({
 				'hash' : fragmentHash,
 				'text' : textInput,
@@ -350,11 +353,9 @@ class VoiceBox {
 
 		let audioFolder = path.join(__dirname, '../audio/');
 
-
 		for (let fragment of fragments) {
 			(function (fragment) {
 				var promise = new Promise(function (resolve, reject) {
-
 					let filepath = path.join(audioFolder, '/youtube/', fragment.source.id.toString() + '.mp3');
 					let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment._id + '.mp3');
 					fs.exists(outputpath, (exists) => {
