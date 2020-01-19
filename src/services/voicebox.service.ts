@@ -433,9 +433,9 @@ class VoiceBox {
 						ffmpeg()
 							.input(prenormPath)
 							.audioFilter([{
-								filter: 'dynaudnorm',
-								options: 'f=100:p=0.71:m=20.0'
-							}
+									filter: 'dynaudnorm',
+									options: 'f=25:g=15'
+								}
 							])
 							.save(outputPath)
 							.on('error', function (err: any, stdout: any, stderr: any) {
