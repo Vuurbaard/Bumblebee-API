@@ -28,13 +28,7 @@ class YouTubeService implements ISourceProvider {
 	}
 
 	public info(url : string){
-		return new Promise((resolve, reject) => {
-			ytdl.getInfo(url, (err,info) => { 
-				if(err) { return reject(err) }
-				return resolve(info);
-			});	
-		})
-		
+		return ytdl.getInfo(url);	
 	}
 
 	public download(url: string, userId?: string): Promise<ISource> {
@@ -50,7 +44,7 @@ class YouTubeService implements ISourceProvider {
 			if (!fs.existsSync(filepath)) {
 				LogService.info('Download of youtube video', id, 'starting...');
 				ffmpeg()
-					.input(ytdl(url))
+					.input(ytdl(url, {'quality' : 'highestaudio'}))
 					.noVideo()
 					// .audioBitrate(256)
 					.audioFrequency(44100)
