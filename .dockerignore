@@ -1,2 +1,7 @@
 .vscode
 .git
+node_modules
+dist/audio/audio
+dist/audio/fragments
+dist/audio/temp
+dist/audio/youtube

@@ -6,7 +6,9 @@
   "scripts": {
     "watch": "tsc --watch",
     "debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 ./dist/server.js",
-    "docker-debug": "docker-compose up",
+    "compile": "tsc",
+    "start-smart": "if test \"$NODE_ENV\" = \"production\" ; then npm run start ; else npm run start-dev;  fi ",
+    "start-dev": "nodemon  --delay 150ms --exec \"npm run compile && node --inspect=0.0.0.0:5858 ./dist/server.js\"",
     "start": "node ./dist/server.js"
   },
   "keywords": [],
@@ -16,7 +18,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.6",
     "@types/dotenv": "^6.1.1",
-    "@types/express": "^4.17.2",
+    "@types/express": "^4.17.3",
     "@types/fluent-ffmpeg": "^2.1.14",
     "@types/guid": "^1.0.0",
     "@types/mongoose": "^5.7.3",
@@ -34,7 +36,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "guid": "0.0.12",
     "log4js": "^6.1.2",
-    "mongoose": "^5.9.2",
+    "mongoose": "^5.9.3",
     "passport": "^0.4.1",
     "passport-jwt": "^3.0.1",
     "q": "^1.5.1",
