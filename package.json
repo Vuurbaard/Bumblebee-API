@@ -8,7 +8,7 @@
     "debug": "nodemon --watch ./dist --inspect=0.0.0.0:5858 ./dist/server.js",
     "compile": "tsc",
     "start-smart": "if test \"$NODE_ENV\" = \"production\" ; then npm run start ; else npm run start-dev;  fi ",
-    "start-dev": "nodemon  --delay 150ms --exec \"npm run compile && node --inspect=0.0.0.0:5858 ./dist/server.js\"",
+    "start-dev": "nodemon  --delay 150ms -L --exec \"npm run compile && node --inspect=0.0.0.0:5858 ./dist/server.js\"",
     "start": "node ./dist/server.js"
   },
   "keywords": [],
