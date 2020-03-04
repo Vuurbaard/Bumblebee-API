@@ -9,10 +9,11 @@
 	  "js": "node --harmony"
 	},
 	"watch": [
-	  "src/"
+	  "src/",
+	  "tsconfig.json"
 	],
 	"env": {
 	  "NODE_ENV": "development"
 	},
-	"ext": "ts,js"
+	"ext": "ts,js,json"
 }
