@@ -1,0 +1,42 @@
+stages:
+ - build
+ - test
+ - deploy
+
+build-test:
+  image: docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - rm .dockerignore && mv .dockerignore.prod .dockerignore
+    - docker build -t ${CI_REGISTRY_IMAGE} --build-arg BUILD_PROD=true -f docker/Dockerfile ./
+  except:
+    - master
+
+build:
+  image: docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t ${CI_REGISTRY_IMAGE} --build-arg BUILD_PROD=true -f docker/Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}
+  only:
+    - master
+
+# Push the image to Docker Swarm as service and run a rolling deploy
+push to production:
+  image: docker:stable
+  stage: deploy
+  variables:
+    DOCKER_HOST: ssh://deploy@192.168.178.48:2222
+  image: docker:latest
+  script:
+    - apk add openssh --no-cache
+    - mkdir -p ~/.ssh/ &&  echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - eval $(ssh-agent -s)
+    - chmod 600 $SSH_KEY && ssh-add $SSH_KEY
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $CI_REGISTRY
+    - docker stack deploy --prune --resolve-image=always --with-registry-auth --compose-file=docker-stack-compose.yml ${CI_PROJECT_NAMESPACE}-${CI_PROJECT_NAME}
+  environment:
+    name: api-bumblebee-fm
+    url: https://api.bmbl.mijnproject.nu
+  only:
+    - master
