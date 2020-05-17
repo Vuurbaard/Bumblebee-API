@@ -5,6 +5,7 @@ import bodyparser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
 import JobService from './services/audio/job.service'
+import ImportService from './services/import.service';
 import fs from 'fs';
 import path from 'path';
 
@@ -74,6 +75,8 @@ app.get('*', (req, res) => {
 
 // Run some code to check if all youtube videos are still downloaded
 // JobService.handleMissingYoutubeFiles()
+// ImportService.oldToNew
+// ImportService.import();
 
 
 function exportFragments() {

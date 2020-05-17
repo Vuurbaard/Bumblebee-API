@@ -35,6 +35,8 @@ class VoiceBox {
 		input = input.filter(word => word != ' ');
 		input = input.filter(word => word != '');
 
+		LogService.debug("Input: ", input.toString());
+
 		let textInput = input.toString();
 
 		LogService.info('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
@@ -54,7 +56,7 @@ class VoiceBox {
 		__trace.word_find_query = process.hrtime();
 		// LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
-		let words = await Word.find({ text: combinations }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
+		let words = await Word.find({ text: { "$in" : combinations} }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 		LogService.info('[VoiceBox]', "found", words.length, 'words in database.');
 
 		__trace.word_find_query = process.hrtime(__trace.word_find_query);
@@ -71,11 +73,13 @@ class VoiceBox {
 		// Database results are not ordered, let's order them
 		let orderedWords = new Array<IWord>();
 		for (let word of combinations) {
-			let w = words.find(function (w) { return word == w.text; });
+			let w = words.find(function (w : IWord) { return word == w.text; });
 			if (w) { orderedWords.push(w); }
 		}
 
 		__trace.order_words = process.hrtime(__trace.order_words);
+
+		console.log(orderedWords);
 
 		// FYI: Traces are fragments
 		__trace.tracing = process.hrtime();
@@ -272,6 +276,8 @@ class VoiceBox {
 			}
 		})
 
+		console.log(traces);
+
 		// We want the ones with the most entries at the top of the array, so let's sort on length.
 		traces.sort(function (a, b) {
 			return b.length - a.length;
@@ -363,7 +369,7 @@ class VoiceBox {
 							ffmpeg(filepath)
 							.setStartTime(fragment.start)
 							.setDuration(fragment.end - fragment.start)
-							.audioBitrate(128)
+							.audioBitrate(256)
 							.output(outputpath)
 							.on('end', function (err) {
 								if (!err) {
@@ -416,7 +422,6 @@ class VoiceBox {
 
 
 			return new Promise((resolve, reject) => {
-
 				// Check if we have have a cached file. Otherwise rerun all steps
 				if(!fs.existsSync(outputPath)){
 					ffmpeg()

@@ -30,8 +30,7 @@ class JobService {
 		LogService.info("Handling missing YouTube files");
 		
 		// Retrieve all sources
-		Source.find({ origin: 'YouTube', $or : [ { 'deletedAt' : null }, { 'deletedAt' : { $exists : true } }  ]}).then((sources: ISource[]) => {
-
+		Source.find({ origin: 'YouTube', $or : [ { 'deletedAt' : { $exists : false } }  ]}).then((sources: ISource[]) => {
 			this.sourceQueue = sources;
 			const threads = 6;
 			// 5 runners
@@ -68,7 +67,6 @@ class JobService {
 					})
 				}),
 				new Promise((res,rej) => {
-					let shouldProcess = false;
 					res(source.name == '');
 				})
 			];
@@ -77,10 +75,10 @@ class JobService {
 				// If any item is false we have to do something
 				let doTask = !result.every((val) => {return val == false}) 
 				
-				if(doTask){
+				if(doTask && yturl != null){
 					LogService.debug(`Process task for ${source.id}`);
 					YouTubeService.download(yturl, creator).then(() => {
-						if(source.name == ''){
+						if(source.name == '' || source.name == null){
 							// Get more information about the video
 							YouTubeService.info(yturl).then((info : any) => {
 								source.name = info.title || '';
@@ -98,9 +96,23 @@ class JobService {
 						LogService.debug("Failed to download: ", err.message);
 						vm.parseItem();
 					});
-				}else{
-					LogService.debug(`Skipping task for ${source.id}`);
-					vm.parseItem();
+				} else {
+					if(source.name == '' || source.name == null){
+						// Get more information about the video
+						YouTubeService.info(yturl).then((info : any) => {
+							source.name = info.title || '';
+							source.save().then(() => {
+								LogService.debug("YouTube video", yturl , "updated");
+								vm.parseItem();
+							})
+						}).catch((e) => {
+							vm.parseItem();
+						})
+					}else{
+						LogService.debug(`Skipping task for ${source.id}`);
+						LogService.debug("YouTube video", yturl , "already has info");
+						vm.parseItem();
+					}
 				}
 
 			})
