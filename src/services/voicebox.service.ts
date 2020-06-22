@@ -79,8 +79,6 @@ class VoiceBox {
 
 		__trace.order_words = process.hrtime(__trace.order_words);
 
-		console.log(orderedWords);
-
 		// FYI: Traces are fragments
 		__trace.tracing = process.hrtime();
 		let traces = await this.trace(orderedWords);
@@ -232,24 +230,6 @@ class VoiceBox {
 
 		deferred.resolve(data);
 
-
-		// __trace.file_magic = process.hrtime();
-		// this.fileMagic(fragments).then((data: any) => {
-		// 	console.log(data);
-		// 	data.fragments = fragmentsToReturn;
-		// 	deferred.resolve(data);
-		// }).then(() => {
-		// 	__trace.file_magic = process.hrtime(__trace.file_magic);
-		// 	for(let key in __trace){
-		// 		let item = __trace[key];
-			
-		// 		LogService.info('Execution time for %s (hr): %ds %dms', key ,item[0], item[1] / 1000000)
-		// 	}			
-		// });
-		
-
-
-
 		return deferred.promise;
 	}
 
@@ -263,8 +243,6 @@ class VoiceBox {
 
 			LogService.info('[VoiceBox]', 'starting new trace for word', word.text);
 
-			
-			//console.log(word.fragments);
 			for (let fragment of word.fragments) {
 				promises.push(this.traceFragments(i, words, fragment));
 			}
@@ -275,8 +253,6 @@ class VoiceBox {
 				traces.push(item);
 			}
 		})
-
-		console.log(traces);
 
 		// We want the ones with the most entries at the top of the array, so let's sort on length.
 		traces.sort(function (a, b) {
