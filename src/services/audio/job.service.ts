@@ -14,12 +14,6 @@ class JobService {
 
 	public constructor() {
 		this.sourceQueue = [];
-		// Make a runner that runs every minute and checks which tasks are due
-		
-		// Crons are { cron, func }
-		//this.crons.push([ "* * * * *" , this.updateYoutubeSourceInformation ]);
-		// All crontasks defined
-		// Start runner
 	}
 
 	public async updateYoutubeSourceInformation(){

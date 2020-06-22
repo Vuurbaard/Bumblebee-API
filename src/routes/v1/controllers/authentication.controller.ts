@@ -3,6 +3,11 @@ import { User, IUser, App, IApp } from '../../../database/schemas';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userService from '../../../services/user.service';
+import { Required } from '../../../services/validation/rules/required';
+import { Unique } from '../../../services/validation/rules/unique';
+import { Min } from '../../../services/validation/rules/min';
+import { isEmail } from '../../../services/validation/rules/isEmail'
+import { Validator } from '../../../services/validation/validator';
 
 export class AuthenticationController {
 
@@ -59,16 +64,34 @@ export class AuthenticationController {
 
 
 	public async register(req: Request, res: Response) {
-		try {
-			let user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
-			res.status(201).json({ user: user });
+
+		let rules = {
+			'username' : [
+				new Required(), 
+				new Unique(async (data: any) => {
+					return ! await userService.exists({ username : data });
+				})
+			],
+			'email' : [
+				new Required(), 
+				new isEmail(),
+				new Unique(async (data: any) => {
+					return ! await userService.exists({ email : data });
+				})
+			],
+			'password' : [
+				new Required(),
+				new Min('string', 8)
+			]
 		}
-		catch (err) {
-			if (err.message == 'Username is required.' || err.message == 'Password is required.' || err.message == 'Username already taken.') {
-				res.status(400).json({ message: err.message });
-				return;
-			}
-			res.status(500).json({ message: "Something went wrong creating the new user." });
-		}
+
+		// This will validate the input request with the given rules.
+		let isValid = await (new Validator(rules)).validate(req.body);
+		
+		let user = await (await userService.create(req.body.username, req.body.password, req.body.email, req.body.name)).toObject();
+		delete user.password;
+		delete user.roles;
+
+		res.status(201).json({ user: user });
 	}
 }

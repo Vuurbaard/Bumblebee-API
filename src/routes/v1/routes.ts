@@ -12,7 +12,6 @@ import { AudioController } from './controllers/audio.controller';
 import { VoiceBoxController } from './controllers/voicebox.controller';
 import { AppController } from './controllers/app.controller';
 
-
 const router: Router = Router();
 const authenticationController = new AuthenticationController();
 const userController = new UserController();
@@ -25,17 +24,19 @@ const appController = new AppController();
 
 const version: string = "/v1";
 
+
 // Authentication and the like
 router.post(version + '/login', authenticationController.login);
 router.post(version + '/register', authenticationController.register);
 
 // User
-router.get(version + '/user', passport.authenticate('jwt', { session: true }), userController.getAll);
-router.get(version + '/user/:id', passport.authenticate('jwt', { session: true }), userController.getByID);
-router.patch(version + '/user/:id', passport.authenticate('jwt', { session: true }), userController.updateByID);
-router.post(version + '/user', passport.authenticate('jwt', { session: true }), userController.create);
-router.delete(version + '/user/:id', passport.authenticate('jwt', { session: true }), userController.deleteByID);
-router.get(version + '/user/:id/sources', passport.authenticate('jwt', { session: true }), userController.getAllSourcesByUserID);
+router.use(version + '/user', passport.authenticate('jwt', { session: true}));
+router.get(version + '/user', userController.getAll);
+router.get(version + '/user/:id', userController.getByID);
+router.patch(version + '/user/:id', userController.updateByID);
+router.post(version + '/user', userController.create);
+router.delete(version + '/user/:id',  userController.deleteByID);
+router.get(version + '/user/:id/sources', userController.getAllSourcesByUserID);
 
 // Sources
 router.get(version + '/source', sourceController.getAll);

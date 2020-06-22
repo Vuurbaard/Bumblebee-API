@@ -9,6 +9,10 @@ class UserService {
 		return User.find(query || {}, { password: 0, roles: 0 });
 	}
 
+	async exists(query: any) {
+		return User.exists(query);
+	}	
+
 	async getByID(id: string) {
 		let user = await User.findById(id, { password: 0, roles: 0 });
 		return user ? user : {}
@@ -18,10 +22,14 @@ class UserService {
 
 		if (!username) { throw new Error('Username is required.'); }
 		if (!password) { throw new Error('Password is required.'); }
+		if (!email) { throw new Error('Email is required.'); }
 
 		// Throw error if the user already exists by username
 		let existingUser = await User.findOne({ username: username });
 		if (existingUser) { throw new Error('Username already taken.'); }
+
+		existingUser = await User.findOne({ email: email });
+		if (existingUser) { throw new Error('E-mail already taken.'); }
 
 		let newUser = new User({
 			username: username,
@@ -32,14 +40,7 @@ class UserService {
 			avatar: avatar,
 		});
 
-		let user = await newUser.save((err: any, user: IUser) => {
-			if (err) { throw err; }
-
-			let newUser = user.toObject();
-			delete newUser.password;
-			delete newUser.roles;
-			return newUser;
-		});
+		let user = await newUser.save();
 
 		return user;
 	}
