@@ -23,8 +23,14 @@ Run `nodemon dist/server.js` for nodemon to (re)start the API on file changes.
 `docker run --rm -v ${PWD}/backup:/backup mongo bash -c 'mongorestore /backup --host ip:27017'`
 
 
+
+
 ## Restore to docker-compose
 
 
 `docker run --network='api_bumblebee-net' --rm -v $(pwd)/backup:/backup mongo bash -c 'mongorestore /backup --host mongodb:27017'`
-`docker run --rm -v ${PWD}/backup:/backup mongo bash -c 'mongorestore /backup --host ip:27017'`
+`docker run --rm -v ${PWD}/backup:/backup mongo bash -c 'mongorestore /backup --host mongodb:27017'`
+
+
+docker run --rm -v $(pwd)/backup:/backup mongo bash -c 'mongodump --out /backup --host 192.168.10.25:27017'
+docker run --network='api_bumblebee-net' --rm -v $(pwd)/backup:/backup mongo bash -c 'mongorestore /backup --host mongodb:27017'

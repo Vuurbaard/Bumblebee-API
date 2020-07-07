@@ -1,37 +1,45 @@
-import log4js from 'log4js';
-import dotenv from 'dotenv';
-var logger = log4js.getLogger();
+import log4js, { Logger } from 'log4js';
+import Bootable from '../interfaces/bootable';
+import ConfigurationService from './config.service';
 
+class LogService implements Bootable {
 
-dotenv.config();
+	private logger: Logger;
 
-logger.level = process.env.LOG_LEVEL || 'debug';
+	public constructor() {
+		// Emergency logger
+		this.logger = log4js.getLogger('pre-boot');
+		this.logger.level = 'debug';
+	}
 
+	async boot(): Promise<this> {
+		this.logger = log4js.getLogger();
+		this.logger.level = ConfigurationService.get('log.level')
 
-class LogService {
-
-	public constructor() { }
+		return this;
+	}
 
 	public info(message: string, ...args: any[] ){
-		return logger.info(message, ...args);
+		return this.logger.info(message, ...args);
 	}
 
 	public fatal(message: string, ...args: any[] ){
-		return logger.fatal(message, ...args);
+		return this.logger.fatal(message, ...args);
 	}
 
 	public debug(message: string, ...args: any[] ){
-		return logger.debug(message, ...args);
+		return this.logger.debug(message, ...args);
 	}
 
 	public warn(message: string, ...args: any[] ){
-		return logger.warn(message, ...args);
+		return this.logger.warn(message, ...args);
 	}
 
 	public trace(message: string, ...args: any[] ){
-		return logger.trace(message, ...args);
+		return this.logger.trace(message, ...args);
 	}
 
 }
+
 
 export default new LogService();

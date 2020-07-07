@@ -230,7 +230,6 @@ class VoiceBox {
 
 		deferred.resolve(data);
 
-
 		return deferred.promise;
 	}
 
