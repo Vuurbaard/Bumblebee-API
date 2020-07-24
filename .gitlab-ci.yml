@@ -3,8 +3,16 @@ stages:
  - test
  - deploy
 
+variables:
+  DOCKER_DIND_IMAGE: "docker:19.03.12-dind"
+  DOCKER_IMAGE: "docker:19.03.12"
+  DOCKER_BUILDKIT: 1
+  DOCKER_CLI_EXPERIMENTAL: enabled
+
 build-test:
-  image: docker:dind
+  image: ${DOCKER_IMAGE}
+  services:
+    - ${DOCKER_DIND_IMAGE}
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - rm .dockerignore && mv .dockerignore.prod .dockerignore
@@ -13,7 +21,9 @@ build-test:
     - master
 
 build:
-  image: docker:dind
+  image: ${DOCKER_IMAGE}
+  services:
+    - ${DOCKER_DIND_IMAGE}
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t ${CI_REGISTRY_IMAGE} --build-arg BUILD_PROD=true -f docker/Dockerfile ./
