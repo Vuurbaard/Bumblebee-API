@@ -1,6 +1,7 @@
 stages:
  - build
  - test
+ - clean-up test
  - deploy
 
 variables:
