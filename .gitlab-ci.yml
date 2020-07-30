@@ -36,7 +36,7 @@ push to production:
   image: docker:stable
   stage: deploy
   variables:
-    DOCKER_HOST: ssh://deploy@192.168.10.25:2222
+    DOCKER_HOST: ssh://deploy@192.168.25.20
   image: docker:latest
   script:
     - apk add openssh --no-cache
