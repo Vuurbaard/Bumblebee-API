@@ -2,7 +2,7 @@ version: '3.7'
 services:
  
     api:
-        image: ${CI_REGISTRY_IMAGE}
+        image: ${CI_REGISTRY_IMAGE}:latest
         environment:
             - NODE_ENV=production
             - MONGO_HOST=$DB_HOST

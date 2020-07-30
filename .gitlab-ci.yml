@@ -17,7 +17,7 @@ build-test:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - rm .dockerignore && mv .dockerignore.prod .dockerignore
-    - docker build -t ${CI_REGISTRY_IMAGE}-test --build-arg BUILD_PROD=true -f docker/Dockerfile ./
+    - docker build -t ${CI_REGISTRY_IMAGE}:test --build-arg BUILD_PROD=true -f docker/Dockerfile ./
   except:
     - master
 
@@ -33,11 +33,11 @@ clean up test images:
     - echo "$REG_SHA256  /usr/local/bin/reg" | sha256sum -c -
     - chmod a+x /usr/local/bin/reg
   script: 
-    - /usr/local/bin/reg rm -d --auth-url $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD ${CI_REGISTRY_IMAGE}
+    - /usr/local/bin/reg rm -d --auth-url $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $IMAGE_NAME
   variables:
     REG_SHA256: ade837fc5224acd8c34732bf54a94f579b47851cc6a7fd5899a98386b782e228
     REG_VERSION: 0.16.1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}-test
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}:test
   rules:
     - when: always
 
@@ -48,8 +48,8 @@ build:
     - ${DOCKER_DIND_IMAGE}
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t ${CI_REGISTRY_IMAGE} --build-arg BUILD_PROD=true -f docker/Dockerfile ./
-    - docker push ${CI_REGISTRY_IMAGE}
+    - docker build -t ${CI_REGISTRY_IMAGE}:latest --build-arg BUILD_PROD=true -f docker/Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}:latest
   only:
     - master
 
