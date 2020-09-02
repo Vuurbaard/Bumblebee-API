@@ -25,7 +25,7 @@ export class AuthenticationController {
 							else {
 
 								user = user.toObject(); // Convert from mongoose object to 'normal' object
-								delete user.password; // We don't want the encrypted password to be returned
+								user.password = ''; // We don't want the encrypted password to be returned
 
 								res.json({
 									token: 'JWT ' + jwt.sign(user, "SomethingVerySecret", { expiresIn: '100 years' }),
