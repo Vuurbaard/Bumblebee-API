@@ -37,8 +37,7 @@ clean up test images:
     REG_SHA256: ade837fc5224acd8c34732bf54a94f579b47851cc6a7fd5899a98386b782e228
     REG_VERSION: 0.16.1
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}:test
-  rules:
-    - when: always
+  when: always
 
 
 build:
