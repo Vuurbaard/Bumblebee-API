@@ -17,14 +17,9 @@ services:
                 delay: 5s
                 max_attempts: 3
                 window: 120s
-            replicas: 1
+            replicas: 2
             update_config:
                 parallelism: 2
-                delay: 10s
-            placement:
-                constraints: [node.role == manager]
-
-
 volumes:
   audio_volume:
     driver_opts:
