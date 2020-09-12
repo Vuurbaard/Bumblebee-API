@@ -1,6 +1,5 @@
 version: '3.7'
 services:
- 
     api:
         image: ${CI_REGISTRY_IMAGE}:latest
         environment:
@@ -11,7 +10,7 @@ services:
         ports:
             - 3000:3000
         volumes:
-            - "/var/storage/bumblebee/audio/:/var/www/html/dist/audio/"
+            - "audio_volume:/var/www/html/dist/audio/"
         deploy:
             restart_policy:
                 condition: any
@@ -24,3 +23,11 @@ services:
                 delay: 10s
             placement:
                 constraints: [node.role == manager]
+
+
+volumes:
+  audio_volume:
+    driver_opts:
+      type: "nfs"
+      o: "nfsvers=4,addr=192.168.25.10,rw"
+      device: ":/volume3/docker/bumblebee/audio"
