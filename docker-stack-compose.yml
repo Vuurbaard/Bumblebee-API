@@ -17,9 +17,16 @@ services:
                 delay: 5s
                 max_attempts: 3
                 window: 120s
-            replicas: 2
+            replicas: 3
             update_config:
                 parallelism: 2
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1024M
+                reservations:
+                    cpus: '0.5'
+                    memory: 128M
 volumes:
   audio_volume:
     driver_opts:
