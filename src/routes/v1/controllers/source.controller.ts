@@ -8,7 +8,22 @@ export class SourceController implements RESTController {
 
 	public async getAll(req: Request, res: Response) {
 		try {
-			res.json(await sourceService.all(req.query));
+			let sources = (await sourceService.all(req.query)).map(function(item){
+				return {
+					'id' : item.id,
+					'name' : item.name,
+					'origin' : item.origin,
+					'fragments' : item.fragments.map(function(item) {
+						return {
+							'word' : {
+								'text' : item.word != null ? item.word.text : null
+							}
+						}
+					})
+				};
+			});
+
+			res.json(sources);
 		}
 		catch(err) {
 			console.error(err.message);
