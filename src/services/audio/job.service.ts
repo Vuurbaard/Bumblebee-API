@@ -73,7 +73,7 @@ class JobService {
 
 			Promise.all(promises).then((result) => {
 				// If any item is false we have to do something
-				let doTask = !result.every((val) => {return val == false}) 
+				let doTask = !result.every((val) => {return val == false});
 				
 				if(doTask && yturl != null){
 					LogService.debug(`Process task for ${source.id}`);
@@ -93,7 +93,9 @@ class JobService {
 						}
 
 					}, err => {
-						LogService.debug("Failed to download: ", err.message);
+						LogService.warn("Failed to download: ", err.message);
+						source.deletedAt = new Date();
+						source.save();
 						vm.parseItem();
 					});
 				} else {

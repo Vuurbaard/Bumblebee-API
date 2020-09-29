@@ -24,13 +24,14 @@ class VoiceBox {
 	}
 
 
-	public async tts(text: string) {
+	public async tts(text: string, format: string = 'mp3') {
 
 		let __trace = {} as any;
 
 		let deferred = q.defer();
 
 		__trace.preperation = process.hrtime();
+
 		let input = text.toLowerCase().split(' ');
 		input = input.filter(word => word != ' ');
 		input = input.filter(word => word != '');
@@ -224,7 +225,7 @@ class VoiceBox {
 		}
 
 		let data = {
-			'file' : '/v1/audio/generate/' + fragmentSet.hash + '.mp3',
+			'file' : '/v1/audio/generate/' + fragmentSet.hash + '.' + format,
 			'fragments' : fragmentsToReturn
 		};
 
@@ -328,7 +329,7 @@ class VoiceBox {
 		}
 	}
 
-	public async fileMagic(fragments: Array<any>) {
+	public async fileMagic(fragments: Array<any>, format: string = 'mp3') {
 		// Generate temp files from fragments
 		let tempFiles = new Array();
 		let promises = new Array();
@@ -390,7 +391,7 @@ class VoiceBox {
 			let fileName = obj.generateHash(fragments);
 
 			// Concatenate the temp fragment files into one big one
-			let outputfilename = fileName + '.mp3';
+			let outputfilename = fileName + '.' + format;
 			let preaudionorm = fileName + '-prenorm.mp3';
 
 			let prenormPath = path.join(audioFolder, "/temp/", preaudionorm);

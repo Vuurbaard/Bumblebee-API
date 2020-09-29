@@ -32,7 +32,12 @@ export class VoiceBoxController {
 				});
 			}
 			else {
-				let tts = await voiceboxService.tts(req.body.text) as any;
+				let format = 'mp3';
+				if(req.query && req.query.format == 'opus'){
+					format = 'opus';
+				}
+
+				let tts = await voiceboxService.tts(req.body.text, format) as any;
 				delete tts.filepath;
 				res.json(tts);
 			}
@@ -46,15 +51,24 @@ export class VoiceBoxController {
 
 	async generate(req: Request, res: Response){
 		// Remove any file format at the end. This way we can trick clients into downloading an mp3 fixing some other shits
-		let hash = req.params.id.replace(/\.(mp3|mp2|wav|wma)/g, '');
+		let hash = req.params.id.replace(/\.(mp3|opus|mp2|wav|wma)/g, '');
+		let extension = req.params.id.replace(hash, '').replace('.', '');
+		let contentType = 'audio/mpeg3';
+
+		if(extension == 'opus'){
+			contentType = 'audio/opus';
+		} else {
+			extension = 'mp3';
+		}
+
 		let fragmentSet = await FragmentSet.findOne({'hash' : hash});
 
 		if(fragmentSet){
 			// Do the file magic (in memory)
 			// __trace.file_magic = process.hrtime();
-			res = res.status(200).contentType('audio/mpeg3');
-			voiceboxService.fileMagic(fragmentSet.fragments).then((data: any) => {
-				res.contentType('audio/mpeg3');
+			res = res.status(200).contentType(contentType);
+			voiceboxService.fileMagic(fragmentSet.fragments, extension).then((data: any) => {
+				res.contentType(contentType);
 				fs.createReadStream(data.filepath).pipe(res);
 			}).catch((error) => {
 				console.error(error);
