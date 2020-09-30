@@ -7,11 +7,17 @@ services:
             - MONGO_HOST=$DB_HOST
             - MONGO_PORT=$DB_PORT
             - LOG_LEVEL=info
-        ports:
-            - 3000:3000
+        networks:
+          - proxy-net
         volumes:
             - "audio_volume:/var/www/html/dist/audio/"
         deploy:
+            labels:
+              - traefik.enable=true
+              - traefik.http.routers.api-bmbl-cloud.rule=Host(`api.bmbl.cloud`) || Host(`api.bmbl.mijnproject.nu`)
+              - traefik.http.routers.api-bmbl-cloud.tls=true
+              - traefik.http.routers.api-bmbl-cloud.tls.certresolver=myresolver             
+              - traefik.http.services.bmbl-api-svc.loadbalancer.server.port=3000
             restart_policy:
                 condition: any
                 delay: 5s
@@ -33,3 +39,7 @@ volumes:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.25.10,rw"
       device: ":/volume3/docker/bumblebee/audio"
+
+networks:
+   proxy-net:
+      external: true
