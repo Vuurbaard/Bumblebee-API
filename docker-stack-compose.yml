@@ -10,7 +10,7 @@ services:
         networks:
           - proxy-net
         volumes:
-            - "audio_volume:/var/www/html/dist/audio/"
+            - "api_storage:/var/www/html/dist/audio/"
         deploy:
             labels:
               - traefik.enable=true
@@ -35,7 +35,7 @@ services:
                     cpus: '0.5'
                     memory: 128M
 volumes:
-  audio_volume:
+  api_storage:
     driver_opts:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.25.10,rw"
