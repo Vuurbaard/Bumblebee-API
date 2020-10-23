@@ -10,7 +10,7 @@ variables:
   DOCKER_BUILDKIT: 1
   DOCKER_CLI_EXPERIMENTAL: enabled
 
-build-test:
+build-image-test:
   stage: test
   image: $DOCKER_IMAGE
   services:
@@ -40,7 +40,7 @@ clean up test images:
   when: always
 
 
-build:
+build-image:
   stage: build
   image: ${DOCKER_IMAGE}
   services:

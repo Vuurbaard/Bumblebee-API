@@ -13,7 +13,6 @@ class CacheService {
 	protected client: RedisClient;
 
 	public constructor() { 
-		console.log(process.env);
 		this.client = redis.createClient({
 			'host': redis_host
 		})
