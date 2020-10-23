@@ -46,7 +46,7 @@ services:
               delay: 5s
               max_attempts: 3
               window: 120s
-          replicas: 3
+          replicas: 1
           update_config:
               parallelism: 2
           resources:
