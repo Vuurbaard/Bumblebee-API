@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { RESTController } from './rest.controller';
 import wordService from '../../../services/word.service';
 import { IUser } from '../../../database/schemas';
+import cacheService from '../../../services/cache.service';
 
 export class WordController implements RESTController {
 
@@ -30,6 +31,7 @@ export class WordController implements RESTController {
 	async create(req: Request, res: Response) {
 		try {
 			let word = await wordService.create(req.user as IUser, req.body.text);
+			await cacheService.clear('all-fragments')
 			res.status(201).json(word);
 		}
 		catch(err) {
@@ -41,6 +43,7 @@ export class WordController implements RESTController {
 	async updateByID(req: Request, res: Response) {
 		try {
 			await wordService.update(req.user as IUser, req.params.id, req.body);
+			await cacheService.clear('all-fragments')
 			res.json(200);
 		}
 		catch(err) {

@@ -7,8 +7,10 @@ services:
             - MONGO_HOST=$DB_HOST
             - MONGO_PORT=$DB_PORT
             - LOG_LEVEL=info
+            - REDIS_HOST=redis
         networks:
           - proxy-net
+          - bmbl-net
         volumes:
             - "api_storage:/var/www/html/dist/audio/"
         deploy:
@@ -34,6 +36,26 @@ services:
                 reservations:
                     cpus: '0.5'
                     memory: 128M
+    redis:
+      image: redis
+      networks:
+          - bmbl-net
+      deploy:
+          restart_policy:
+              condition: any
+              delay: 5s
+              max_attempts: 3
+              window: 120s
+          replicas: 3
+          update_config:
+              parallelism: 2
+          resources:
+              limits:
+                  cpus: '1.0'
+                  memory: 1024M
+              reservations:
+                  cpus: '0.5'
+                  memory: 128M      
 volumes:
   api_storage:
     driver_opts:
@@ -42,5 +64,6 @@ volumes:
       device: ":/volume1/docker/bumblebee/audio"
 
 networks:
+   bmbl-net:
    proxy-net:
       external: true

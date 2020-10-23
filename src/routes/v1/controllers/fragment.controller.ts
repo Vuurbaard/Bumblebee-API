@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { RESTController } from './rest.controller';
 import fragmentService from '../../../services/fragment.service';
 import { IUser } from '../../../database/schemas';
+import cacheService from '../../../services/cache.service';
 
 export class FragmentController implements RESTController {
 
@@ -30,6 +31,7 @@ export class FragmentController implements RESTController {
 	async create(req: Request, res: Response) {
 		try {
 			let fragment = await fragmentService.create(req.user as IUser, req.body);
+			await cacheService.clear('all-fragments')
 			res.status(201).json(fragment);
 		}
 		catch(err) {
@@ -41,6 +43,7 @@ export class FragmentController implements RESTController {
 	async updateByID(req: Request, res: Response) {
 		try {
 			await fragmentService.update(req.user as IUser, req.params.id, req.body);
+			await cacheService.clear('all-fragments')
 			res.json();
 		}
 		catch(err) {
@@ -52,6 +55,7 @@ export class FragmentController implements RESTController {
 	async deleteByID(req: Request, res: Response) {
 		try {
 			await fragmentService.delete(req.user, req.params.id);
+			await cacheService.clear('all-fragments')
 			res.status(200).json();
 		}
 		catch(err) {
