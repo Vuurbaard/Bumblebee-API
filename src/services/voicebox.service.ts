@@ -9,6 +9,7 @@ import process from 'process';
 import LogService from './log.service';
 import { FragmentSet } from '../database/schemas/fragmentSet.schema';
 import { FragmentSchema } from '../database/schemas/fragment.schema';
+import * as streambuffer from 'stream-buffers';
 
 import * as crypto from "crypto";
 
@@ -352,17 +353,17 @@ class VoiceBox {
 								if (!err) {
 									LogService.info('[VoiceBox]',"Created cached version for " + fragment.id + '-' + fragment.endFragment._id);
 									tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
-									resolve();
+									resolve(true);
 								}
 							})
 							.on('error', function (err) {
 								LogService.info('[VoiceBox]', 'ffmpeg error:', err);
-								resolve();
+								reject();
 							}).run();
 						}else{
 							LogService.info('[VoiceBox]',"Using cached version for " + fragment.id + '-' + fragment.endFragment._id);
 							tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
-							resolve();
+							resolve(true);
 						}
 					});
 				});
@@ -401,10 +402,15 @@ class VoiceBox {
 			return new Promise((resolve, reject) => {
 				// Check if we have have a cached file. Otherwise rerun all steps
 				if(!fs.existsSync(outputPath)){
+					// Create stream buffer for concatting files
+					let myWritableStreamBuffer = new streambuffer.WritableStreamBuffer({
+						initialSize: (100 * 1024),   // start at 100 kilobytes.
+						incrementAmount: (10 * 1024) // grow by 10 kilobytes each time buffer overflows.
+					});					
+
 					ffmpeg()
 					.input('concat:' + files.join('|'))
 					.outputOptions('-c:v copy')
-					.save(prenormPath)
 					.on('error', function (err: any, stdout: any, stderr: any) {
 						console.error('[VoiceBox]', 'Error:', err)
 						console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
@@ -412,8 +418,14 @@ class VoiceBox {
 					})
 					.on('end', function () {
 						LogService.info('[VoiceBox]', 'Audio non-normalized created in:', prenormPath);
-						ffmpeg()
-							.input(prenormPath)
+						let myReadAbleStream = new streambuffer.ReadableStreamBuffer();
+						let streamContents = myWritableStreamBuffer.getContents() as Buffer;
+						myReadAbleStream.put(streamContents);
+						myWritableStreamBuffer.end();
+						myReadAbleStream.stop();
+						
+
+						ffmpeg(myReadAbleStream)
 							.audioFilter([{
 									filter: 'dynaudnorm',
 									options: 'f=25:g=15'
@@ -421,19 +433,17 @@ class VoiceBox {
 							])
 							.save(outputPath)
 							.on('error', function (err: any, stdout: any, stderr: any) {
+							
 								console.error('[VoiceBox]', 'Error:', err)
 								console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
 								resolve({ error: 'FFMpeg failed to process file(s): ' + err });
 							})
 							.on('end', function(){
-								// Remove pre-norm
-								if(fs.existsSync(prenormPath)){
-									fs.unlinkSync(prenormPath)
-								}
 								LogService.info('[VoiceBox]', 'Audio normalized created in:', outputPath);
 								resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: outputPath });
 							});
-					})
+					}).toFormat('mp3')
+					.writeToStream(myWritableStreamBuffer)
 				}else{
 					LogService.info('[VoiceBox]', 'Using cached fragmentset');
 					resolve({ file: "/v1/audio/temp/" + outputfilename, filepath: outputPath })
