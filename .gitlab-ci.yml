@@ -5,8 +5,8 @@ stages:
  - deploy
 
 variables:
-  DOCKER_DIND_IMAGE: "docker:19.03.12-dind"
-  DOCKER_IMAGE: "docker:19.03.12"
+  DOCKER_DIND_IMAGE: "docker:19.03.14-dind"
+  DOCKER_IMAGE: "docker:19.03.14"
   DOCKER_BUILDKIT: 1
   DOCKER_CLI_EXPERIMENTAL: enabled
 

@@ -7,5 +7,5 @@ WORKDIR /var/www/html
 RUN apk add ffmpeg
 COPY ./ /var/www/html
 RUN if [ ! -z "$NPM_GLOBAL_PACKAGES" ] ; then npm install -g $NPM_GLOBAL_PACKAGES ; fi
-RUN if [ "$BUILD_PROD" = "true" ] ; then npm ci --production && tsc ; fi 
+RUN if [ "$BUILD_PROD" = "true" ] ; then npm ci && tsc && npm ci --production ; fi 
 CMD npm run start-smart
