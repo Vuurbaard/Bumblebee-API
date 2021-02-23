@@ -12,7 +12,7 @@ services:
           - proxy-net
           - bmbl-net
         volumes:
-            - "api_storage:/var/www/html/dist/audio/"
+            - "/mnt/cluster/nas/bumblebee/audio:/var/www/html/dist/audio/"
         deploy:
             labels:
               - traefik.enable=true
@@ -56,12 +56,6 @@ services:
               reservations:
                   cpus: '0.5'
                   memory: 128M      
-volumes:
-  api_storage:
-    driver_opts:
-      type: "nfs"
-      o: "nfsvers=4,addr=192.168.25.10,rw"
-      device: ":/volume1/docker/bumblebee/audio"
 
 networks:
    bmbl-net:
