@@ -22,10 +22,7 @@ services:
               - traefik.http.routers.https-api-bmbl-cloud.tls.certresolver=myresolver             
               - traefik.http.services.bmbl-api-svc.loadbalancer.server.port=3000
             restart_policy:
-                condition: any
-                delay: 5s
-                max_attempts: 3
-                window: 120s
+                delay: 30s
             replicas: 3
             update_config:
                 parallelism: 2
@@ -42,10 +39,7 @@ services:
           - bmbl-net
       deploy:
           restart_policy:
-              condition: any
-              delay: 5s
-              max_attempts: 3
-              window: 120s
+              delay: 30s
           replicas: 1
           update_config:
               parallelism: 2
