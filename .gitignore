@@ -42,3 +42,4 @@ Thumbs.db
 /data
 
 .env
+backup/
