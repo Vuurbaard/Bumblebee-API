@@ -16,12 +16,21 @@ import * as crypto from "crypto";
 require('colors');
 
 class VoiceBox {
+	private basePath: string;
+	private tempPath: string;
+	private fragmentsBasePath: string;
+	private youtubeBasePath: string;
 
 	public constructor() {
 		if (!fs.existsSync('audio')) { fs.mkdirSync('audio') };
 		if (!fs.existsSync('audio/youtube')) { fs.mkdirSync('audio/youtube') };
 		if (!fs.existsSync('audio/fragments')) { fs.mkdirSync('audio/fragments') };
 		if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') };
+
+		this.basePath = path.join(__dirname, '../audio/');
+		this.tempPath = path.join(this.basePath, '/temp/');
+		this.fragmentsBasePath = path.join(this.basePath, '/fragments/');
+		this.youtubeBasePath = path.join(this.basePath, '/youtube/');
 	}
 
 
@@ -238,17 +247,15 @@ class VoiceBox {
 	private async trace(words: IWord[]) {
 		let traces = new Array();
 
-		let promises = [];
+		let promises = [] as any[];
 
-		for (let i = 0; i < words.length; i++) {
-			let word = words[i];
-
+		words.forEach((word, i) => {
 			LogService.info('[VoiceBox]', 'starting new trace for word', word.text);
 
-			for (let fragment of word.fragments) {
+			word.fragments.forEach((fragment) => {
 				promises.push(this.traceFragments(i, words, fragment));
-			}
-		}
+			})
+		})
 
 		await Promise.all(promises).then(values => {
 			for(let item of values){
@@ -289,7 +296,7 @@ class VoiceBox {
 		// fragment = the current fragment we need to start a trace for
 		// traces = array containing all the fragments we've traced
 
-		var nextWord = words[index + 1];
+		let nextWord = words[index + 1];
 		if (!traces) {
 			traces = new Array();
 			traces.push(fragment);
@@ -298,13 +305,15 @@ class VoiceBox {
 		// LogService.info('[VoiceBox]', 'tracing fragment', fragment.id);
 
 		if (nextWord) {
-			for (var nextFragment of nextWord.fragments) {
-				if (nextFragment.source != null && nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
+			for (let nextFragment of nextWord.fragments) {
 
-					var fragmentsInBetween = await Fragment.count({
+				if (nextFragment.source != null && nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
+					
+					let fragmentsInBetween = await Fragment.countDocuments({
 						start: { $gt: fragment.start, $lt: nextFragment.start },
 						source: fragment.source
 					});
+
 
 					//LogService.info('fragmentsInBetween:'.red, fragmentsInBetween);
 
@@ -321,7 +330,7 @@ class VoiceBox {
 	}
 
 	private shuffle(a: Array<any>) {
-		var j, x, i;
+		let j, x, i;
 		for (i = a.length - 1; i > 0; i--) {
 			j = Math.floor(Math.random() * (i + 1));
 			x = a[i];
@@ -336,12 +345,20 @@ class VoiceBox {
 		let promises = new Array();
 
 		let audioFolder = path.join(__dirname, '../audio/');
+		const self = this;
 
 		for (let fragment of fragments) {
 			(function (fragment) {
-				var promise = new Promise(function (resolve, reject) {
-					let filepath = path.join(audioFolder, '/youtube/', fragment.source.id.toString() + '.mp3');
-					let outputpath = path.join(audioFolder, '/fragments/', fragment.id + '-' + fragment.endFragment._id + '.mp3');
+				let promise = new Promise(function (resolve, reject) {
+					let prefixDir = fragment.id.substr(0,2);
+					let fragmentsDir = path.join(self.fragmentsBasePath, prefixDir, '/');
+
+					let filepath = path.join(self.youtubeBasePath, fragment.source.id.toString() + '.mp3');
+					
+					if (!fs.existsSync(fragmentsDir)) { fs.mkdirSync(fragmentsDir) };
+
+					let outputpath = path.join(fragmentsDir, `${fragment.id}-${fragment.endFragment._id}.mp3`);
+
 					fs.exists(outputpath, (exists) => {
 						if(!exists){
 							ffmpeg(filepath)
@@ -352,7 +369,7 @@ class VoiceBox {
 							.on('end', function (err) {
 								if (!err) {
 									LogService.info('[VoiceBox]',"Created cached version for " + fragment.id + '-' + fragment.endFragment._id);
-									tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
+									tempFiles.push({ id: fragment.id, order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
 									resolve(true);
 								}
 							})
@@ -362,7 +379,7 @@ class VoiceBox {
 							}).run();
 						}else{
 							LogService.info('[VoiceBox]',"Using cached version for " + fragment.id + '-' + fragment.endFragment._id);
-							tempFiles.push({ order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
+							tempFiles.push({ id: fragment.id, order: fragment.order, file: fragment.id + '-' + fragment.endFragment._id + '.mp3' });
 							resolve(true);
 						}
 					});
@@ -385,8 +402,10 @@ class VoiceBox {
 
 			// Audioconcat needs a non relative path. 
 			let files = new Array();
+
 			tempFiles.forEach(fragment => {
-				files.push(path.join(audioFolder, "/fragments/", fragment.file));
+				let prefixDir = fragment.id.substr(0,2);
+				files.push(path.join(obj.fragmentsBasePath, prefixDir,'/', fragment.file));
 			});
 
 			let fileName = obj.generateHash(fragments);
@@ -395,13 +414,15 @@ class VoiceBox {
 			let outputfilename = fileName + '.' + format;
 			let preaudionorm = fileName + '-prenorm.mp3';
 
-			let prenormPath = path.join(audioFolder, "/temp/", preaudionorm);
-			let outputPath = path.join(audioFolder, "/temp/", outputfilename);
+			let prenormPath = path.join(obj.tempPath, preaudionorm);
+			let outputPath = path.join(obj.tempPath, outputfilename);
 
 
 			return new Promise((resolve, reject) => {
 				// Check if we have have a cached file. Otherwise rerun all steps
 				if(!fs.existsSync(outputPath)){
+					LogService.debug('No file found at', outputPath, 'generating file');
+
 					// Create stream buffer for concatting files
 					let myWritableStreamBuffer = new streambuffer.WritableStreamBuffer({
 						initialSize: (100 * 1024),   // start at 100 kilobytes.
@@ -433,7 +454,6 @@ class VoiceBox {
 							])
 							.save(outputPath)
 							.on('error', function (err: any, stdout: any, stderr: any) {
-							
 								console.error('[VoiceBox]', 'Error:', err)
 								console.error('[VoiceBox]', 'ffmpeg stderr:', stderr)
 								resolve({ error: 'FFMpeg failed to process file(s): ' + err });

@@ -10,7 +10,7 @@
     "start-smart": "if test \"$NODE_ENV\" = \"production\" ; then npm run start ; else npm run start-dev;  fi ",
     "start-dev": "nodemon  --delay 150ms -L --exec \"npm run compile && node --inspect=0.0.0.0:5858 ./dist/server.js\"",
     "start": "node ./dist/server.js",
-	"import-yt": "tsc && node ./dist/commands/youtube-sync.js"
+    "import-yt": "tsc && node ./dist/commands/youtube-sync.js"
   },
   "keywords": [],
   "author": "Sander Brokelman",
@@ -26,7 +26,7 @@
     "guid": "0.0.12",
     "lodash": "^4.17.21",
     "log4js": "^6.3.0",
-    "mongoose": "~5.10.19",
+    "mongoose": "^5.12.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "q": "^1.5.1",
@@ -44,8 +44,7 @@
     "@types/fluent-ffmpeg": "^2.1.16",
     "@types/guid": "^1.0.0",
     "@types/lodash": "^4.14.168",
-    "@types/mongoose": "^5.10.3",
-    "@types/node": "^11.15.48",
+    "@types/node": "^11.15.49",
     "@types/passport": "^0.4.7",
     "@types/passport-jwt": "^3.0.5",
     "@types/q": "^1.5.4",

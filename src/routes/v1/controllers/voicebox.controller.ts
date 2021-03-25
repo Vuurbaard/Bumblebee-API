@@ -54,6 +54,7 @@ export class VoiceBoxController {
 		let hash = req.params.id.replace(/\.(mp3|opus|mp2|wav|wma)/g, '');
 		let extension = req.params.id.replace(hash, '').replace('.', '');
 		let contentType = 'audio/mpeg3';
+		const start = process.hrtime();
 
 		if(extension == 'opus'){
 			contentType = 'audio/opus';
@@ -69,7 +70,11 @@ export class VoiceBoxController {
 			res = res.status(200).contentType(contentType);
 			voiceboxService.fileMagic(fragmentSet.fragments, extension).then((data: any) => {
 				res.contentType(contentType);
-				fs.createReadStream(data.filepath).pipe(res);
+				let stream = fs.createReadStream(data.filepath).pipe(res);
+				stream.on('finish', () => {
+					const elapsed = process.hrtime(start);
+					LogService.debug("File magic took", elapsed[0], "s", "and", elapsed[1] / 1000000, 'ms')
+				});
 			}).catch((error) => {
 				console.error(error);
 				res.status(500).end();

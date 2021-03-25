@@ -32,11 +32,9 @@ class JobService {
 		// Retrieve all sources
 		Source.find({ origin: 'YouTube', $or : [ { 'deletedAt' : { $exists : false } }  ]}).then((sources: ISource[]) => {
 			this.sourceQueue = sources;
-			const threads = 6;
+			// const threads = 6;
 			// 5 runners
-			for(let i = 0; i < threads; i++){
-				this.parseItem();
-			}
+			// this.parseItem();
 		});
 
 	}

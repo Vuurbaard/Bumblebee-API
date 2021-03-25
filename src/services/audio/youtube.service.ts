@@ -1,10 +1,8 @@
-import q from 'q';
 import path from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
-import ytdl from 'ytdl-core';
+import ytdl, { videoInfo } from 'ytdl-core';
 import { ISource, Source } from '../../database/schemas';
-import AudioService from './audio.service';
 import { ISourceProvider } from './ISourceProvider';
 import LogService from '../log.service';
 
@@ -13,8 +11,7 @@ class YouTubeService implements ISourceProvider {
 	private extension = ".mp3";
 
 	public constructor() {
-		LogService.info("Initialize directories for YouTube Service");
-		let filepath = path.resolve(__dirname, '../..' + this.basepath());
+		const filepath = path.resolve(__dirname, '../..' + this.basepath());
 
 		fs.mkdirSync(filepath, { recursive : true });
 	}
@@ -27,71 +24,53 @@ class YouTubeService implements ISourceProvider {
 		return '/v1' + this.basepath() + source.id.toString() + this.extension;
 	}
 
-	public info(url : string){
+	public async info(url : string): Promise<videoInfo>{
 		return ytdl.getInfo(url);	
 	}
 
-	public download(url: string, userId?: string): Promise<ISource> {
-		let vm = this;
+	public async download(url: string, userId?: string): Promise<ISource> {
+		const vm = this;
 		userId = userId ? userId : '';
 
-		let id = this.identifier(url);
-		let filename = id + this.extension;
-		let filepath = path.resolve(__dirname, '../..' + this.basepath() + filename);
+		const id = this.identifier(url);
 		
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
+			const filepath = await vm.downloadYouTube(id);
 
-			if (!fs.existsSync(filepath)) {
-				LogService.info('Download of youtube video', id, 'starting...');
-				ffmpeg()
-					.input(ytdl(url, {'quality' : 'highestaudio'}))
-					.noVideo()
-					// .audioBitrate(256)
-					.audioFrequency(44100)
-					.save(filepath)
-					.on('error', err => {
-						reject(err);
-					})
-					.on('end', function () {
-						LogService.info('Finished downloading ', id, ' from youtube');
-						vm.source(id).then((src: ISource | null) => {
-							if (src) {
-								resolve(src);
-							}
-							else { // Insert
-								LogService.info('Retrieving info about ', id, ' from youtube');
-								vm.info(url).then((info : any) => {
-									let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
-									newSource.save((err, src) => {
-										if (err) { reject(err); }
-										else if (src) {
-											resolve(src);
-										}
-									});
-								})
-							}
-						});
-					});
+			// Check if we already have a source file
+			let source = await vm.source(id);
+
+			if(!source || (source && source.name == '')){
+				LogService.info('Retrieving info about ', id, ' from youtube');
+				let info = await vm.info(id);
+				source = new Source({ id: id, name: info.videoDetails.title, origin: 'YouTube', createdBy: userId });
+				await source.save();
 			}
-			else {
-				this.source(id).then((src: ISource | null) => {
-					if (src) {
-						resolve(src);
-					}
-					else { 
-						LogService.info('Retrieving info about ', id, ' from youtube');
-						vm.info(url).then((info : any) => {
-							let newSource = new Source({ id: id, name: info.title, origin: 'YouTube', createdBy: userId });
-							newSource.save((err, src) => {
-								if (err) { reject(err); }
-								else if (src) {
-									resolve(src);
-								}
-							});
-						})
-					}
-				});
-			}
+
+			resolve(source);
+		});
+	}
+
+	private async downloadYouTube(id: string): Promise<string>{
+		const vm = this;
+		const filename = id + this.extension;
+		const filepath = path.resolve(__dirname, '../..' + this.basepath() + filename);
+		let yturl = "https://www.youtube.com/watch?v=" + id;
+		LogService.info('Download of youtube video', id, 'requested...');
+
+		return new Promise((resolve, reject) => {
+			ffmpeg()
+				.input(ytdl(yturl, {'quality' : 'highestaudio'}))
+				.noVideo()
+				.audioFrequency(44100)
+				.save(filepath)
+				.on('error', err => {
+					reject(err);
+				})
+				.on('end', function () {
+					resolve(filepath);
+				})
+			
 		});
 	}
 

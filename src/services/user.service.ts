@@ -32,13 +32,18 @@ class UserService {
 			avatar: avatar,
 		});
 
-		let user = await newUser.save((err: any, user: IUser) => {
+		const user = newUser.save((err: any, user: IUser) => {
 			if (err) { throw err; }
 
-			let newUser = user.toObject();
-			delete newUser.password;
-			delete newUser.roles;
-			return newUser;
+			const newUser = user.toObject();
+
+			return {
+				name: newUser.name,
+				email: newUser.email,
+				username: newUser.username,
+				avatar: newUser.avatar ?? '',
+				externalId: newUser.externalId
+			};
 		});
 
 		return user;

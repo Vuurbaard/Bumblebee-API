@@ -24,12 +24,12 @@ export class AuthenticationController {
 							else if (!success) { res.status(401).json({ message: "The supplied username/password combination is wrong." }); }
 							else {
 
-								user = user.toObject(); // Convert from mongoose object to 'normal' object
-								user.password = ''; // We don't want the encrypted password to be returned
+								let userObj = user.toObject(); // Convert from mongoose object to 'normal' object
+								userObj.password = ''; // We don't want the encrypted password to be returned
 
 								res.json({
-									token: 'JWT ' + jwt.sign(user, "SomethingVerySecret", { expiresIn: '100 years' }),
-									user: user
+									token: 'JWT ' + jwt.sign(userObj, "SomethingVerySecret", { expiresIn: '100 years' }),
+									user: userObj
 								});
 							}
 						});
