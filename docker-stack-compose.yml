@@ -33,7 +33,7 @@ services:
                     cpus: '0.5'
                     memory: 128M
     redis:
-      image: redis
+      image: redis:6.2.1-alpine
       networks:
           - bmbl-net
       deploy:
