@@ -1,43 +1,39 @@
-import { Document, Schema, Model, model } from "mongoose";
-import { ISource, IWord, IUser } from ".";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { User } from './user.schema';
+import { Word } from './word.schema';
+import { Source } from './source.schema';
 
-export interface IFragment extends Document {
+
+@Schema()
+export class Fragment {
+	@Prop()
 	start: string;
+
+	@Prop()
 	end: string;
+
+	@Prop()
 	active: boolean;
-	source: ISource;
-	word: IWord;
-	createdAt: Date;
-	createdBy: IUser;
-	deletedAt: Date;
+
+	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Source' }] })
+	source: Source;
+
+	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }] })
+	word: Word
+
+	@Prop()
+	createdAt: string;
+
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+	createdBy: User;
+
+	@Prop()
+	deletedAt: string;
+
 }
 
-export var FragmentSchema: Schema = new Schema({
-	start: { type: Number, required: true },
-	end: { type: Number, required: true },
-	source: { type: Schema.Types.ObjectId, ref: 'Source' },
-	word: { type: Schema.Types.ObjectId, ref: 'Word' },
-	active: { type: Boolean, default: false },
-	createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-	createdAt: { type: Date },
-	deletedAt: { type: Date }
-});
+export type FragmentDocument = Fragment & Document;
 
-FragmentSchema.pre("save", function (next) {
-
-	if (!this.get('createdAt')) {
-		this.set('createdAt', new Date());
-	}
-	next();
-});
-
-// FragmentSchema.pre('find', function( next ){
-// 	this.where({ 'deletedAt' : null });
-// 	next();
-// })
-
-// UserSchema.methods.fullName = function (): string {
-//     return (this.firstName.trim() + " " + this.lastName.trim());
-// };
-
-export const Fragment: Model<IFragment> = model<IFragment>("Fragment", FragmentSchema);
+export const FragmentSchema = SchemaFactory.createForClass(Fragment);
