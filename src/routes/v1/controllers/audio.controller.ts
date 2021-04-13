@@ -9,16 +9,16 @@ export class AudioController {
 
 	async download(req: Request, res: Response) {
 
-		let url: string = req.body.url;
-		let userId = req.user!._id;
+		const url: string = req.body.url;
+		const userId = req.user!._id;
 
 		LogService.info('Received request to download: ', url);
 
 		try {
-			let source = await audioService.download(url, userId);
+			const source = await audioService.download(url, userId);
 			LogService.info('Finished downloading audio file: ', source);
 
-			let fragments = await fragmentService.all({ 'source': source._id });
+			const fragments = await fragmentService.all({ 'source': source._id });
 
 			res.json({
 				url: audioService.sourceUrl(source),

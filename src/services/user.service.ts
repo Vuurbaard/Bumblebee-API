@@ -10,7 +10,7 @@ class UserService {
 	}
 
 	async getByID(id: string) {
-		let user = await User.findById(id, { password: 0, roles: 0 });
+		const user = await User.findById(id, { password: 0, roles: 0 });
 		return user ? user : {}
 	}
 
@@ -20,10 +20,10 @@ class UserService {
 		if (!password) { throw new Error('Password is required.'); }
 
 		// Throw error if the user already exists by username
-		let existingUser = await User.findOne({ username: username });
+		const existingUser = await User.findOne({ username: username });
 		if (existingUser) { throw new Error('Username already taken.'); }
 
-		let newUser = new User({
+		const newUser = new User({
 			username: username,
 			password: await authenticationService.hashPassword(password) as string,
 			email: email,

@@ -15,11 +15,11 @@ class AudioService {
 	private service(url: string): ISourceProvider | null {
 		let rc = null;
 		for (let i = 0; i < this.handlers.length; i++) {
-			let handler: ISourceProvider = this.handlers[i];
+			const handler: ISourceProvider = this.handlers[i];
 			if (handler.canHandle(url)) {
 				rc = handler;
 				break;
-			};
+			}
 		}
 
 		return rc;
@@ -29,11 +29,11 @@ class AudioService {
 		let service = null;
 
 		for (let i = 0; i < this.handlers.length; i++) {
-			let handler: ISourceProvider = this.handlers[i];
+			const handler: ISourceProvider = this.handlers[i];
 			if (source.origin.toString() == handler.sourceIdentifier()) {
 				service = handler;
 				break;
-			};
+			}
 		}
 
 		if (service != null) {
@@ -44,11 +44,11 @@ class AudioService {
 	}
 
 	public download(url: string, userId: string): q.Promise<ISource> {
-		let deferred = q.defer<ISource>();
+		const deferred = q.defer<ISource>();
 
 		if (!url || !userId) { deferred.reject(); }
 
-		let service: ISourceProvider | null = this.service(url);
+		const service: ISourceProvider | null = this.service(url);
 
 		if (service != null) {
 			service.download(url, userId).then(source => {

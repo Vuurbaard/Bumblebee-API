@@ -13,7 +13,7 @@ export class AppController implements RESTController {
 		this.deleteByID = this.deleteByID.bind(this);
 	}
 
-	private isAdmin(req: Request): Boolean {
+	private isAdmin(req: Request): boolean {
 		return req.user!.roles.indexOf('admin') > -1;
 	}
 
@@ -70,7 +70,7 @@ export class AppController implements RESTController {
 
 	public async create(req: Request, res: Response) {
 		try {
-			let app = await appService.create(req.user as IUser, req.body.name);
+			const app = await appService.create(req.user as IUser, req.body.name);
 			res.status(201).json(app);
 		}
 		catch (err) {
@@ -92,7 +92,7 @@ export class AppController implements RESTController {
 				res.status(200).json({});
 			}
 			else {
-				let app = await appService.getOne({ '_id': req.params.id, 'createdBy': req.user.id });
+				const app = await appService.getOne({ '_id': req.params.id, 'createdBy': req.user.id });
 				if (app) {
 					appService.deleteByID(app._id);
 					res.status(200).json({});

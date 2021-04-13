@@ -2,14 +2,12 @@ import { Word, IUser } from '../database/schemas';
 
 class WordService {
 
-	public constructor() { }
-
 	public async all(query?: any) {
 		return Word.find(query || {}).populate('fragments');
 	}
 
 	public async getByID(id: string) {
-		let word = await Word.findById(id).populate('fragments');
+		const word = await Word.findById(id).populate('fragments');
 		return word ? word : {}
 	}
 
@@ -19,7 +17,7 @@ class WordService {
 
 	public async update(user: IUser, id: string, fields: any) {
 
-		let existingWord = await Word.findById(id).populate({ path: 'fragments' });
+		const existingWord = await Word.findById(id).populate({ path: 'fragments' });
 
 		if (existingWord) {
 			if(existingWord.fragments.length > 0) {

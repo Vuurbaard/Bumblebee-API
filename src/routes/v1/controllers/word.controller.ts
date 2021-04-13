@@ -30,7 +30,7 @@ export class WordController implements RESTController {
 
 	async create(req: Request, res: Response) {
 		try {
-			let word = await wordService.create(req.user as IUser, req.body.text);
+			const word = await wordService.create(req.user as IUser, req.body.text);
 			await cacheService.clear('all-fragments')
 			res.status(201).json(word);
 		}

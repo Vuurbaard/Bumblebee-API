@@ -6,7 +6,7 @@ class AuthenticationService {
 
 	async hashPassword(password: string) {
 
-		let hash = await new Promise(function (resolve, reject) {
+		const hash = await new Promise(function (resolve, reject) {
 			bcrypt.genSalt(10, (err, salt) => {
 				if (err) { throw err; }
 				bcrypt.hash(password, salt, (err, hash) => {

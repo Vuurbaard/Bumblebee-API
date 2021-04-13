@@ -16,9 +16,9 @@ class YouTubeService implements ISourceProvider {
 		fs.mkdirSync(filepath, { recursive : true });
 	}
 
-	public basepath(resolve : boolean = false): string {
+	public basepath(resolve  = false): string {
 		return resolve ? path.resolve(__dirname, '../..' + this.basepath()) : "/audio/youtube/";
-	};
+	}
 
 	public sourceUrl(source: ISource) {
 		return '/v1' + this.basepath() + source.id.toString() + this.extension;
@@ -42,7 +42,7 @@ class YouTubeService implements ISourceProvider {
 
 			if(!source || (source && source.name == '')){
 				LogService.info('Retrieving info about ', id, ' from youtube');
-				let info = await vm.info(id);
+				const info = await vm.info(id);
 				source = new Source({ id: id, name: info.videoDetails.title, origin: 'YouTube', createdBy: userId });
 				await source.save();
 			}
@@ -55,7 +55,7 @@ class YouTubeService implements ISourceProvider {
 		const vm = this;
 		const filename = id + this.extension;
 		const filepath = path.resolve(__dirname, '../..' + this.basepath() + filename);
-		let yturl = "https://www.youtube.com/watch?v=" + id;
+		const yturl = "https://www.youtube.com/watch?v=" + id;
 		LogService.info('Download of youtube video', id, 'requested...');
 
 		return new Promise((resolve, reject) => {
@@ -82,8 +82,8 @@ class YouTubeService implements ISourceProvider {
      * @returns Identifier based on YouTube url
      */
 	private identifier(url: string) {
-		let regex = /v=([A-z0-9_-]*)/g;
-		let matches = regex.exec(url);
+		const regex = /v=([A-z0-9_-]*)/g;
+		const matches = regex.exec(url);
 
 		if (matches != null && matches['index'] > 0) {
 			return matches[1];

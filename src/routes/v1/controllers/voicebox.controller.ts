@@ -4,7 +4,7 @@ import { FragmentSet } from '../../../database/schemas';
 import LogService from '../../../services/log.service';
 import voiceboxService from '../../../services/voicebox.service';
 
-var request = require('request');
+const request = require('request');
 
 export class VoiceBoxController {
 
@@ -15,11 +15,11 @@ export class VoiceBoxController {
 		try {
 			if (req.query.origin == "slack") {
 
-				let tts = await voiceboxService.tts(req.body.text) as any;
+				const tts = await voiceboxService.tts(req.body.text) as any;
 
 				res.status(200);
 
-				var formData = {
+				const formData = {
 					file: fs.createReadStream(tts.filepath),
 					channels: req.body.channel_id
 				};
@@ -37,7 +37,7 @@ export class VoiceBoxController {
 					format = 'opus';
 				}
 
-				let tts = await voiceboxService.tts(req.body.text, format) as any;
+				const tts = await voiceboxService.tts(req.body.text, format) as any;
 				delete tts.filepath;
 				res.json(tts);
 			}
@@ -51,7 +51,7 @@ export class VoiceBoxController {
 
 	async generate(req: Request, res: Response){
 		// Remove any file format at the end. This way we can trick clients into downloading an mp3 fixing some other shits
-		let hash = req.params.id.replace(/\.(mp3|opus|mp2|wav|wma)/g, '');
+		const hash = req.params.id.replace(/\.(mp3|opus|mp2|wav|wma)/g, '');
 		let extension = req.params.id.replace(hash, '').replace('.', '');
 		let contentType = 'audio/mpeg3';
 		const start = process.hrtime();
@@ -62,7 +62,7 @@ export class VoiceBoxController {
 			extension = 'mp3';
 		}
 
-		let fragmentSet = await FragmentSet.findOne({'hash' : hash});
+		const fragmentSet = await FragmentSet.findOne({'hash' : hash});
 
 		if(fragmentSet){
 			// Do the file magic (in memory)
@@ -70,7 +70,7 @@ export class VoiceBoxController {
 			res = res.status(200).contentType(contentType);
 			voiceboxService.fileMagic(fragmentSet.fragments, extension).then((data: any) => {
 				res.contentType(contentType);
-				let stream = fs.createReadStream(data.filepath).pipe(res);
+				const stream = fs.createReadStream(data.filepath).pipe(res);
 				stream.on('finish', () => {
 					const elapsed = process.hrtime(start);
 					LogService.debug("File magic took", elapsed[0], "s", "and", elapsed[1] / 1000000, 'ms')

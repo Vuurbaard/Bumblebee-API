@@ -23,7 +23,7 @@ const audioController = new AudioController();
 const voiceboxController = new VoiceBoxController();
 const appController = new AppController();
 
-const version: string = "/v1";
+const version = "/v1";
 
 // Authentication and the like
 router.post(version + '/login', authenticationController.login);

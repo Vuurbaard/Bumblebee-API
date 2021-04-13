@@ -10,7 +10,7 @@ class FragmentService {
 	}
 
 	public async getByID(id: string) {
-		let fragment = await Fragment.findById(id);
+		const fragment = await Fragment.findById(id);
 		return fragment ? fragment : {}
 	}
 
@@ -21,7 +21,7 @@ class FragmentService {
 		}
 
 		fields.createdBy = user;
-		let newFragment = new Fragment(fields);
+		const newFragment = new Fragment(fields);
 
 		return await newFragment.save();
 	}

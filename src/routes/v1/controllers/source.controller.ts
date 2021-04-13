@@ -12,7 +12,7 @@ export class SourceController implements RESTController {
 			res.json(await cacheService.get('all-fragments'));
 		} else {
 			try {
-				let sources = (await sourceService.all(req.query)).map(function(item){
+				const sources = (await sourceService.all(req.query)).map(function(item){
 					return {
 						'id' : item.id,
 						'name' : item.name,
@@ -34,7 +34,7 @@ export class SourceController implements RESTController {
 				console.error(err.message);
 				res.status(500).json({ "message": "Something went wrong getting all the sources." });
 			}
-		};
+		}
 
 	}
 

@@ -14,7 +14,7 @@ class AppService {
 	}
 
 	async getByID(id: string) {
-		let app = await App.findById(id);
+		const app = await App.findById(id);
 		return app ? app : {}
 	}
 
@@ -24,10 +24,10 @@ class AppService {
 		if (!name) { throw new Error('Name is required.'); }
 
 		// Throw error if the app already exists by name
-		let exists = await App.findOne({ name: name });
+		const exists = await App.findOne({ name: name });
 		if (exists) { throw new Error('Name already taken.'); }
 
-		let newApp = new App({ name: name, avatar: avatar, createdBy: user });
+		const newApp = new App({ name: name, avatar: avatar, createdBy: user });
 
 		return await newApp.save((err: any, app: IApp) => {
 			if (err) { throw err; }
@@ -39,7 +39,7 @@ class AppService {
 		if (!name) { throw new Error('Name is required.'); }
 
 		// Throw error if the app already exists by name
-		let exists = await App.findOne({ name: name });
+		const exists = await App.findOne({ name: name });
 		if (exists) { throw new Error('Name already taken.'); }
 
 		return await App.findByIdAndUpdate(id, { name: name }, { new: true });

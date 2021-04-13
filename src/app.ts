@@ -26,7 +26,7 @@ export default class App {
 	}
 	
 	public static get logger() : Logger {
-		let logger = App._logger;
+		const logger = App._logger;
 
 		if(!logger){
 			App.registerLogger();
@@ -97,7 +97,7 @@ export default class App {
 
 	static async configuration() {
 		return new Promise((resolve, reject) => {
-			let dotEnvPath = fs.existsSync(path.resolve(process.cwd(), '..','.env')) ? path.resolve(process.cwd(), '..','.env') : path.resolve(process.cwd(), '.env');
+			const dotEnvPath = fs.existsSync(path.resolve(process.cwd(), '..','.env')) ? path.resolve(process.cwd(), '..','.env') : path.resolve(process.cwd(), '.env');
 
 			dotenv.config({
 				'path' : dotEnvPath

@@ -5,7 +5,7 @@ import { IUser, User } from './schemas/user.schema';
 
 module.exports = function (passport: PassportStatic) {
 
-	let opts: any = {};
+	const opts: any = {};
 	opts.jwtFromRequest = passportjwt.ExtractJwt.fromAuthHeaderWithScheme("JWT");
 	opts.secretOrKey = "SomethingVerySecret";
 

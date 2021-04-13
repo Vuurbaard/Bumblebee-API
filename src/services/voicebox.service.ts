@@ -1,16 +1,12 @@
 import q from 'q';
 import ffmpeg from 'fluent-ffmpeg';
-import guid from 'guid';
 import { Word, IWord, IFragment, Fragment } from '../database/schemas';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-
 import LogService from './log.service';
 import { FragmentSet } from '../database/schemas/fragmentSet.schema';
-import { FragmentSchema } from '../database/schemas/fragment.schema';
 import * as streambuffer from 'stream-buffers';
-
 import * as crypto from "crypto";
 
 require('colors');
@@ -22,10 +18,10 @@ class VoiceBox {
 	private youtubeBasePath: string;
 
 	public constructor() {
-		if (!fs.existsSync('audio')) { fs.mkdirSync('audio') };
-		if (!fs.existsSync('audio/youtube')) { fs.mkdirSync('audio/youtube') };
-		if (!fs.existsSync('audio/fragments')) { fs.mkdirSync('audio/fragments') };
-		if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') };
+		if (!fs.existsSync('audio')) { fs.mkdirSync('audio') }
+		if (!fs.existsSync('audio/youtube')) { fs.mkdirSync('audio/youtube') }
+		if (!fs.existsSync('audio/fragments')) { fs.mkdirSync('audio/fragments') }
+		if (!fs.existsSync('audio/temp')) { fs.mkdirSync('audio/temp') }
 
 		this.basePath = path.join(__dirname, '../audio/');
 		this.tempPath = path.join(this.basePath, '/temp/');
@@ -34,11 +30,11 @@ class VoiceBox {
 	}
 
 
-	public async tts(text: string, format: string = 'mp3') {
+	public async tts(text: string, format = 'mp3') {
 
-		let __trace = {} as any;
+		const __trace = {} as any;
 
-		let deferred = q.defer();
+		const deferred = q.defer();
 
 		__trace.preperation = process.hrtime();
 
@@ -48,11 +44,11 @@ class VoiceBox {
 
 		LogService.debug("Input: ", input.toString());
 
-		let textInput = input.toString();
+		const textInput = input.toString();
 
 		LogService.info('[VoiceBox]', 'starting new asyncmagic for:', input.toString());
 
-		let combinations = new Array();
+		const combinations = [];
 
 		for (let start = 0; start < input.length; start++) {
 			let phrase = "";
@@ -67,7 +63,7 @@ class VoiceBox {
 		__trace.word_find_query = process.hrtime();
 		// LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
-		let words = await Word.find({ text: { "$in" : combinations} }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
+		const words = await Word.find({ text: { "$in" : combinations} }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
 		LogService.info('[VoiceBox]', "found", words.length, 'words in database.');
 
 		__trace.word_find_query = process.hrtime(__trace.word_find_query);
@@ -75,16 +71,16 @@ class VoiceBox {
 		// We have not found anything to do so let's just exit the function
 		if (words.length == 0) {
 			LogService.info('[VoiceBox]', 'words not found:', input);
-			let notFound = input.map(word => { return { text: word, found: false } });
+			const notFound = input.map(word => { return { text: word, found: false } });
 			deferred.resolve({ fragments: notFound });
 			return deferred.promise;
 		}
 
 		__trace.order_words = process.hrtime();
 		// Database results are not ordered, let's order them
-		let orderedWords = new Array<IWord>();
-		for (let word of combinations) {
-			let w = words.find(function (w : IWord) { return word == w.text; });
+		const orderedWords = new Array<IWord>();
+		for (const word of combinations) {
+			const w = words.find(function (w : IWord) { return word == w.text; });
 			if (w) { orderedWords.push(w); }
 		}
 
@@ -92,7 +88,7 @@ class VoiceBox {
 
 		// FYI: Traces are fragments
 		__trace.tracing = process.hrtime();
-		let traces = await this.trace(orderedWords);
+		const traces = await this.trace(orderedWords);
 		__trace.tracing = process.hrtime(__trace.tracing);
 		// LogService.info('[VoiceBox]', 'traces:'.toString());
 		//for (let trace of traces) {
@@ -110,19 +106,19 @@ class VoiceBox {
 
 		__trace.order_words = process.hrtime(__trace.order_words);
 
-		let randomTraces = traces;
+		const randomTraces = traces;
 
-		let inputToProcess = input;
+		const inputToProcess = input;
 		let fragments = new Array<any>();
 
 		__trace.trace_words = process.hrtime();
-		for (let traces of randomTraces) {
+		for (const traces of randomTraces) {
 
 			if (inputToProcess.length == 0) { break; }
 
 			// Build array of words from this specific trace so we can match it with the input
-			let wordsFromTrace = new Array();
-			for (let trace of traces) {
+			const wordsFromTrace = [];
+			for (const trace of traces) {
 				wordsFromTrace.push(trace.word.text);
 			}
 
@@ -133,12 +129,12 @@ class VoiceBox {
 				let start = 0;
 				let index = -1;
 				while (inputToProcess.indexOf(wordsFromTrace[0], start) >= 0) {
-					let ind = inputToProcess.indexOf(wordsFromTrace[0], start);
+					const ind = inputToProcess.indexOf(wordsFromTrace[0], start);
 					// Sanity check
 					if (inputToProcess.length >= (ind + wordsFromTrace.length)) {
 						let br = false;
 						let indx = ind;
-						for (let word of wordsFromTrace) {
+						for (const word of wordsFromTrace) {
 							if (inputToProcess[indx] == word) {
 								indx = indx + 1;
 							}
@@ -163,8 +159,8 @@ class VoiceBox {
 
 					// Set end time of the first fragment to the end time of the last fragment in this trace
 					// It is a bit cheaty, but it works.
-					for (var i = 0; i < traces.length; i++) {
-						var fragment = traces[i];
+					for (let i = 0; i < traces.length; i++) {
+						const fragment = traces[i];
 
 						// LogService.info('[VoiceBox]'.bgYellow.black, 'traces:'.red, traces);
 
@@ -187,7 +183,7 @@ class VoiceBox {
 
 					// Replace words with fragments in inputToProcess
 					inputToProcess.splice(index, wordsFromTrace.length);
-					for (var trace of traces.reverse()) {
+					for (const trace of traces.reverse()) {
 						inputToProcess.splice(index, 0, trace);
 					}
 
@@ -214,7 +210,7 @@ class VoiceBox {
 		// Generate structure
 		
 		// Generate Fragment set based on current stuff ( and generate a hash )
-		let fragmentHash = this.generateHash(fragments);
+		const fragmentHash = this.generateHash(fragments);
 
 
 		// Find a fragmentSet for this combination
@@ -234,7 +230,7 @@ class VoiceBox {
 			fragmentSet = await fragmentSet.save();
 		}
 
-		let data = {
+		const data = {
 			'file' : '/v1/audio/generate/' + fragmentSet.hash + '.' + format,
 			'fragments' : fragmentsToReturn
 		};
@@ -245,9 +241,9 @@ class VoiceBox {
 	}
 
 	private async trace(words: IWord[]) {
-		let traces = new Array();
+		const traces: Array<any> = [];
 
-		let promises = [] as any[];
+		const promises = [] as any[];
 
 		words.forEach((word, i) => {
 			LogService.info('[VoiceBox]', 'starting new trace for word', word.text);
@@ -258,7 +254,7 @@ class VoiceBox {
 		})
 
 		await Promise.all(promises).then(values => {
-			for(let item of values){
+			for(const item of values){
 				traces.push(item);
 			}
 		})
@@ -271,7 +267,7 @@ class VoiceBox {
 		return traces;
 	}
 
-	private generateHash(fragments : Array<Object>){
+	private generateHash(fragments : Array<any>){
 		function compare(a: any, b: any) {
 			if (a.order < b.order)
 				return -1;
@@ -283,7 +279,7 @@ class VoiceBox {
 		fragments.sort(compare);
 
 		// We only need id's for the hash (we will concat them together)
-		let content = fragments.map(function(item : any) {
+		const content = fragments.map(function(item : any) {
 			return item['id'] + item['start'] + item['end'];
 		}).join(':');
 
@@ -296,20 +292,20 @@ class VoiceBox {
 		// fragment = the current fragment we need to start a trace for
 		// traces = array containing all the fragments we've traced
 
-		let nextWord = words[index + 1];
+		const nextWord = words[index + 1];
 		if (!traces) {
-			traces = new Array();
+			traces = [];
 			traces.push(fragment);
 		}
 
 		// LogService.info('[VoiceBox]', 'tracing fragment', fragment.id);
 
 		if (nextWord) {
-			for (let nextFragment of nextWord.fragments) {
+			for (const nextFragment of nextWord.fragments) {
 
 				if (nextFragment.source != null && nextFragment.source.equals(fragment.source) && Number(nextFragment.start) > Number(fragment.start) && traces.filter(trace => (trace.id == nextFragment.id)).length == 0) {
 					
-					let fragmentsInBetween = await Fragment.countDocuments({
+					const fragmentsInBetween = await Fragment.countDocuments({
 						start: { $gt: fragment.start, $lt: nextFragment.start },
 						source: fragment.source
 					});
@@ -339,25 +335,24 @@ class VoiceBox {
 		}
 	}
 
-	public async fileMagic(fragments: Array<any>, format: string = 'mp3') {
+	public async fileMagic(fragments: Array<any>, format = 'mp3') {
 		// Generate temp files from fragments
-		let tempFiles = new Array();
-		let promises = new Array();
+		const tempFiles: Array<any> = [];
+		const promises: Array<Promise<any>> = [];
 
-		let audioFolder = path.join(__dirname, '../audio/');
 		const self = this;
 
-		for (let fragment of fragments) {
+		for (const fragment of fragments) {
 			(function (fragment) {
-				let promise = new Promise(function (resolve, reject) {
-					let prefixDir = fragment.id.substr(0,2);
-					let fragmentsDir = path.join(self.fragmentsBasePath, prefixDir, '/');
+				const promise = new Promise(function (resolve, reject) {
+					const prefixDir = fragment.id.substr(0,2);
+					const fragmentsDir = path.join(self.fragmentsBasePath, prefixDir, '/');
 
-					let filepath = path.join(self.youtubeBasePath, fragment.source.id.toString() + '.mp3');
+					const filepath = path.join(self.youtubeBasePath, fragment.source.id.toString() + '.mp3');
 					
-					if (!fs.existsSync(fragmentsDir)) { fs.mkdirSync(fragmentsDir) };
+					if (!fs.existsSync(fragmentsDir)) { fs.mkdirSync(fragmentsDir) }
 
-					let outputpath = path.join(fragmentsDir, `${fragment.id}-${fragment.endFragment._id}.mp3`);
+					const outputpath = path.join(fragmentsDir, `${fragment.id}-${fragment.endFragment._id}.mp3`);
 
 					fs.exists(outputpath, (exists) => {
 						if(!exists){
@@ -388,7 +383,7 @@ class VoiceBox {
 			})(fragment);
 		}
 
-		let obj = this; 
+		const obj = this; 
 		return Promise.all(promises).then(function () {
 			function compare(a: any, b: any) {
 				if (a.order < b.order)
@@ -401,21 +396,21 @@ class VoiceBox {
 			tempFiles.sort(compare);
 
 			// Audioconcat needs a non relative path. 
-			let files = new Array();
+			const files: Array<any> = [];
 
 			tempFiles.forEach(fragment => {
-				let prefixDir = fragment.id.substr(0,2);
+				const prefixDir = fragment.id.substr(0,2);
 				files.push(path.join(obj.fragmentsBasePath, prefixDir,'/', fragment.file));
 			});
 
-			let fileName = obj.generateHash(fragments);
+			const fileName = obj.generateHash(fragments);
 
 			// Concatenate the temp fragment files into one big one
-			let outputfilename = fileName + '.' + format;
-			let preaudionorm = fileName + '-prenorm.mp3';
+			const outputfilename = fileName + '.' + format;
+			const preaudionorm = fileName + '-prenorm.mp3';
 
-			let prenormPath = path.join(obj.tempPath, preaudionorm);
-			let outputPath = path.join(obj.tempPath, outputfilename);
+			const prenormPath = path.join(obj.tempPath, preaudionorm);
+			const outputPath = path.join(obj.tempPath, outputfilename);
 
 
 			return new Promise((resolve, reject) => {
@@ -424,7 +419,7 @@ class VoiceBox {
 					LogService.debug('No file found at', outputPath, 'generating file');
 
 					// Create stream buffer for concatting files
-					let myWritableStreamBuffer = new streambuffer.WritableStreamBuffer({
+					const myWritableStreamBuffer = new streambuffer.WritableStreamBuffer({
 						initialSize: (100 * 1024),   // start at 100 kilobytes.
 						incrementAmount: (10 * 1024) // grow by 10 kilobytes each time buffer overflows.
 					});					
@@ -439,8 +434,8 @@ class VoiceBox {
 					})
 					.on('end', function () {
 						LogService.info('[VoiceBox]', 'Audio non-normalized created in:', prenormPath);
-						let myReadAbleStream = new streambuffer.ReadableStreamBuffer();
-						let streamContents = myWritableStreamBuffer.getContents() as Buffer;
+						const myReadAbleStream = new streambuffer.ReadableStreamBuffer();
+						const streamContents = myWritableStreamBuffer.getContents() as Buffer;
 						myReadAbleStream.put(streamContents);
 						myWritableStreamBuffer.end();
 						myReadAbleStream.stop();

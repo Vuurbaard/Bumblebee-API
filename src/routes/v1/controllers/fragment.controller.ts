@@ -30,7 +30,7 @@ export class FragmentController implements RESTController {
 
 	async create(req: Request, res: Response) {
 		try {
-			let fragment = await fragmentService.create(req.user as IUser, req.body);
+			const fragment = await fragmentService.create(req.user as IUser, req.body);
 			await cacheService.clear('all-fragments')
 			res.status(201).json(fragment);
 		}

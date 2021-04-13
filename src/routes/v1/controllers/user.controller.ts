@@ -36,7 +36,7 @@ export class UserController implements RESTController {
 	public async updateByID(req: Request, res: Response) {
 		try {
 			if (req.user!.roles.indexOf('admin') > -1) {
-				let user = await userService.updateByID(req.params.id, req.body);
+				const user = await userService.updateByID(req.params.id, req.body);
 				res.status(200).json(user);
 			}
 			else {
@@ -46,7 +46,7 @@ export class UserController implements RESTController {
 				if (req.body.password) { throw new Error('Not allowed to update your own password.'); }
 				if (req.body.roles) { throw new Error('Not allowed to update your own roles.'); }
 
-				let user = await userService.updateByID(req.params.id, req.body);
+				const user = await userService.updateByID(req.params.id, req.body);
 				res.status(200).json(user);
 			}
 		}
@@ -67,7 +67,7 @@ export class UserController implements RESTController {
 
 	public async create(req: Request, res: Response) {
 		try {
-			let user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
+			const user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
 			res.status(201).json({ user: user });
 		}
 		catch (err) {

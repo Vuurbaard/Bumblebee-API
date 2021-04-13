@@ -24,7 +24,7 @@ export class AuthenticationController {
 							else if (!success) { res.status(401).json({ message: "The supplied username/password combination is wrong." }); }
 							else {
 
-								let userObj = user.toObject(); // Convert from mongoose object to 'normal' object
+								const userObj = user.toObject(); // Convert from mongoose object to 'normal' object
 								userObj.password = ''; // We don't want the encrypted password to be returned
 
 								res.json({
@@ -60,7 +60,7 @@ export class AuthenticationController {
 
 	public async register(req: Request, res: Response) {
 		try {
-			let user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
+			const user = await userService.create(req.body.username, req.body.password, req.body.email, req.body.name);
 			res.status(201).json({ user: user });
 		}
 		catch (err) {
