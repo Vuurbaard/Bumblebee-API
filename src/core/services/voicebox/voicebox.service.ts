@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FragmentSet, FragmentSetDocument } from 'src/database/schemas/fragmentSet.schema';
 import { Word, WordDocument } from 'src/database/schemas/word.schema';
+import { DefaultStrategy } from './strategies/DefaultStrategy';
+import { IStrategy } from './strategies/IStrategy';
+import * as crypto from "crypto";
+import { Fragment } from 'src/database/schemas/fragment.schema';
 
 @Injectable()
 export class VoiceboxService {
 
+	protected strategies: Array<any> = [];
 
 
-	constructor(@InjectModel(Word.name) private wordModel: Model<WordDocument>){
-
+	constructor(@InjectModel(Word.name) private wordModel: Model<WordDocument>,
+		        @InjectModel(FragmentSet.name) private fragmentSetModel: Model<FragmentSetDocument>, private defaultStrat: DefaultStrategy){
+		this.strategies.push(defaultStrat);
 	}
 
 
@@ -19,45 +26,87 @@ export class VoiceboxService {
 	 */
 	public async tts(text: string): Promise<any> {
 		let words = this.sentenceToWords(text);
-		// Get all fragments for these words
-		let matches = await this.getMatchingWordsList(words);
 
-		// Find longest string of words and pick some at random and fill in the others
-		let missing = [];
-
-		matches.forEach((match) => {
-			if(match.fragments.length > 0){
-				console.log(match.fragments);
-			} else {
-				missing.push(match.word);
-			}
-		});
-
-		// console.log(matches)
+		let strategy = this.getStrategy();
 
 
-		return {
-			'lol': 'yes'
-		};
+		let ttsresult = await strategy.run(words);
+
+		console.log(ttsresult);
+
+		// Cache combination for easier lookup in the future
+		let fragmentSetHash = this.generateHash(ttsresult.fragments);
+
+		let fragmentSet = await this.fragmentSetModel.findOne({'hash': fragmentSetHash});
+
+		if(fragmentSet === null){
+			let fragments = ttsresult.fragments.filter((el) => {
+				return el != null;
+			});
+
+
+			fragmentSet =  new this.fragmentSetModel({
+				'hash' : fragmentSetHash,
+				'text' : text,
+				'active': true,
+				'fragments' :  fragments.map((fragment: Fragment) => {
+					return fragment._id;
+				})
+			});
+
+			// console.log(fragmentSet);
+		
+			fragmentSet = await fragmentSet.save();
+			console.log(fragmentSet);
+		}
+
+		// console.log(fragmentSet);
+
+
+		// console.log(fragmentSetHash);
+
+		return {};
+	}
+
+	private getStrategy(): IStrategy{
+		return this.strategies[0];
 	}
 
 
 
-	private sentenceToWords(sentence: string): string[] {
-		let rc = [];
-		rc = sentence.trim().split(" ");
-
-
-		return rc;
+	private sentenceToWords(sentence: string): Array<string> {
+		return sentence.trim().split(" ");
 	}
 
 
 	
+	private generateHash(fragments : Array<any>){
+		function compare(a: any, b: any) {
+			if (a.order < b.order)
+				return -1;
+			if (a.order > b.order)
+				return 1;
+			return 0;
+		}
+
+		fragments.sort(compare);
+
+		// We only need id's for the hash (we will concat them together)
+		const content = fragments.map(function(item : any) {
+			return item['id'] + item['start'] + item['end'];
+		}).join(':');
+
+		return crypto.createHash('sha1').update(content).digest('hex');
+	}
 
 
 	private async getMatchingWordsList(words: string[]){
 
 		let qWords = await this.wordModel.find({ 'text' : { '$in' : words } }).populate('fragments').exec();
+
+		qWords.forEach((item) => {
+			console.log(item);
+		})
 
 		let matches = [];
 

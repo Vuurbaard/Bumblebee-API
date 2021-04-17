@@ -5,7 +5,7 @@ import { Fragment } from './fragment.schema';
 
 
 @Schema()
-export class Source {
+export class Source extends Document {
 	@Prop()
 	id: string;
 

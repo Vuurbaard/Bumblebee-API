@@ -3,17 +3,24 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Fragment } from './fragment.schema';
 
+export type FragmentSetDocument = FragmentSet;
 
 @Schema()
-export class Word extends Document {
+export class FragmentSet extends Document  {
+	@Prop()
+	hash: string;
+
 	@Prop()
 	text: string;
 
+	@Prop()
+	active: boolean;
+
 	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Fragment' }] })
-	fragments: Fragment[]
+	fragments: Fragment[];
 
 }
 
-export type WordDocument = Word;
 
-export const WordSchema = SchemaFactory.createForClass(Word);
+
+export const FragmentSetSchema = SchemaFactory.createForClass(FragmentSet);

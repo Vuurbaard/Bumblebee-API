@@ -6,8 +6,10 @@ import { Word } from './word.schema';
 import { Source } from './source.schema';
 
 
+export type FragmentDocument = Fragment & Document;
+
 @Schema()
-export class Fragment {
+export class Fragment extends Document {
 	@Prop()
 	start: string;
 
@@ -17,10 +19,10 @@ export class Fragment {
 	@Prop()
 	active: boolean;
 
-	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Source' }] })
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Source' })
 	source: Source;
 
-	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }] })
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Word' })
 	word: Word
 
 	@Prop()
@@ -34,6 +36,5 @@ export class Fragment {
 
 }
 
-export type FragmentDocument = Fragment & Document;
 
 export const FragmentSchema = SchemaFactory.createForClass(Fragment);

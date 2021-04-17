@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Fragment, FragmentSchema } from './schemas/fragment.schema';
+import { FragmentSetSchema } from './schemas/fragmentSet.schema';
 import { Source, SourceSchema } from './schemas/source.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { Word, WordSchema } from './schemas/word.schema';
@@ -8,6 +9,7 @@ import { Word, WordSchema } from './schemas/word.schema';
 
 let schemas = [
 	MongooseModule.forFeature([{ name: 'Fragment', schema: FragmentSchema }]),
+	MongooseModule.forFeature([{ name: 'FragmentSet', schema: FragmentSetSchema }]),
 	MongooseModule.forFeature([{ name: 'Source', schema: SourceSchema }]),
 	MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
 	MongooseModule.forFeature([{ name: 'Word', schema: WordSchema }]),

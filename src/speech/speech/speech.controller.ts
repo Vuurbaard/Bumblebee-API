@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { VoiceboxService } from 'src/core/services/voicebox/voicebox.service';
@@ -16,8 +16,9 @@ export class SpeechController {
 	 * tts
 	 */
 	@Post('tts')
-	async tts(): Promise<string> {
-		await this.voicebox.tts('ik ga konijnen schieten met mijn vijf pizza tafel drie nu ophalen please let this work');
+	async tts(@Body() postParams): Promise<string> {
+		let message = postParams['text'] ?? '';
+		await this.voicebox.tts(message);
 
 		return 'ok';
 	}
