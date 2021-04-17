@@ -16,8 +16,8 @@ export class FragmentSet extends Document  {
 	@Prop()
 	active: boolean;
 
-	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Fragment' }] })
-	fragments: Fragment[];
+	@Prop()
+	fragments: Array<any>
 
 }
 

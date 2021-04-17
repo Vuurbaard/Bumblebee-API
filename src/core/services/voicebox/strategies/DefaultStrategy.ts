@@ -16,16 +16,10 @@ export class DefaultStrategy implements IStrategy {
 
 	async run(words: Array<string>): Promise<TTSresult> {
 		let rc = new TTSresult();
-		console.log("DEFAULTSTRATEGY");
-		console.log(words);
-		console.log("Got input", words.join(' '));
 
 		let combinations = this.generateCombinations(words);
 
-		// let words = await this.wordModel.find({ 'text' : { '$in' : combinations } }).populate('fragments').exec();
 		const qWords = await this.wordModel.find({ text: { "$in" : combinations} }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'word', model: 'Word' } }).populate({ path: 'fragments', model: 'Fragment', populate: { path: 'source', model: 'Source' } });
-		console.log('Found', qWords.length, 'words in database')
-
 		const orderedWords = this.orderWordsFromDatabase(combinations, qWords);
 		const traces = await this.trace(orderedWords);
 		// Shuffle traces
@@ -51,10 +45,6 @@ export class DefaultStrategy implements IStrategy {
 	}
 	
 	private findTraces(input:Array<string>, words: Array<any[]>){
-		let fragments = new Array<Fragment>();
-
-		console.log(words);
-
 		for (const traces of words) {
 
 			if (input.length == 0) { break; }
@@ -66,6 +56,7 @@ export class DefaultStrategy implements IStrategy {
 			}
 
 			// LogService.info('[VoiceBox]', 'trying to remove:', wordsFromTrace, 'from', inputToProcess);
+			
 
 			if (wordsFromTrace.length > 0) {
 				// Find the first word
@@ -100,20 +91,6 @@ export class DefaultStrategy implements IStrategy {
 
 				if (index >= 0) {
 
-					// Set end time of the first fragment to the end time of the last fragment in this trace
-					// It is a bit cheaty, but it works.
-					for (let i = 0; i < traces.length; i++) {
-						const fragment = traces[i];
-
-						// LogService.info('[VoiceBox]'.bgYellow.black, 'traces:'.red, traces);
-
-						if (!fragments[index] && fragment) {
-							fragments[index] = fragment
-						} else {
-							fragments[index] = fragment
-						}
-					}
-
 					// Replace words with fragments in inputToProcess
 					input.splice(index, wordsFromTrace.length);
 					for (const trace of traces.reverse()) {
@@ -123,7 +100,6 @@ export class DefaultStrategy implements IStrategy {
 				}
 			}
 		}
-		console.log(input);
 
 		let fragmentsToReturn = input as Array<any>;
 		fragmentsToReturn = fragmentsToReturn.map(fragment => {
@@ -170,7 +146,6 @@ export class DefaultStrategy implements IStrategy {
 			return b.length - a.length;
 		});
 
-		console.log(traces);
 
 		return traces;
 	}

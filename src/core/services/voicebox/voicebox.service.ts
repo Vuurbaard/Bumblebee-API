@@ -6,7 +6,8 @@ import { Word, WordDocument } from 'src/database/schemas/word.schema';
 import { DefaultStrategy } from './strategies/DefaultStrategy';
 import { IStrategy } from './strategies/IStrategy';
 import * as crypto from "crypto";
-import { Fragment } from 'src/database/schemas/fragment.schema';
+import { TTSresult } from 'src/core/models/ttsresult';
+import { AudioService } from '../audio/audio.service';
 
 @Injectable()
 export class VoiceboxService {
@@ -15,7 +16,9 @@ export class VoiceboxService {
 
 
 	constructor(@InjectModel(Word.name) private wordModel: Model<WordDocument>,
-		        @InjectModel(FragmentSet.name) private fragmentSetModel: Model<FragmentSetDocument>, private defaultStrat: DefaultStrategy){
+		        @InjectModel(FragmentSet.name) private fragmentSetModel: Model<FragmentSetDocument>, 
+				private audioService: AudioService,
+				private defaultStrat: DefaultStrategy){
 		this.strategies.push(defaultStrat);
 	}
 
@@ -24,15 +27,13 @@ export class VoiceboxService {
 	/**
 	 * tts
 	 */
-	public async tts(text: string): Promise<any> {
+	public async tts(text: string): Promise<TTSresult> {
 		let words = this.sentenceToWords(text);
 
 		let strategy = this.getStrategy();
 
 
 		let ttsresult = await strategy.run(words);
-
-		console.log(ttsresult);
 
 		// Cache combination for easier lookup in the future
 		let fragmentSetHash = this.generateHash(ttsresult.fragments);
@@ -49,23 +50,22 @@ export class VoiceboxService {
 				'hash' : fragmentSetHash,
 				'text' : text,
 				'active': true,
-				'fragments' :  fragments.map((fragment: Fragment) => {
-					return fragment._id;
-				})
+				'fragments' :  fragments
 			});
 
 			// console.log(fragmentSet);
 		
 			fragmentSet = await fragmentSet.save();
-			console.log(fragmentSet);
 		}
 
-		// console.log(fragmentSet);
+		ttsresult.fragmentSet = fragmentSet;
 
+		return ttsresult;
+	}
 
-		// console.log(fragmentSetHash);
-
-		return {};
+	public async getAudio(fragmentSet: FragmentSet, format: string){
+		console.log("hey?");
+		let audioResponse = await this.audioService.parseFragmentSet(fragmentSet, format);
 	}
 
 	private getStrategy(): IStrategy{
