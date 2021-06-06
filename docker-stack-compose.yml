@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 services:
     api:
         image: ${CI_REGISTRY_IMAGE}:latest
@@ -33,7 +33,7 @@ services:
                     cpus: '0.5'
                     memory: 128M
     redis:
-      image: redis:6.2.1-alpine
+      image: redis:6.2.4-alpine
       networks:
           - bmbl-net
       deploy:

@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16-alpine
 ARG NPM_GLOBAL_PACKAGES=typescript
 ARG BUILD_PROD=false
 WORKDIR /var/www/html

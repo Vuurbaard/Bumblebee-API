@@ -1,25 +1,26 @@
-version: '3.7'
+version: '3.8'
 services:
-    # api:
-    #     build:
-    #         context: ./
-    #         dockerfile: docker/Dockerfile
-    #         args:
-    #             - NPM_GLOBAL_PACKAGES=typescript nodemon
-    #             - BUILD_PROD=false
-    #     volumes:
-    #         - ./:/var/www/html
-    #         - ./node_modules:/var/www/html/node_modules:delegated
-    #     depends_on:
-    #        - mongodb
-    #     environment:
-    #         - MONGO_HOST=mongodb
-    #         - MONGO_PORT=27017
-    #         - NODE_ENV=development
-    #     ports:
-    #         - 3000:3000
-    #     networks:
-    #       - bumblebee-net
+    api:
+        build:
+            context: ./
+            dockerfile: docker/Dockerfile
+            args:
+                - NPM_GLOBAL_PACKAGES=typescript nodemon
+                - BUILD_PROD=false
+        volumes:
+            - ./:/var/www/html
+            - ./node_modules:/var/www/html/node_modules:delegated
+        depends_on:
+           - mongodb
+        environment:
+            - MONGO_HOST=mongodb
+            - MONGO_PORT=27017
+            - NODE_ENV=development
+            - REDIS_HOST=redis
+        ports:
+            - 3000:3000
+        networks:
+          - bumblebee-net
     mongodb:
         image: mongo:latest
         container_name: "mongodb"
@@ -38,7 +39,7 @@ services:
     redis:
         ports:
           - 6379:6379 
-        image: redis:6.2.1-alpine
+        image: redis:6.2.4-alpine
         networks:
           - bumblebee-net
 networks:
