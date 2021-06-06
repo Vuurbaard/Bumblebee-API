@@ -201,7 +201,7 @@ export class DefaultStrategy implements IStrategy {
 	}
 
 
-	private generateCombinations(words): Array<string>{
+	private generateCombinations(words: Array<any>): Array<string>{
 		let combinations = [];
 		// Generate combinations
 		for (let start = 0; start < words.length; start++) {

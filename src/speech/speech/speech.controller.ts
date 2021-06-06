@@ -22,7 +22,7 @@ export class SpeechController {
 		let message = postParams['text'] ?? '';
 		let tts = await this.voicebox.tts(message);
 
-		console.log(tts);
+		// console.log(tts);
 		return {
 			'link' : `/speech/set/${tts.fragmentSet.hash}.mp3`,
 			'missing': tts.missing
@@ -31,7 +31,6 @@ export class SpeechController {
 
 	@Get('set/:hash\.:format')
 	async download(@Param() params): Promise<any> {
-		console.log(params);
 		// Check if hash exists
 		let fragmentSet = await this.fragmentSetService.byHash(params.hash ?? '');
 

@@ -35,6 +35,7 @@ export class VoiceboxService {
 
 		let ttsresult = await strategy.run(words);
 
+
 		// Cache combination for easier lookup in the future
 		let fragmentSetHash = this.generateHash(ttsresult.fragments);
 

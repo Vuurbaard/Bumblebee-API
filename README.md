@@ -105,3 +105,7 @@ Restore database
 `docker run --network bumblebee-net --rm -v $(pwd)/backup:/backup mongo bash -c 'mongorestore /backup --host mongo:27017'`
 
 `docker run --rm -v ${PWD}/backup:/backup mongo bash -c 'mongorestore /backup --host ip:27017'`
+
+Or restore from archive
+
+`docker run --network bumblebee-net --rm -v $(pwd)/backup:/backup mongo bash -c 'mongorestore --gzip --archive=/backup/archive.gz --host mongo:27017'`
