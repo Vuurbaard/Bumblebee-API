@@ -3,12 +3,12 @@ import { IFragment, IUser } from ".";
 
 export interface IWord extends Document {
   text: string;
-  fragments: [IFragment];
+  fragments: IFragment[];
   createdAt: Date;
   createdBy: IUser;
 }
 
-export var WordSchema: Schema = new Schema({
+export const WordSchema: Schema = new Schema({
   text: {
     type: String,
     required: true,
@@ -16,7 +16,7 @@ export var WordSchema: Schema = new Schema({
     trim: true,
     unique: true,
   },
-  //fragments: [{ type: Schema.Types.ObjectId, ref: 'Fragment' }],
+  // fragments: [{ type: Schema.Types.ObjectId, ref: "Fragment" }],
   createdBy: { type: Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date },
 });
@@ -26,6 +26,7 @@ WordSchema.virtual("fragments", {
   localField: "_id", // `localField`
   foreignField: "word", // is equal to `foreignField`
   justOne: false,
+  default: [],
 });
 
 WordSchema.pre("save", function (next) {

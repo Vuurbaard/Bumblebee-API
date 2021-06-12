@@ -4,10 +4,10 @@ import { IFragment } from "./fragment.schema";
 export interface IFragmentSet extends Document {
   hash: string;
   text: string;
-  fragments: [Array<IFragment>];
+  fragments: IFragment[];
 }
 
-export var FragmentSetSchema: Schema = new Schema({
+export const FragmentSetSchema: Schema = new Schema({
   hash: { type: String, required: true },
   text: { type: String, required: true },
   fragments: { type: Array },

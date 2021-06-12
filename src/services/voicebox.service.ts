@@ -1,6 +1,13 @@
 import q from "q";
 import ffmpeg from "fluent-ffmpeg";
-import { Word, IWord, IFragment, Fragment } from "../database/schemas";
+import {
+  Word,
+  IWord,
+  IFragment,
+  Fragment,
+  Source,
+  ISource,
+} from "../database/schemas";
 import fs from "fs";
 import path from "path";
 import process from "process";
@@ -58,13 +65,26 @@ class VoiceBox {
       input.toString()
     );
 
-    const combinations = [];
+    const combinations: string[] = [];
+
+    const uniqueCombinations: string[] = [];
 
     for (let start = 0; start < input.length; start++) {
       let phrase = "";
       for (let i = start; i < input.length; i++) {
         phrase = phrase + input[i] + " ";
-        combinations.push(phrase.substring(0, phrase.length - 1));
+        const neatPhrase = phrase.substring(0, phrase.length - 1);
+
+        if (
+          phrase.split(" ").length < 5 &&
+          !uniqueCombinations.includes(neatPhrase)
+        ) {
+          uniqueCombinations.push(neatPhrase);
+        }
+
+        if (!combinations.includes(neatPhrase)) {
+          combinations.push(neatPhrase);
+        }
       }
     }
 
@@ -73,7 +93,7 @@ class VoiceBox {
     __trace.word_find_query = process.hrtime();
     // LogService.info('[VoiceBox]', "combinations:", combinations.toString());
 
-    const words = await Word.find({ text: { $in: combinations } })
+    const words = await Word.find({ text: { $in: uniqueCombinations } })
       .populate({
         path: "fragments",
         model: "Fragment",
@@ -84,6 +104,7 @@ class VoiceBox {
         model: "Fragment",
         populate: { path: "source", model: "Source" },
       });
+
     LogService.info("[VoiceBox]", "found", words.length, "words in database.");
 
     __trace.word_find_query = process.hrtime(__trace.word_find_query);
@@ -114,6 +135,7 @@ class VoiceBox {
 
     // FYI: Traces are fragments
     __trace.tracing = process.hrtime();
+
     const traces = await this.trace(orderedWords);
     __trace.tracing = process.hrtime(__trace.tracing);
     // LogService.info('[VoiceBox]', 'traces:'.toString());
@@ -261,27 +283,64 @@ class VoiceBox {
   }
 
   private async trace(words: IWord[]) {
-    const traces: Array<any> = [];
+    let traces: Array<any> = [];
 
     const promises = [] as any[];
 
-    words.forEach((word, i) => {
-      LogService.info("[VoiceBox]", "starting new trace for word", word.text);
+    // console.log("All words", words);
 
-      word.fragments.forEach((fragment) => {
-        promises.push(this.traceFragments(i, words, fragment));
-      });
-    });
+    // Retrieve all fragments from all sources we are trying to include
+    // Source.find({ _id: { $in: [] } });
 
-    await Promise.all(promises).then((values) => {
-      for (const item of values) {
-        traces.push(item);
+    const sources: string[] = [];
+
+    const sourceMap = new Map<string, ISource>();
+    const fragmentMap = new Map<string, IFragment[]>();
+
+    words.forEach((word) => {
+      if (!fragmentMap.has(word.text)) {
+        fragmentMap.set(word.text, word.fragments);
+        word.fragments.forEach((fragment) => {
+          if (
+            fragment.source &&
+            fragment.source._id &&
+            !sources.includes(fragment.source._id)
+          ) {
+            sources.push(fragment.source._id);
+          }
+        });
       }
     });
 
-    // We want the ones with the most entries at the top of the array, so let's sort on length.
-    traces.sort(function (a, b) {
-      return b.length - a.length;
+    (
+      await Source.find({
+        _id: { $in: sources },
+      }).populate({ path: "fragments", options: { sort: { start: -1 } } })
+    ).forEach((source) => {
+      if (!sourceMap.has(source._id.toString())) {
+        sourceMap.set(source._id.toString(), source);
+      }
+    });
+
+    words.forEach((word, i) => {
+      let applicableFragments: IFragment[] = [];
+      LogService.info("[VoiceBox]", "starting new trace for word", word.text);
+
+      applicableFragments = fragmentMap.get(word.text) ?? [];
+
+      promises.push(
+        ...applicableFragments.map((frag) => {
+          return this.traceFragments(i, words, sourceMap, frag);
+        })
+      );
+    });
+
+    console.log("Starting with", promises.length, "promises");
+
+    await Promise.all(promises).then((values) => {
+      traces = [...values].sort(function (a, b) {
+        return b.length - a.length;
+      });
     });
 
     return traces;
@@ -309,41 +368,57 @@ class VoiceBox {
   private async traceFragments(
     index: number,
     words: IWord[],
+    sources: Map<string, ISource>,
     fragment: IFragment,
     traces?: IFragment[]
   ) {
+    traces = traces ?? [fragment];
     // index = current word index
     // words = the word array
     // fragment = the current fragment we need to start a trace for
     // traces = array containing all the fragments we've traced
 
     const nextWord = words[index + 1];
-    if (!traces) {
-      traces = [];
-      traces.push(fragment);
-    }
 
     // LogService.info('[VoiceBox]', 'tracing fragment', fragment.id);
-
     if (nextWord) {
       for (const nextFragment of nextWord.fragments) {
         if (
           nextFragment.source != null &&
           nextFragment.source.equals(fragment.source) &&
           Number(nextFragment.start) > Number(fragment.start) &&
-          traces.filter((trace) => trace.id == nextFragment.id).length == 0
+          traces.findIndex((trace) => trace.id == nextFragment.id) < 0
         ) {
-          const fragmentsInBetween = await Fragment.countDocuments({
-            start: { $gt: fragment.start, $lt: nextFragment.start },
-            source: fragment.source,
-          });
+          let fragmentsInBetween = 0;
+          // Get fragments in between
+          // Check if we have the source
+          if (sources.has(fragment.source._id.toString())) {
+            const targetSource = sources.get(
+              fragment.source._id.toString()
+            ) as ISource;
+
+            // Filter fragments
+            const filtered = targetSource.fragments.filter((frag) => {
+              return (
+                frag.start > fragment.start && frag.start < nextFragment.start
+              );
+            });
+
+            fragmentsInBetween = filtered.length;
+          }
 
           //LogService.info('fragmentsInBetween:'.red, fragmentsInBetween);
 
           if (fragmentsInBetween == 0) {
             //LogService.info('[VoiceBox]', fragment.id, '(' + fragment.word.text + " " + fragment.start + ')', 'source is same as', nextFragment.id, '(' + nextFragment.word.text + " " + nextFragment.start + ')');
             traces.push(nextFragment);
-            await this.traceFragments(index + 1, words, nextFragment, traces);
+            await this.traceFragments(
+              index + 1,
+              words,
+              sources,
+              nextFragment,
+              traces
+            );
           }
         }
       }

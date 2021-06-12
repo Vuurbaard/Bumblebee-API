@@ -12,7 +12,7 @@ export interface IFragment extends Document {
   deletedAt: Date;
 }
 
-export var FragmentSchema: Schema = new Schema({
+export const FragmentSchema: Schema = new Schema({
   start: { type: Number, required: true },
   end: { type: Number, required: true },
   source: { type: Schema.Types.ObjectId, ref: "Source" },

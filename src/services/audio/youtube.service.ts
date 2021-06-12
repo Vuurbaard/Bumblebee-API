@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import ytdl, { videoInfo } from "ytdl-core";
-import { ISource, Source } from "../../database/schemas";
+import { ISource, Source, User } from "../../database/schemas";
 import { ISourceProvider } from "./ISourceProvider";
 import LogService from "../log.service";
 
@@ -26,35 +26,34 @@ class YouTubeService implements ISourceProvider {
   }
 
   public async info(url: string): Promise<videoInfo> {
-    return ytdl.getInfo(url);
+    return await ytdl.getInfo(url);
   }
 
   public async download(url: string, userId?: string): Promise<ISource> {
-    const vm = this;
     userId = userId ? userId : "";
+    let user = null;
+
+    if (userId.length > 0) {
+      user = await User.findById(userId);
+    }
 
     const id = this.identifier(url);
 
-    return new Promise(async (resolve, reject) => {
-      const filepath = await vm.downloadYouTube(id);
+    // Check if we already have a source file
+    const source = (await this.source(id)) ?? new Source();
+    const ytVideoInfo = await this.info(id);
+    const videoTitle = ytVideoInfo.videoDetails.title || "";
+    source.id = id;
+    source.name = videoTitle;
+    source.origin = "YouTube";
 
-      // Check if we already have a source file
-      let source = await vm.source(id);
+    if (!source.createdBy && user) {
+      source.createdBy = user;
+    }
 
-      if (!source || (source && source.name == "")) {
-        LogService.info("Retrieving info about ", id, " from youtube");
-        const info = await vm.info(id);
-        source = new Source({
-          id: id,
-          name: info.videoDetails.title,
-          origin: "YouTube",
-          createdBy: userId,
-        });
-        await source.save();
-      }
+    await this.downloadYouTube(source.id);
 
-      resolve(source);
-    });
+    return await source.save();
   }
 
   private async downloadYouTube(id: string): Promise<string> {
@@ -89,7 +88,7 @@ class YouTubeService implements ISourceProvider {
    * @param url YouTube url
    * @returns Identifier based on YouTube url
    */
-  private identifier(url: string) {
+  public identifier(url: string) {
     const regex = /v=([A-z0-9_-]*)/g;
     const matches = regex.exec(url);
 

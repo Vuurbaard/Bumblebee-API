@@ -5,8 +5,6 @@ import { IUser } from "../../../database/schemas";
 import cacheService from "../../../services/cache.service";
 
 export class FragmentController implements RESTController {
-  constructor() {}
-
   async getAll(req: Request, res: Response) {
     try {
       res.json(await fragmentService.all(req.query));

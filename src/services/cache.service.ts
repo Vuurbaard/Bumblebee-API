@@ -21,7 +21,7 @@ class CacheService {
     const vm = this;
     return new Promise((res, rej) => {
       vm.client.get(key, (err, data) => {
-        res(data !== null && data !== "");
+        res(data !== null && data !== "" && data.length !== 0);
       });
     });
   }
@@ -30,6 +30,7 @@ class CacheService {
     const vm = this;
     return new Promise((res, rej) => {
       vm.client.get(key, (err, data: any) => {
+        // console.log(key, ":", data);
         if (data !== null) {
           res(JSON.parse(data));
         } else {

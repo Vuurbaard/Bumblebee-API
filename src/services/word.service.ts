@@ -1,4 +1,4 @@
-import { Word, IUser } from "../database/schemas";
+import { Word, IUser, Fragment } from "../database/schemas";
 
 class WordService {
   public async all(query?: any) {
@@ -30,6 +30,10 @@ class WordService {
     } else {
       throw new Error("Word not found.");
     }
+  }
+
+  public async delete(user: IUser, id: string) {
+    return await Word.findByIdAndDelete(id);
   }
 }
 

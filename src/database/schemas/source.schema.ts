@@ -5,7 +5,7 @@ export interface ISource extends Document {
   id: string;
   name: string;
   origin: string;
-  fragments: [IFragment];
+  fragments: IFragment[];
   createdAt: Date;
   createdBy: IUser;
   deletedAt: Date;
@@ -17,7 +17,7 @@ export var SourceSchema: Schema = new Schema({
   origin: { type: String, required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date },
-  deletedAt: { type: Date },
+  deletedAt: { type: Date, default: null },
 });
 
 SourceSchema.virtual("fragments", {
@@ -37,10 +37,10 @@ SourceSchema.pre("save", function (next) {
   next();
 });
 
-// SourceSchema.pre('find', function( next ){
-// 	this.where( { 'deletedAt' : null } );
-// 	next();
-// })
+SourceSchema.pre("find", function (next) {
+  this.where({ deletedAt: null });
+  next();
+});
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());

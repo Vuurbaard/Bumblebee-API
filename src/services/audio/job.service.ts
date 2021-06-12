@@ -2,129 +2,189 @@ import { Source, ISource } from "../../database/schemas";
 import YouTubeService from "./youtube.service";
 import LogService from "../log.service";
 import fs from "fs";
+import cacheService from "../../services/cache.service";
 
 class JobService {
   extension = ".mp3";
   sourceQueue: ISource[];
-  finishedQueue = false;
+  public finishedQueue = false;
+  public queueStarted = true;
   crons: Array<any> = [];
   private yt_api: any;
+  private threadsDone = 0;
+  private maxThreads = 8;
+  private queueStartSize = 0;
+  private intervalMessage: any;
 
   public constructor() {
     this.sourceQueue = [];
-    // Make a runner that runs every minute and checks which tasks are due
-
-    // Crons are { cron, func }
-    //this.crons.push([ "* * * * *" , this.updateYoutubeSourceInformation ]);
-    // All crontasks defined
-    // Start runner
   }
 
-  public async updateYoutubeSourceInformation() {}
+  checkQueueStatus() {
+    if (this.queueStarted && !this.finishedQueue) {
+      LogService.info(
+        "There are ",
+        this.sourceQueue.length,
+        "/",
+        this.queueStartSize,
+        " YouTube sources left to process"
+      );
+    }
+  }
 
-  public async handleMissingYoutubeFiles() {
-    LogService.info("Handling missing YouTube files");
-
-    // Retrieve all sources
-    Source.find({
-      origin: "YouTube",
-      $or: [{ deletedAt: { $exists: false } }],
-    }).then((sources: ISource[]) => {
-      this.sourceQueue = sources;
-      // const threads = 6;
-      // 5 runners
-      // this.parseItem();
+  ensureQueueIsDone() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+    return new Promise(function (resolve, reject) {
+      (function waitForFoo() {
+        if (self.finishedQueue) return resolve(true);
+        setTimeout(waitForFoo, 30);
+      })();
     });
   }
 
-  private parseItem() {
-    const vm = this;
+  public async handleMissingYoutubeFiles() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+    LogService.info("Handling missing YouTube files");
 
-    if (this.sourceQueue != null && this.sourceQueue.length > 0) {
-      if (this.sourceQueue.length % 10 == 0) {
-        LogService.info("Parsing item " + this.sourceQueue.length + " left");
-      }
-      // Can cause async issues due it not being locked
-      const source = this.sourceQueue.pop() as ISource;
+    this.sourceQueue = await Source.find({
+      origin: "YouTube",
+    });
 
-      // Check if we can download the video. Otherwise remove it.
+    LogService.info("There are ", this.sourceQueue.length, " YouTube sources");
 
-      const yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
-      const creator = source.createdBy ? source.createdBy.toString() : "";
+    this.queueStartSize = this.sourceQueue.length;
+    this.queueStarted = true;
+    this.intervalMessage = setInterval(function () {
+      self.checkQueueStatus();
+    }, 2500);
 
-      // First check if we need to update the video information (e.g. missing name)
-      const promises = [
-        new Promise((res, rej) => {
-          const ytPath =
-            YouTubeService.basepath(true) + "/" + source.id.toString() + ".mp3";
-          fs.exists(ytPath, (exists) => {
-            // Should we do something with it
-            // If it exists, we don't have to. But if it doesn't we should!
-            res(!exists);
-          });
-        }),
-        new Promise((res, rej) => {
-          res(source.name == "");
-        }),
-      ];
+    LogService.info("Starting ", this.maxThreads, " threads to process data");
+    for (let i = 0; i <= this.maxThreads; i++) {
+      this.parseQueue();
+    }
 
-      Promise.all(promises).then((result) => {
-        // If any item is false we have to do something
-        const doTask = !result.every((val) => {
-          return val == false;
-        });
+    // Wait till queue is done
+    await this.ensureQueueIsDone();
 
-        if (doTask && yturl != null) {
-          LogService.debug(`Process task for ${source.id}`);
-          YouTubeService.download(yturl, creator).then(
-            () => {
-              if (source.name == "" || source.name == null) {
-                // Get more information about the video
-                YouTubeService.info(yturl).then((info: any) => {
-                  source.name = info.title || "";
-                  source.save().then(() => {
-                    LogService.debug("YouTube video", yturl, "updated");
-                    vm.parseItem();
-                  });
-                });
-              } else {
-                LogService.debug("YouTube video", yturl, "already has info");
-                vm.parseItem();
-              }
-            },
-            (err) => {
-              LogService.warn("Failed to download: ", err.message);
-              source.deletedAt = new Date();
-              source.save();
-              vm.parseItem();
-            }
-          );
-        } else {
-          if (source.name == "" || source.name == null) {
-            // Get more information about the video
-            YouTubeService.info(yturl)
-              .then((info: any) => {
-                source.name = info.title || "";
-                source.save().then(() => {
-                  LogService.debug("YouTube video", yturl, "updated");
-                  vm.parseItem();
-                });
-              })
-              .catch((e) => {
-                vm.parseItem();
-              });
-          } else {
-            LogService.debug(`Skipping task for ${source.id}`);
-            LogService.debug("YouTube video", yturl, "already has info");
-            vm.parseItem();
-          }
+    LogService.info("Clearing cache for fragments");
+    await cacheService.clear("all-fragments");
+
+    return true;
+  }
+
+  private async parseQueue() {
+    if (this.sourceQueue.length > 0) {
+      const source = this.sourceQueue.shift();
+      try {
+        if (source) {
+          await this.parseSource(source);
         }
-      });
-    } else {
-      if (!this.finishedQueue) {
-        this.finishedQueue = true;
-        LogService.info("Finished queue");
+      } catch (e) {
+        LogService.warn("Thread failed", e);
       }
+    }
+
+    if (this.sourceQueue.length == 0) {
+      this.threadsDone = this.threadsDone + 1;
+    }
+
+    if (this.threadsDone == this.maxThreads && this.sourceQueue.length == 0) {
+      LogService.info("All threads are done....");
+      this.finishedQueue = true;
+    }
+
+    if (this.sourceQueue.length > 0) {
+      this.parseQueue();
+    }
+  }
+
+  private async parseSource(source: ISource) {
+    const yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
+    const identifier = YouTubeService.identifier(yturl);
+
+    // Clean up garbled stuff
+    if (identifier != source.id) {
+      LogService.info("Updating garbled identifier");
+
+      // Check if there is already a source with the same Id
+
+      // const secondSource = await Source.findOne({ id: identifier });
+      //
+      // if ((secondSource._id.toString() != source._id.toString())) {
+      //   source.id = identifier;
+      //   source.save();
+      //   yturl = "https://www.youtube.com/watch?v=" + source.id.toString();
+      // }
+    }
+
+    const creator = source.createdBy ? source.createdBy.toString() : "";
+    const sourceFile =
+      YouTubeService.basepath(true) + `/${source.id.toString()}.mp3`;
+
+    let exists = false;
+
+    try {
+      await fs.promises.access(sourceFile, fs.constants.F_OK);
+      exists = true;
+    } catch (e) {
+      // console.warn(e);
+    }
+
+    if (!exists) {
+      LogService.info("No source file for YouTube clip ", source.id);
+      try {
+        await YouTubeService.download(yturl, creator);
+      } catch (e) {
+        LogService.warn("Failed to download youtube video", e);
+      }
+    }
+
+    let info = null;
+    let videoAvailable = true;
+    // Get info
+    try {
+      info = await YouTubeService.info(yturl);
+    } catch (e) {
+      const msg = e.message.toLowerCase();
+      if (
+        msg.includes("video unavailable") ||
+        msg.includes("private video") ||
+        msg.includes("video has been removed")
+      ) {
+        videoAvailable = false;
+      }
+      LogService.warn("Failed to retrieve youtube video info", e);
+    }
+
+    if (info) {
+      let title = source.name;
+
+      if (
+        info.videoDetails &&
+        info.videoDetails.title &&
+        info.videoDetails.title.length > 0
+      ) {
+        title = info.videoDetails.title;
+      }
+
+      if (title != source.name) {
+        LogService.debug("Saving new video title");
+        source.name = title;
+        await source.save();
+      }
+    }
+
+    if (!info && !exists && !videoAvailable) {
+      LogService.warn(
+        "Removing source with id ",
+        source._id.toString(),
+        "yt",
+        source.id
+      );
+      //
+      await Source.findByIdAndDelete(source._id);
     }
   }
 }
