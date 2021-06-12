@@ -1,68 +1,71 @@
-import q from 'q';
-import YouTubeService from './youtube.service';
-import { ISource } from '../../database/schemas';
-import { ISourceProvider } from './ISourceProvider';
+import q from "q";
+import YouTubeService from "./youtube.service";
+import { ISource } from "../../database/schemas";
+import { ISourceProvider } from "./ISourceProvider";
 
 class AudioService {
+  handlers: Array<ISourceProvider> = [];
 
-	handlers: Array<ISourceProvider> = [];
+  public constructor() {
+    this.handlers.push(YouTubeService);
+  }
 
-	public constructor() {
-		this.handlers.push(YouTubeService);
-	}
-	
-    // Returns the service based on the given url
-	private service(url: string): ISourceProvider | null {
-		let rc = null;
-		for (let i = 0; i < this.handlers.length; i++) {
-			const handler: ISourceProvider = this.handlers[i];
-			if (handler.canHandle(url)) {
-				rc = handler;
-				break;
-			}
-		}
+  // Returns the service based on the given url
+  private service(url: string): ISourceProvider | null {
+    let rc = null;
+    for (let i = 0; i < this.handlers.length; i++) {
+      const handler: ISourceProvider = this.handlers[i];
+      if (handler.canHandle(url)) {
+        rc = handler;
+        break;
+      }
+    }
 
-		return rc;
-	}
+    return rc;
+  }
 
-	public sourceUrl(source: ISource) {
-		let service = null;
+  public sourceUrl(source: ISource) {
+    let service = null;
 
-		for (let i = 0; i < this.handlers.length; i++) {
-			const handler: ISourceProvider = this.handlers[i];
-			if (source.origin.toString() == handler.sourceIdentifier()) {
-				service = handler;
-				break;
-			}
-		}
+    for (let i = 0; i < this.handlers.length; i++) {
+      const handler: ISourceProvider = this.handlers[i];
+      if (source.origin.toString() == handler.sourceIdentifier()) {
+        service = handler;
+        break;
+      }
+    }
 
-		if (service != null) {
-			return service.sourceUrl(source);
-		}
+    if (service != null) {
+      return service.sourceUrl(source);
+    }
 
-		return "";
-	}
+    return "";
+  }
 
-	public download(url: string, userId: string): q.Promise<ISource> {
-		const deferred = q.defer<ISource>();
+  public download(url: string, userId: string): q.Promise<ISource> {
+    const deferred = q.defer<ISource>();
 
-		if (!url || !userId) { deferred.reject(); }
+    if (!url || !userId) {
+      deferred.reject();
+    }
 
-		const service: ISourceProvider | null = this.service(url);
+    const service: ISourceProvider | null = this.service(url);
 
-		if (service != null) {
-			service.download(url, userId).then(source => {
-				deferred.resolve(source);
-			}, err => {
-				deferred.reject(err);
-			});
-		}
-		else {
-			deferred.reject('No audio service found for url: ' + url);
-		}
+    if (service != null) {
+      service.download(url, userId).then(
+        (source) => {
+          deferred.resolve(source);
+        },
+        (err) => {
+          deferred.reject(err);
+        }
+      );
+    } else {
+      deferred.reject("No audio service found for url: " + url);
+    }
 
-		return deferred.promise;
-	}
+    return deferred.promise;
+  }
 }
 
 export default new AudioService();

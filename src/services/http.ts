@@ -1,8 +1,5 @@
-
 class Http {
-	static async boot(){
-
-	}
+  static async boot() {}
 }
 
 export default new Http();

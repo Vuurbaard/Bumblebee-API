@@ -10,7 +10,8 @@
     "start-smart": "if test \"$NODE_ENV\" = \"production\" ; then npm run start ; else npm run start-dev;  fi ",
     "start-dev": "nodemon  --delay 150ms -L --exec \"npm run compile && node --inspect=0.0.0.0:5858 ./dist/server.js\"",
     "start": "node ./dist/server.js",
-    "import-yt": "tsc && node ./dist/commands/youtube-sync.js"
+    "import-yt": "tsc && node ./dist/commands/youtube-sync.js",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "keywords": [],
   "author": "Sander Brokelman",
@@ -55,6 +56,7 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.28.0",
+    "prettier": "^2.3.1",
     "typescript": "^4.2.3"
   }
 }
