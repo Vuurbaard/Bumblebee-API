@@ -3,15 +3,13 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Fragment } from './fragment.schema';
 
-
 @Schema()
 export class Word extends Document {
-	@Prop()
-	text: string;
+  @Prop()
+  text: string;
 
-	@Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Fragment' }] })
-	fragments: Fragment[]
-
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Fragment' }] })
+  fragments: Fragment[];
 }
 
 export type WordDocument = Word;

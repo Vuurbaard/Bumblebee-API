@@ -3,21 +3,19 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Fragment } from './fragment.schema';
 
-
 @Schema()
 export class Source extends Document {
-	@Prop()
-	id: string;
+  @Prop()
+  id: string;
 
-	@Prop()
-	origin: string;
+  @Prop()
+  origin: string;
 
-	@Prop()
-	createdAt: string;
+  @Prop()
+  createdAt: string;
 
-	@Prop()
-	deletedAt: string;
-
+  @Prop()
+  deletedAt: string;
 }
 
 export type SourceDocument = Source & Document;

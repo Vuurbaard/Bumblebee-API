@@ -4,8 +4,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { SpeechController } from './speech/speech.controller';
 
 @Module({
-	
   imports: [DatabaseModule, CoreModule],
-  controllers: [SpeechController]
+  controllers: [SpeechController],
 })
 export class SpeechModule {}

@@ -10,14 +10,14 @@ import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-	  ConfigModule.forRoot({
-			isGlobal: true
-	  }),
-	  MongooseModule.forRoot(`mongodb://${process.env.MONGO_HOST}/bumblebeev2`),
-	  AuthModule,
-	  SpeechModule,
-	  CoreModule,
-	  DatabaseModule
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRoot(`mongodb://${process.env.MONGO_HOST}/bumblebeev2`),
+    AuthModule,
+    SpeechModule,
+    CoreModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
