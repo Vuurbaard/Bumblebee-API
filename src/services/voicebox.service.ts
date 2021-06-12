@@ -444,7 +444,11 @@ class VoiceBox {
 
     const self = this;
 
-    for (const fragment of fragments) {
+    const frags = fragments.filter((frag) => {
+      return frag.source && frag.source.id;
+    });
+
+    for (const fragment of frags) {
       (function (fragment) {
         const promise = new Promise(function (resolve, reject) {
           const prefixDir = fragment.id.substr(0, 2);
