@@ -26,7 +26,6 @@ WordSchema.virtual("fragments", {
   localField: "_id", // `localField`
   foreignField: "word", // is equal to `foreignField`
   justOne: false,
-  default: [],
 });
 
 WordSchema.pre("save", function (next) {

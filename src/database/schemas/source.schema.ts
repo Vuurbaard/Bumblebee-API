@@ -5,13 +5,13 @@ export interface ISource extends Document {
   id: string;
   name: string;
   origin: string;
-  fragments: IFragment[];
+  fragments: [IFragment];
   createdAt: Date;
   createdBy: IUser;
   deletedAt: Date;
 }
 
-export var SourceSchema: Schema = new Schema({
+export const SourceSchema: Schema = new Schema({
   id: { type: String, required: true, unique: true },
   name: { type: String, required: false, unique: false },
   origin: { type: String, required: true },
@@ -37,10 +37,10 @@ SourceSchema.pre("save", function (next) {
   next();
 });
 
-SourceSchema.pre("find", function (next) {
-  this.where({ deletedAt: null });
-  next();
-});
+// SourceSchema.pre("find", function (next) {
+//   this.where({ deletedAt: null });
+//   next();
+// });
 
 // UserSchema.methods.fullName = function (): string {
 //     return (this.firstName.trim() + " " + this.lastName.trim());
