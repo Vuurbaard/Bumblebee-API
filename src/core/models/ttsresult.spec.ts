@@ -1,7 +1,7 @@
-import { Ttsresult } from './ttsresult';
+import { TTSresult } from './ttsresult';
 
-describe('Ttsresult', () => {
+describe('TTSresult', () => {
   it('should be defined', () => {
-    expect(new Ttsresult()).toBeDefined();
+    expect(new TTSresult()).toBeDefined();
   });
 });

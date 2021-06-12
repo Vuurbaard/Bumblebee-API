@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import {
   FragmentSet,
   FragmentSetDocument,
-} from 'src/database/schemas/fragmentSet.schema';
+} from '../../../database/schemas/fragmentSet.schema';
 
 @Injectable()
 export class FragmentsetService {
@@ -14,6 +14,6 @@ export class FragmentsetService {
   ) {}
 
   async byHash(hash: string) {
-    return await this.fragmentSetModel.findOne({ hash: hash });
+    return this.fragmentSetModel.findOne({ hash: hash });
   }
 }

@@ -18,22 +18,14 @@ export class AuthGuard implements CanActivate {
 
       const headers = request.headers;
 
-      const authorizationToken = headers['authorization'] ?? '';
+      const authorizationToken = this.grabTokenFromAuthorizationHeader(
+        headers['authorization'] ?? '',
+      );
 
-      if (
-        authorizationToken.length > 0 &&
-        authorizationToken.toLowerCase().startsWith('bearer ') &&
-        authorizationToken.length >= 'bearer '.length
-      ) {
-        const authToken = authorizationToken.substr(
-          'bearer '.length,
-          authorizationToken.length,
-        );
-        // Get user by token
-        this.userTokenService.findByToken(authToken).then((token) => {
-          if (token) {
+      if (authorizationToken.length > 0) {
+        this.getUserByToken(authorizationToken).then((token) => {
+          if (token && token.user) {
             request.user = token.user;
-
             resolve(true);
           } else {
             resolve(false);
@@ -42,5 +34,21 @@ export class AuthGuard implements CanActivate {
         });
       }
     });
+  }
+
+  grabTokenFromAuthorizationHeader(header: string) {
+    const prefix = 'bearer ';
+    if (
+      header.length >= prefix.length &&
+      header.toLowerCase().startsWith('bearer ')
+    ) {
+      return header.substr('bearer '.length, header.length);
+    }
+
+    return '';
+  }
+
+  async getUserByToken(token: string) {
+    return await this.userTokenService.findByToken(token);
   }
 }

@@ -4,12 +4,12 @@ import { Model } from 'mongoose';
 import {
   FragmentSet,
   FragmentSetDocument,
-} from 'src/database/schemas/fragmentSet.schema';
-import { Word, WordDocument } from 'src/database/schemas/word.schema';
+} from '../../../database/schemas/fragmentSet.schema';
+import { Word, WordDocument } from '../../../database/schemas/word.schema';
 import { DefaultStrategy } from './strategies/DefaultStrategy';
 import { IStrategy } from './strategies/IStrategy';
 import * as crypto from 'crypto';
-import { TTSresult } from 'src/core/models/ttsresult';
+import { TTSresult } from '../../models/ttsresult';
 import { AudioService } from '../audio/audio.service';
 
 @Injectable()

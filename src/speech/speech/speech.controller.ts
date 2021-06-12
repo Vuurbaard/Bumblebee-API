@@ -1,13 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { FragmentsetService } from 'src/core/services/fragmentset/fragmentset.service';
-import { VoiceboxService } from 'src/core/services/voicebox/voicebox.service';
-import {
-  Fragment,
-  FragmentDocument,
-} from 'src/database/schemas/fragment.schema';
-import { NotFoundException } from 'src/http/exceptions/not-found-exception';
+
+import { FragmentsetService } from '../../core/services/fragmentset/fragmentset.service';
+import { VoiceboxService } from '../../core/services/voicebox/voicebox.service';
+import { NotFoundException } from '../../http/exceptions/not-found-exception';
 
 @Controller('speech')
 export class SpeechController {

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { TTSresult } from 'src/core/models/ttsresult';
+import { TTSresult } from '../../../models/ttsresult';
 import {
   Fragment,
   FragmentDocument,
-} from 'src/database/schemas/fragment.schema';
-import { Word, WordDocument } from 'src/database/schemas/word.schema';
+} from '../../../../database/schemas/fragment.schema';
+import { Word, WordDocument } from '../../../../database/schemas/word.schema';
 import { IStrategy } from './IStrategy';
 
 @Injectable()

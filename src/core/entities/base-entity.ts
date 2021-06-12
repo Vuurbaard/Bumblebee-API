@@ -9,9 +9,15 @@ export class BaseEntity {
   protected _modifiedProperties = {};
   protected _excluded = [];
 
-  constructor(item: Document) {
+  constructor(item: Document | any) {
     this._model = item;
-    const paths = this._model.schema.paths;
+    let paths = {};
+    if (item instanceof Document) {
+      paths = this._model.schema?.paths ?? {};
+    } else {
+      paths = item;
+    }
+
     const properties = {};
     const typeStr = typeof item;
 

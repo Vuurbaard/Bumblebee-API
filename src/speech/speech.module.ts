@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CoreModule } from 'src/core/core.module';
-import { DatabaseModule } from 'src/database/database.module';
+import { CoreModule } from '../core/core.module';
+import { DatabaseModule } from '../database/database.module';
 import { SpeechController } from './speech/speech.controller';
 
 @Module({

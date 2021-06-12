@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, isValidObjectId } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import {
   Fragment,
   FragmentDocument,
-} from 'src/database/schemas/fragment.schema';
-import { FragmentSet } from 'src/database/schemas/fragmentSet.schema';
+} from '../../../database/schemas/fragment.schema';
+import { FragmentSet } from '../../../database/schemas/fragmentSet.schema';
 
 @Injectable()
 export class AudioService {

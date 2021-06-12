@@ -1,5 +1,5 @@
-import { Fragment } from 'src/database/schemas/fragment.schema';
-import { FragmentSet } from 'src/database/schemas/fragmentSet.schema';
+import { Fragment } from '../../database/schemas/fragment.schema';
+import { FragmentSet } from '../../database/schemas/fragmentSet.schema';
 
 export class TTSresult {
   public words: Array<string> = [];
