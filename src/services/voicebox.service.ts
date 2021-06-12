@@ -315,7 +315,7 @@ class VoiceBox {
     (
       await Source.find({
         _id: { $in: sources },
-      }).populate({ path: "fragments", options: { sort: { start: -1 } } })
+      }).populate("fragments")
     ).forEach((source) => {
       if (!sourceMap.has(source._id.toString())) {
         sourceMap.set(source._id.toString(), source);
@@ -534,9 +534,16 @@ class VoiceBox {
 
       tempFiles.forEach((fragment) => {
         const prefixDir = fragment.id.substr(0, 2);
-        files.push(
-          path.join(obj.fragmentsBasePath, prefixDir, "/", fragment.file)
+        const pathF = path.join(
+          obj.fragmentsBasePath,
+          prefixDir,
+          "/",
+          fragment.file
         );
+
+        if (fs.existsSync(pathF)) {
+          files.push(pathF);
+        }
       });
 
       const fileName = obj.generateHash(fragments);

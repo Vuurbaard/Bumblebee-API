@@ -176,8 +176,8 @@ class JobService {
       }
     }
 
-    if (!info && !exists && !videoAvailable) {
-      LogService.warn(
+    if (!exists && !videoAvailable) {
+      LogService.fatal(
         "Removing source with id ",
         source._id.toString(),
         "yt",
