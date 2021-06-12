@@ -82,9 +82,7 @@ class VoiceBox {
           uniqueCombinations.push(neatPhrase);
         }
 
-        if (!combinations.includes(neatPhrase)) {
-          combinations.push(neatPhrase);
-        }
+        combinations.push(neatPhrase);
       }
     }
 
@@ -283,7 +281,7 @@ class VoiceBox {
   }
 
   private async trace(words: IWord[]) {
-    let traces: Array<any> = [];
+    const traces: Array<any> = [];
 
     const promises = [] as any[];
 
@@ -297,25 +295,34 @@ class VoiceBox {
     const sourceMap = new Map<string, ISource>();
     const fragmentMap = new Map<string, IFragment[]>();
 
-    words.forEach((word) => {
-      if (!fragmentMap.has(word.text)) {
-        fragmentMap.set(word.text, word.fragments);
-        word.fragments.forEach((fragment) => {
-          if (
-            fragment.source &&
-            fragment.source._id &&
-            !sources.includes(fragment.source._id)
-          ) {
-            sources.push(fragment.source._id);
-          }
-        });
-      }
+    words.forEach((word, i) => {
+      LogService.info("[VoiceBox]", "starting new trace for word", word.text);
+      // console.log("All words", words);
+
+      word.fragments.forEach((fragment) => {
+        promises.push(this.traceFragments(i, words, sourceMap, fragment));
+      });
     });
+
+    // words.forEach((word) => {
+    //   if (!fragmentMap.has(word.text)) {
+    //     fragmentMap.set(word.text, word.fragments);
+    //     word.fragments.forEach((fragment) => {
+    //       if (
+    //         fragment.source &&
+    //         fragment.source._id &&
+    //         !sources.includes(fragment.source._id)
+    //       ) {
+    //         sources.push(fragment.source._id);
+    //       }
+    //     });
+    //   }
+    // });
 
     (
       await Source.find({
         _id: { $in: sources },
-      }).populate("fragments")
+      }).populate({ path: "fragments", options: { sort: { start: -1 } } })
     ).forEach((source) => {
       if (!sourceMap.has(source._id.toString())) {
         sourceMap.set(source._id.toString(), source);
@@ -338,9 +345,13 @@ class VoiceBox {
     console.log("Starting with", promises.length, "promises");
 
     await Promise.all(promises).then((values) => {
-      traces = [...values].sort(function (a, b) {
-        return b.length - a.length;
-      });
+      for (const item of values) {
+        traces.push(item);
+      }
+    });
+
+    traces.sort(function (a, b) {
+      return b.length - a.length;
     });
 
     return traces;
@@ -444,11 +455,7 @@ class VoiceBox {
 
     const self = this;
 
-    const frags = fragments.filter((frag) => {
-      return frag.source && frag.source.id;
-    });
-
-    for (const fragment of frags) {
+    for (const fragment of fragments) {
       (function (fragment) {
         const promise = new Promise(function (resolve, reject) {
           const prefixDir = fragment.id.substr(0, 2);
@@ -458,10 +465,9 @@ class VoiceBox {
             "/"
           );
 
-          const filepath = path.join(
-            self.youtubeBasePath,
-            fragment.source.id.toString() + ".mp3"
-          );
+          const sourceId = fragment.source?.id?.toString() ?? "a";
+
+          const filepath = path.join(self.youtubeBasePath, sourceId + ".mp3");
 
           if (!fs.existsSync(fragmentsDir)) {
             fs.mkdirSync(fragmentsDir);
@@ -473,35 +479,38 @@ class VoiceBox {
           );
 
           fs.exists(outputpath, (exists) => {
+            const inputFileExists = fs.existsSync(filepath);
             if (!exists) {
-              ffmpeg(filepath)
-                .setStartTime(fragment.start)
-                .setDuration(fragment.end - fragment.start)
-                .audioBitrate(256)
-                .output(outputpath)
-                .on("end", function (err) {
-                  if (!err) {
-                    LogService.info(
-                      "[VoiceBox]",
-                      "Created cached version for " +
-                        fragment.id +
-                        "-" +
-                        fragment.endFragment._id
-                    );
-                    tempFiles.push({
-                      id: fragment.id,
-                      order: fragment.order,
-                      file:
-                        fragment.id + "-" + fragment.endFragment._id + ".mp3",
-                    });
-                    resolve(true);
-                  }
-                })
-                .on("error", function (err) {
-                  LogService.info("[VoiceBox]", "ffmpeg error:", err);
-                  reject();
-                })
-                .run();
+              if (inputFileExists) {
+                ffmpeg(filepath)
+                  .setStartTime(fragment.start)
+                  .setDuration(fragment.end - fragment.start)
+                  .audioBitrate(256)
+                  .output(outputpath)
+                  .on("end", function (err) {
+                    if (!err) {
+                      LogService.info(
+                        "[VoiceBox]",
+                        "Created cached version for " +
+                          fragment.id +
+                          "-" +
+                          fragment.endFragment._id
+                      );
+                      tempFiles.push({
+                        id: fragment.id,
+                        order: fragment.order,
+                        file:
+                          fragment.id + "-" + fragment.endFragment._id + ".mp3",
+                      });
+                      resolve(true);
+                    }
+                  })
+                  .on("error", function (err) {
+                    LogService.info("[VoiceBox]", "ffmpeg error:", err);
+                    reject();
+                  })
+                  .run();
+              }
             } else {
               LogService.info(
                 "[VoiceBox]",
@@ -510,6 +519,7 @@ class VoiceBox {
                   "-" +
                   fragment.endFragment._id
               );
+
               tempFiles.push({
                 id: fragment.id,
                 order: fragment.order,
