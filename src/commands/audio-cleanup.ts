@@ -59,7 +59,7 @@ App.boot().then(async () => {
     for (let i = 0; i < group.length; i++) {
       const word = group[i];
       if (word._id.toString() !== firstElem?._id.toString()) {
-        await Word.findByIdAndDelete(word._id);
+        // await Word.findByIdAndDelete(word._id);
       }
     }
 

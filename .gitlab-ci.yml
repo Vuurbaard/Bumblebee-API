@@ -24,8 +24,13 @@ build-image-test:
 compile-typescript:
   image: $NODE_IMAGE
   script:
-    - npm ci && npm i -g typescript
+    - npm ci --cache .npm --prefer-offline
+    - npm i -g typescript
     - tsc
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .npm/
   artifacts:
     paths:
       - dist/
